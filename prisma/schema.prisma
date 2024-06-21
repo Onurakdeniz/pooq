@@ -2,20 +2,181 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 
-    @@index([name])
+
+model User {
+  id                String              @id @unique @default(uuid())
+  userName          String
+  createdAt         DateTime
+  updatedAt         DateTime
+  profile           FarcasterProfile?
+  hasFinishedSetup  Boolean             @default(false)
+  custodyWallet     String?
+  stories           Story[]
+  follows           Follow[]
+  verifiedAddresses VerifiedAddresses[]
+  bookmarks         Bookmark[]
+  posts             Post[]
+  preferences       Preference?
+}
+
+
+model Preference {
+  id            String          @id     @unique   @default(uuid())
+
+}
+
+
+
+model FarcasterProfile {
+  id                      String   @id @default(uuid())
+  fid                     Int      @unique
+  bioText                 String
+  mentioned_profiles      String[]
+  userName                String   @unique
+  displayName             String
+  avatarUrl               String?  @db.VarChar(500)
+  farcasterFollowerCount  Int
+  farcasterFollowingCount Int
+  activeStatus            String?
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+
+model VerifiedAddresses {
+  id           String   @id @default(uuid())
+  ethAddresses String[]
+  solAddresses String[]
+  userId       String
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  createdAt  DateTime
+  updatedAt  DateTime
+  bookmarked Boolean
+  userId     String
+  storyId    String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  story      Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+}
+
+
+
+model Follow {
+  id           String @id @default(uuid())
+  followableId String
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+
+
+model Followable {
+  id       String      @id @default(uuid())
+  type     followTypes
+  Category Category[]
+}
+
+
+
+enum followTypes {
+  TAG
+  CATEGORY
+}
+
+
+
+model Tag {
+  id        String   @id @default(uuid())
+  createdAt DateTime
+  tagName   String
+
+  Story   Story?  @relation(fields: [storyId], references: [id])
+  storyId String?
+}
+
+
+
+model Category {
+  id           String     @id @default(uuid())
+  categoryName String
+  followableId String
+  followable   Followable @relation(fields: [followableId], references: [id], onDelete: Cascade)
+  Story        Story[]
+}
+
+
+
+model Story {
+  id         String     @id @unique @default(uuid())
+  title      String?
+  creator    User       @relation("creator", fields: [creatorId], references: [id])
+  finder     User?       @relation("finder", fields: [finderId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  sourcePost Post
+  category   Category?   @relation(fields: [categoryId], references: [id])
+  posts      Post[]
+  tags       Tag[]
+  User       User?      @relation(fields: [userId], references: [id])
+  userId     String?
+  Bookmark   Bookmark[]
+  creatorId  String
+  finderId   String
+  categoryId String
+}
+
+
+
+model Post {
+  id                String     @id @unique @default(uuid())
+  hash              String     @unique
+  author            User       @relation(fields: [userId], references: [id])
+  text              String
+  createdAt         DateTime
+  embeds            String[]
+  reactions         Reaction[]
+  mentionedProfiles User[]
+  storyId           String
+  story             Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  userId            String
+}
+
+model Reaction {
+  id           String    @id
+  likesCount   Int?
+  recastsCount Int?
+  replyCount   Int?
+  likes        ReactBy[]
+  recasts      ReactBy[]
+  Post         Post?     @relation(fields: [postId], references: [id])
+  postId       String?
+}
+
+
+
+
+model ReactBy {
+  fid        Int
+  userName   String
+  Reaction   Reaction? @relation(fields: [reactionId], references: [id])
+  reactionId String?
+  Reaction   Reaction? @relation(fields: [reactionId], references: [id])
+  reactionId String?
 }
