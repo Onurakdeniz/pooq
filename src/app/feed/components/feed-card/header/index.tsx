@@ -32,7 +32,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
           <div className=" items-cetner flex gap-2 text-xs text-primary/60">
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
                     className=" flex h-8 w-28 gap-2 p-1  px-2"
@@ -50,7 +50,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
 
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
                     className=" flex h-8 w-20 gap-2 p-1  px-2"
