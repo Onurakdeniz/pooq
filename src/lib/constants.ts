@@ -7,6 +7,7 @@ import {
   Home,
   CircleUser,
   Check,
+  AlignLeft,
   SearchCheck,
   Users,
   SquareArrowUpRight,
@@ -48,7 +49,7 @@ export const SUGGESTION_BOX_TYPES = {
   },
   TAGS: {
     title: "Suggested Tags",
-    Icon: Check, // Use the component directly
+    Icon: AlignLeft, // Use the component directly
     info: "Popular tags in your area",
   },
 };

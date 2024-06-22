@@ -14,14 +14,14 @@ const Tag = () => {
     <div>
       <HoverCard>
         <HoverCardTrigger>
-          <Badge className="  rounded-sm  bg-inherit dark:border-stone-800 border-stone-200 shadow-none px-2 py-1 border     text-xs  font-normal text-primary/50 hover:cursor-pointer hover:bg-stone-300   dark:text-primary/50 hover:dark:bg-primary/10">
+          <Badge className="  rounded-sm  bg-inherit dark:border-stone-800 border-stone-200 shadow-none px-2 py-1 border     text-xs  font-normal text-primary/50 hover:cursor-pointer hover:bg-stone-200   dark:text-primary/50 hover:dark:bg-primary/10">
             {tagName}
           </Badge>
         </HoverCardTrigger>
         <HoverCardContent
           align="center"
           sideOffset={12}
-          className=" flex w-72 flex-col gap-4  border-none"
+          className=" flex w-72 flex-col gap-4"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

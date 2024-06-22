@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const ITEMS = [
   {
-    title: "Deneme Burada bi zun bir title",
+    title: "Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title",
     view: 12,
     avatars: [
       {
@@ -39,7 +39,7 @@ const ITEMS = [
   },
 
   {
-    title: "Deneme Burada bi zun bir title",
+    title: "Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title",
     view: 12,
     avatars: [
       {
@@ -73,7 +73,7 @@ const ITEMS = [
   },
 
   {
-    title: "Deneme Burada ikinci tane title var bayada uzun bir title",
+    title: "Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title Deneme Burada bi zun bir title",
     view: 123,
     avatars: [
       {

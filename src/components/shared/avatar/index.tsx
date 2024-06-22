@@ -55,7 +55,8 @@ const profile = {
 };
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
-  const avatarSize = "LARGE" ? "h-6 w-6" : "h-4 w-4";
+  const avatarSize = size === "LARGE" ? "h-10 w-10" : "h-6 w-6"; 
+  const avatarName = size === "LARGE" ? "flex" : "hidden"; 
   return (
     <HoverCard>
       <HoverCardTrigger>
@@ -63,13 +64,13 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
           <Avatar className={avatarSize}>
             <AvatarImage src={profile.avatarUrl} />
           </Avatar>
-          <div>{profile.name}</div>
+          <div className={avatarName}>{profile.name}</div>
         </div>
       </HoverCardTrigger>
       <HoverCardContent
         align="center"
         sideOffset={12}
-        className=" flex w-96 flex-shrink flex-col gap-4  p-5"
+        className=" flex w-96 flex-shrink flex-col gap-3 "
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

@@ -35,11 +35,11 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-28 gap-2 p-1  px-2"
+                    className=" flex h-8 w-26 gap-2 p-1  font-light  px-2"
                     size="icon"
                   >
-                    <Bookmark size={18} />
-                    <div className="text-center ">Bookmark</div>
+                    <Bookmark size={20} strokeWidth={"1"} />
+                    <div className="text-center   ">Bookmark</div>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -53,11 +53,11 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-20 gap-2 p-1  px-2"
+                    className=" flex h-8 w-20 gap-2 p-1  font-light px-2"
                     size="icon"
                   >
-                    <ChevronUp size={20} />
-                    <div className="text-center ">132</div>
+                    <ChevronUp size={24} strokeWidth={"1"} />
+                    <div className="    ">132</div>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>

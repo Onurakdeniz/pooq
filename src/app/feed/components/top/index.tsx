@@ -10,7 +10,7 @@ const FeedTop = () => {
 
 
     <div className=" flex h-16 w-full justify-between items-center border-b  px-8">
-      <div className="text-2xl font-light text-emerald-500">
+      <div className="text-2xl font-light  ">
         Latest Stories
       </div>
       <FeedActions />

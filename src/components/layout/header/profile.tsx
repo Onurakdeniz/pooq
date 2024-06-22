@@ -45,7 +45,7 @@ const Profile = () => {
     <>
       {ready && authenticated ? (
         <div className="flex  w-full items-center  justify-between gap-2 rounded-lg border px-4 py-2">
-          <div className="text-sm">Hello Onur !</div>
+          <div className="text-sm text-primary/60">Hello Onur !</div>
           <div className="flex items-center justify-end gap-2 ">
             <ModeToggle />
             <Avatar className="h-8 w-8">

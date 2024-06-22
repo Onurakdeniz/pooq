@@ -30,14 +30,14 @@ const FeedLLM = () => {
             <Button
               variant="outline"
               onClick={handleOpen}
-              className={`flex h-8 justify-between gap-2 border  px-3 shadow-none ${
+              className={`flex h-8 justify-between gap-2 border hover:bg-accent text-primary/70  px-3 shadow-none ${
                 open
-                  ? "border-none bg-emerald-100 text-sm text-emerald-600 hover:bg-emerald-200 hover:text-emerald-600 dark:bg-emerald-800 dark:text-emerald-400 hover:dark:bg-emerald-700"
+                  ? "   bg-primary/5  text-sm          "
                   : ""
               }`}
             >
               <div className="flex items-center justify-between gap-2 text-xs">
-                <Bot size="12" />
+                <Bot size="16" />
               </div>
             </Button>
           </TooltipTrigger>

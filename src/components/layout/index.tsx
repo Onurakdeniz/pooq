@@ -8,7 +8,7 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-10 flex min-h-screen flex-col justify-center ">
+    <div className=" mx-6 flex min-h-screen flex-col justify-center ">
   
       <main className="flex h-full w-full ">
         <LeftSide className= "w-3/12 flex py-4  " />

@@ -45,7 +45,7 @@ const filters = [
 const FeedFilter = () => {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<{ value: string; label: string }[]>(
-    []
+    [],
   );
 
   const selectedCount = value.length;
@@ -53,19 +53,22 @@ const FeedFilter = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex  w-full items-center gap-2 ">
-        
-      <div className=" hidden lg:flex  items-center gap-1    ">
+        <div className=" hidden items-center  gap-1 lg:flex    ">
           {value.map((selectedFilter) => (
             <Button
-              className="flex h-7 border-emerald-400 hover:dark:bg-emerald-950 dark:border-emerald-800 hover:bg-emerald-100 items-center justify-between gap-2 px-2 text-[10px]"
+              className="flex h-7 items-center justify-between   gap-2 px-2 text-[10px] text-primary/70    "
               variant="outline"
               key={selectedFilter.value}
               onClick={() => {
-                setValue(value.filter((filter) => filter.value !== selectedFilter.value));
+                setValue(
+                  value.filter(
+                    (filter) => filter.value !== selectedFilter.value,
+                  ),
+                );
               }}
             >
-              <span className="text-emerald-600">{selectedFilter.label}</span>
-              <X className="h-3 w-3 text-emerald-500" />
+              <span className=" ">{selectedFilter.label}</span>
+              <X className="h-3 w-3  " />
             </Button>
           ))}
         </div>
@@ -73,22 +76,26 @@ const FeedFilter = () => {
           <Button
             variant="outline"
             aria-expanded={open}
-            className={`flex h-8 justify-between border shadow-none  px-3 gap-2 ${
-              value.length > 0 ? 'bg-emerald-100 dark:bg-emerald-800 border-none dark:text-emerald-400 hover:bg-emerald-200 hover:dark:bg-emerald-700 text-sm text-emerald-600 hover:text-emerald-600' : ''
+            className={`flex h-8 justify-between gap-2 border  px-3 shadow-none ${
+              value.length > 0
+                ? "     text-primary/60  bg-primary/10  dark:text-primary/70   "
+                : ""
             }`}
           >
-            <div className="flex max-w-20 items-center justify-between gap-2">
-              <span className="  text-start text-xs">
+            <div className="flex max-w-28 items-center justify-between gap-2">
+              <span className="  text-start  ">
                 {value.length > 0 ? `${selectedCount} Selected` : "Filter"}
               </span>
-              <Filter size="12" />
+              <Filter size="14" />
             </div>
           </Button>
         </PopoverTrigger>
-      
       </div>
 
-      <PopoverContent className="flex w-48 items-start justify-start p-0" align="start">
+      <PopoverContent
+        className="flex w-48 items-start justify-start p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder="Filter" className="h-9" />
           <CommandList>
@@ -100,23 +107,31 @@ const FeedFilter = () => {
                   key={filter.value}
                   value={filter.value}
                   onSelect={(currentValue) => {
-                    const isSelected = value.some((item) => item.value === currentValue);
+                    const isSelected = value.some(
+                      (item) => item.value === currentValue,
+                    );
 
                     if (isSelected) {
-                      setValue(value.filter((item) => item.value !== currentValue));
+                      setValue(
+                        value.filter((item) => item.value !== currentValue),
+                      );
                     } else if (value.length >= 3) {
                       toast("You can select up to 3 filters", {
-                        description: "Deselect an existing filter to add a new one.",
+                        description:
+                          "Deselect an existing filter to add a new one.",
                       });
                     } else {
-                      setValue([...value, { value: currentValue, label: filter.label }]);
+                      setValue([
+                        ...value,
+                        { value: currentValue, label: filter.label },
+                      ]);
                     }
                     setOpen(false);
                   }}
                 >
                   <span>{filter.label}</span>
                   {value.some((item) => item.value === filter.value) && (
-                    <CheckIcon className="h-4 w-4 text-emerald-500" />
+                    <CheckIcon className="h-4 w-4 " />
                   )}
                 </CommandItem>
               ))}

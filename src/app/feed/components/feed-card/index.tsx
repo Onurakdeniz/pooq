@@ -5,7 +5,7 @@ import CardFooter from './footer'
 
 const FeedCard = () => {
   return (
-    <div className='flex-col flex gap-2 px-8 py-6  border-b  hover:bg-primary-foreground hover:cursor-pointer '> 
+    <div className='flex-col flex gap-2 px-8 py-6  border-b  hover:bg-accent  hover:cursor-pointer '> 
     <div className='flex-col flex gap-2 '>
         <CardHeader title="Deneme Burada bi zun bir title
 Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme" />

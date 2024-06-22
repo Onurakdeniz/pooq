@@ -20,17 +20,17 @@ const StoryPost = () => {
           </div>
          
             <div className=" flex items-cetner gap-2 text-xs text-primary/60">
-            <Button variant={"ghost"} className="flex gap-1 bg-neutral-800 hover:bg-neutral-700   font-light   items-center px-2 h-6 text-xs"  >
+            <Button variant={"ghost"} className="flex gap-1    font-light   items-center px-2 h-6 text-xs"  >
             <Bookmark size={16} strokeWidth={1} />
             <div>Bookmark</div>
       
           </Button>
-          <Button variant={"ghost"} className="flex gap-1 bg-neutral-800 hover:bg-neutral-700   font-light   items-center px-2 h-6 text-xs"  >
+          <Button variant={"ghost"} className="flex gap-1  font-light   items-center px-2 h-6 text-xs"  >
           <Reply size={16} strokeWidth={1}/>
         <div>Reply</div>
 
       </Button>
-      <Button variant={"ghost"} className="flex justify-between gap-1 px-2  bg-neutral-800 hover:bg-neutral-700 w-14  font-light   items-center  h-6 text-xs"  >
+      <Button variant={"ghost"} className="flex justify-between gap-1 px-2   w-14  font-light   items-center  h-6 text-xs"  >
       <ChevronUp size={16} strokeWidth={1}/>
             <div>0</div>
  
@@ -52,12 +52,7 @@ const StoryPost = () => {
      
       
         </div>
-        <div className='pt-2 flex items-center gap-2'>
-        <Badge className="  rounded-sm bg-neutral-50 px-2 py-1   text-xs  font-normal text-neutral-500 shadow-sm hover:cursor-pointer hover:bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-500 hover:dark:bg-neutral-900">
-        AI Blockcian
-      </Badge>
-    <Tag/>
-        </div>
+      
         </div>
         <PostFooter/>
     </div>

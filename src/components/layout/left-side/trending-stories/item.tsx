@@ -2,6 +2,13 @@ import { AvatarType } from "@/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import ProfileAvatar from "@/components/shared/avatar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface TrendingStoryItemProps {
   avatars: AvatarType[];
@@ -15,30 +22,33 @@ export const TrendingStoryItem: React.FC<TrendingStoryItemProps> = ({
   view,
 }) => {
   return (
-    <div className=" flex items-center rounded-lg flex-col gap-4  border  p-4 hover:cursor-pointer  hover:bg-primary-foreground hover:dark:border-primary-foreground hover:dark:border-neutral-700 text-sm">
+    <div className=" flex flex-col items-center gap-4 rounded-lg  border  p-3 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-9/12 flex-col gap-1">
           <Link className="" href="http://www.wdasdasd.sds">
-            <div className=" line-clamp-3 text-wrap text-primary/70 ">
+          <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+        <div className=" line-clamp-3 text-wrap text-primary/70 ">
               {title}
             </div>
+        </TooltipTrigger>
+        <TooltipContent className="flex w-60" side="bottom" align="start">
+          <p>{title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+          
           </Link>
         </div>
 
-        <div className="flex w-3/12  gap-4 justify-end">
-            
-        <div className="flex  items-center justify-end -space-x-4   ">
-          {avatars.map((avatar) => (
-            <Avatar className="h-6 w-6   ">
-              <AvatarImage className="rounded" src={avatar.url} />
-              <AvatarFallback className="h-5 w-5">{avatar.name}</AvatarFallback>
-            </Avatar>
-          ))}
-        </div>
-          <span className="  text-primary/60 w-6 text-end">{view} </span>
+        <div className="flex w-3/12  justify-end gap-4">
+          <div className="flex  items-center self-end    ">
+            <ProfileAvatar size="NORMAL" />
           </div>
+          <span className=" w-6 text-end text-primary/70">{view} </span>
+        </div>
       </div>
- 
     </div>
   );
 };

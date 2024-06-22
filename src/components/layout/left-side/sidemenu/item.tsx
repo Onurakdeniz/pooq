@@ -10,7 +10,7 @@ export const SideMenuItem: React.FC<SideMenuItemProps> = ({ title, Icon }) => {
   return (
     <div
     className={`flex gap-4 items-center ${
-      isActive ? "text-emerald-500 font-semibold " : "text-primary/70"
+      isActive ? "  font-semibold " : "text-primary/70"
     } hover:bg-primary-foreground hover:cursor-pointer  py-3 px-2`}
   >
       <Icon className="w-5 h-5" />
