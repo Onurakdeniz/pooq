@@ -16,11 +16,11 @@ import {
 import Tag from "@/components/shared/tag";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const StoryTop = () => {
+const StoryHeader = () => {
   const title =
     "Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada";
   return (
-    <div className=" flex  flex-col   gap-2 p-8 bg-accent/50   hover:bg-accent  ">
+    <div className=" flex  flex-col   gap-2 p-8 bg-accent   hover:bg-accent  ">
       <div className="  flex  w-full  flex-col gap-6   ">
         <div className="flex h-8 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -37,7 +37,7 @@ const StoryTop = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" w-26 flex h-8 gap-2 p-1  px-2  font-light"
+                    className=" w-26 flex h-8 gap-2 p-1  px-2 "
                     size="icon"
                   >
                     <Bookmark size={20} strokeWidth={"1"} />
@@ -55,10 +55,10 @@ const StoryTop = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-20 gap-2 p-1  px-2 font-light"
+                    className=" flex h-8 w-20 gap-2 p-1  px-2 hover:text-emerald-400 "
                     size="icon"
                   >
-                    <ChevronUp size={24} strokeWidth={"1"} />
+                    <ChevronUp size={24} strokeWidth={"2"} />
                     <div className="    ">132</div>
                   </Button>
                 </TooltipTrigger>
@@ -84,14 +84,7 @@ const StoryTop = () => {
       </div>
         <div>
           <div className="flex w-full justify-between">
-            <div className="flex    text-pretty pt-2 text-sm font-light text-primary/60">
-              Deneme Burada bi zun bir title Deneme Burada ikinci tane title var
-              bayada uzun bir title Deneme Burada bi zun bir title DenemeDeneme
-              Burada bi zun bir title Deneme Burada ikinci tane title var bayada
-              uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada
-              bi zun bir title Deneme Burada ikinci tane title var bayada uzun
-              bir title Deneme Burada bi zun bir title Deneme
-            </div>
+        
           </div>
         </div>
 
@@ -102,4 +95,4 @@ const StoryTop = () => {
   );
 };
 
-export default StoryTop;
+export default StoryHeader;

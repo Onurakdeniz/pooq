@@ -1,8 +1,11 @@
+ 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Pencil, SquarePen } from "lucide-react";
 import React from "react";
+import { PostWrite } from "./write";
 
-const StoryHeader = () => {
+const StoryTop = () => {
+
   return (
     <div className="flex h-16 items-center justify-between border-b px-8 ">
       <div className="flex items-center gap-4 text-primary/80">
@@ -13,13 +16,13 @@ const StoryHeader = () => {
         <span>Back to feed</span>
       </div>
       <div>
-        <Button variant={"outline"} className=" font-bold text-primary/60 flex gap-2" >
-          <SquarePen size="16"/>
-          <span>Write</span>
-        </Button>
+      
+        <PostWrite
+     
+        />
       </div>
     </div>
   );
 };
 
-export default StoryHeader;
+export default StoryTop;

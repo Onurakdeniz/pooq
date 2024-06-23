@@ -1,6 +1,9 @@
+import ProfileAvatar from "@/components/shared/avatar";
 import Tag from "@/components/shared/tag";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Bookmark, ChevronUp, Reply } from "lucide-react";
 import React from "react";
 
 const CardBody = () => {
@@ -25,14 +28,39 @@ const CardBody = () => {
                   </Avatar>
                 </span>
                 <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-primary/70">
-                      Vitalik Buterin
-                    </div>
-                    <time className="mb-1 w-1/12 text-xs font-normal text-gray-400 sm:order-last text-end sm:mb-0">
-                      just now
-                    </time>
-                  </div>
+               < div className="flex h-8 items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <ProfileAvatar size="LARGE" />
+
+          <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
+            just now
+          </time>
+        </div>
+
+        <div className=" items-cetner flex gap-2 text-xs text-primary/60">
+          <Button
+            variant={"ghost"}
+            className="flex h-8    items-center   gap-1   px-2 text-xs  "
+          >
+            <Bookmark size={16} strokeWidth={1} />
+            <div>Bookmark</div>
+          </Button>
+          <Button
+            variant={"ghost"}
+            className="flex  h-8   items-center   gap-1 px-2 text-xs  "
+          >
+            <Reply size={16} strokeWidth={1} />
+            <div>Reply</div>
+          </Button>
+          <Button
+            variant={"outline"}
+            className="flex border-none bg-accent h-8  w-14 items-center hover:text-emerald-400  justify-between  gap-1 font-bold  px-2  text-xs  "
+          >
+            <ChevronUp size={16} strokeWidth={1} />
+            <div>0</div>
+          </Button>
+        </div>
+      </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-6 rounded-md    border-gray-200  dark:border-gray-600   sm:flex">
                       <div className="text-sm font-light   text-muted-foreground ">

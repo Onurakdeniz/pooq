@@ -55,7 +55,7 @@ const profile = {
 };
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
-  const avatarSize = size === "LARGE" ? "h-10 w-10" : "h-6 w-6"; 
+  const avatarSize = size === "LARGE" ? "h-8 w-8" : "h-6 w-6"; 
   const avatarName = size === "LARGE" ? "flex" : "hidden"; 
   return (
     <HoverCard>
@@ -70,7 +70,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
       <HoverCardContent
         align="center"
         sideOffset={12}
-        className=" flex w-96 flex-shrink flex-col gap-3 "
+        className=" flex w-96 border-none shadow-lg flex-shrink flex-col p-6 gap-3 "
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
             </div>
           </div>
           <Button
-            className="flex h-6 w-20 justify-between px-3 text-primary/60 shadow-none   "
+            className="flex h-6 w-24 gap-2 justify-between px-3 text-primary/60 shadow-none   "
             variant="outline"
           >
             <Plus className="h-4 w-4" />
@@ -91,9 +91,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({ size, badges }) => {
           </Button>
         </div>
         <div className="flex gap-3 ">
-          <div className="flex items-baseline gap-1  text-sm text-primary/40">
-            <span className="">FID:{profile.fid}</span>
-          </div>
+         
           <div className="flex items-baseline gap-1  text-sm text-primary/40">
             <span className="">{profile.following} Following</span>
           </div>
