@@ -102,8 +102,9 @@ export const TrendingItemsList = () => {
       style={{ height: "calc(100vh - 160px)" }}
     >
       <div className="flex flex-col gap-3 pr-4 ">
-        {ITEMS.map((item) => (
+        {ITEMS.map((item,index) => (
           <TrendingStoryItem
+          key={index}
             title={item.title}
             avatars={item.avatars}
             view={item.view}

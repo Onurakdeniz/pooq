@@ -20,37 +20,41 @@ import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const router = useRouter();
-  const { ready, authenticated, user, getAccessToken, isModalOpen, logout } =
-    usePrivy();
+  const { ready, authenticated, user, getAccessToken, isModalOpen, logout } = usePrivy();
 
-  const displayName = user?.farcaster?.displayName || "User";
+  const displayName = user?.farcaster?.displayName ?? "User";
 
-  // to get updated user data
+  // Fetching updated user data upon login completion
   const { login } = useLogin({
-    onComplete: async (user, isNewUser) => {
-      await fetch("/api/register", { method: "POST" });
+    onComplete: (user, isNewUser) => {
+      // Use void operator to explicitly ignore the Promise
+      void (async () => {
+        try {
+          await fetch("/api/register", { method: "POST" });
+        } catch (error) {
+          console.error("Error during registration:", error);
+        }
+      })();
     },
   });
-
   if (!ready) {
-    return <Skeleton className=" mt-3 flex h-5 w-[160px] items-center" />;
+    return <Skeleton className="mt-3 flex h-5 w-[160px] items-center" />;
   }
 
   const handleLogout = async () => {
     await logout();
     router.push("/login");
   };
-
   return (
     <>
       {ready && authenticated ? (
         <div className="flex  w-full items-center  justify-between gap-2 rounded-lg border px-4 py-2">
-          <div className="text-sm text-primary/60">Hello Onur !</div>
+          <div className="text-sm text-primary/60"> Hello </div>
           <div className="flex items-center justify-end gap-2 ">
             <ModeToggle />
             <Avatar className="h-8 w-8">
               <AvatarFallback> {displayName.charAt(0)} </AvatarFallback>
-              <AvatarImage src={user?.farcaster?.pfp || ""} />
+              <AvatarImage src={user?.farcaster?.pfp ?? ""} />
             </Avatar>
 
             <DropdownMenu>

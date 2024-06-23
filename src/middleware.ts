@@ -13,9 +13,10 @@ export async function middleware(request: NextRequest) {
   // Bypass middleware when `privy_oauth_code` is a query parameter, as
   // we are in the middle of an authentication flow
   if (
-    request.nextUrl.searchParams.get("privy_oauth_code") ||
-    request.nextUrl.searchParams.get("privy_oauth_state") ||
+    request.nextUrl.searchParams.get("privy_oauth_code") ??
+    request.nextUrl.searchParams.get("privy_oauth_state") ??
     request.nextUrl.searchParams.get("privy_oauth_provider")
+ 
   ) {
     return NextResponse.next();
   }

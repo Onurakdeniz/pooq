@@ -4,7 +4,7 @@ import ProfileTop from "./components/top";
 
 export default function ProfilePage() {
   return (
-    <div className="flex-col flex gap-4 w-full">
+    <div className="flex-col flex  w-full">
       <ProfileTop />
       <Profile/>
       <ProfileFeed/>

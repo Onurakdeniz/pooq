@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 
-const WriteModal = ({className}) => {
+const WriteModal = ({className} : {className : string}) => {
     return (
         <form className={cn("grid items-start gap-4", className)}>
         <div className="grid gap-2">

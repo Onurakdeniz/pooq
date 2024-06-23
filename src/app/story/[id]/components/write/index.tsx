@@ -77,7 +77,7 @@ export function PostWrite() {
         <DrawerHeader className="text-left">
           <DrawerTitle>Write Your Idea</DrawerTitle>
           <DrawerDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile here. Click save when youre done.
           </DrawerDescription>
         </DrawerHeader>
         <WriteModal className=" " />

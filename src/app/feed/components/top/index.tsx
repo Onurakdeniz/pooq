@@ -6,16 +6,12 @@ import { LLMForm } from "./llm";
 
 const FeedTop = () => {
   return (
-    <div className="flex-col flex  ">
-
-
-    <div className=" flex h-16 w-full justify-between items-center border-b  px-8">
-      <div className="text-2xl font-light  ">
-        Latest Stories
+    <div className="flex flex-col  ">
+      <div className=" flex h-16 w-full items-center justify-between border-b  px-8">
+        <div className="text-2xl font-light  ">Latest Stories</div>
+        <FeedActions />
       </div>
-      <FeedActions />
-    </div>
-    <LLMForm/>
+      <LLMForm />
     </div>
   );
 };

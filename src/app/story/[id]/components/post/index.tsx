@@ -59,18 +59,18 @@ const StoryPost = () => {
         <div className="flex w-full justify-between">
           <div className="w-12/12 flex  text-pretty pt-2 text-sm font-light text-primary/60">
             Deneme Burada bi zun bir title Deneme Burada ikinci tane title var
-            OpenAI's large language models (sometimes referred to as GPT's)
+            OpenAIs large language models (sometimes referred to as GPTs)
             process text using tokens, which are common sequences of characters
             found in a set of text. The models learn to understand the
             statistical relationships between these tokens, and excel at
-            producing the next token in a sequence of tokens. OpenAI's large
-            language models (sometimes referred to as GPT's) process text using
+            producing the next token in a sequence of tokens. OpenAIs large
+            language models (sometimes referred to as GPTs) process text using
             tokens, which are common sequences of characters found in a set of
             text. The models learn to understand the statistical relationships
             between these tokens, and excel at producing the next token in a
             sequence of tokens. You can use the tool below to understand how a
             piece of text might be tokenized by a language model, and the total
-            count of tokens in that piece of text. It's important to note that
+            count of tokens in that piece of text. Its important to note that
             the exact tokenization process varies between models. Newer models
             like GPT-3.5 and GPT-4 use a different tokenizer than previous
             models, and will produce different tokens for the same input text.
