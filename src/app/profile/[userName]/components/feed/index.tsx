@@ -1,6 +1,6 @@
 import React from 'react'
 import FeedHeader from './header'
-import FeedCard from '@/app/feed/components/feed-card'
+import FeedCard from '@/components/shared/story-card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 const ProfileFeed = () => {

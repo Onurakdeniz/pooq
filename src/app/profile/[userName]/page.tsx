@@ -4,11 +4,10 @@ import ProfileTop from "./components/top";
 
 export default function ProfilePage() {
   return (
-    <div className="flex-col flex  w-full">
+    <div className="flex w-full  flex-col">
       <ProfileTop />
-      <Profile/>
-      <ProfileFeed/>
-
+      <Profile />
+      <ProfileFeed />
     </div>
   );
 }

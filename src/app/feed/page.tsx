@@ -1,4 +1,4 @@
-import FeedCard from "./components/feed-card";
+import FeedCard from "../../components/shared/story-card";
 import FeedList from "./components/list";
 import FeedTop from "./components/top";
 

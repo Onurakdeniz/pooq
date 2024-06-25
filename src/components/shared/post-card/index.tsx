@@ -1,7 +1,7 @@
 import ProfileAvatar from "@/components/shared/avatar";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import React from "react";
- 
+
 import { Button } from "@/components/ui/button";
 import {
   Bookmark,
@@ -14,11 +14,38 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Tag from "@/components/shared/tag";
-import CardBody from "@/app/feed/components/feed-card/body";
+import CardBody from "@/components/shared/story-card/body";
 import PostReplies from "./replies";
 import PostFooter from "./footer";
 
-const StoryPost = () => {
+interface Reply {
+  authorName : string
+  authorFid : number
+  authorUrl : string
+  isLiked : boolean 
+  isOwner : boolean
+  postText : string
+  postDate : Date
+  postLikes : number 
+
+
+}
+
+
+interface Post {
+    authorName : string
+    authorFid : number
+    authorUrl : string
+    isBookmarked : boolean
+    isLiked : boolean 
+    isOwner : boolean
+    postText : string
+    postDate : Date
+    postLikes : number 
+    replies : Reply[]
+ }
+
+const Post = ({ withReplies , Post }) => {
   return (
     <div className="flex flex-col gap-4 px-8  ">
       <div className="flex h-8 items-center justify-between gap-3">
@@ -77,12 +104,12 @@ const StoryPost = () => {
           </div>
         </div>
       </div>
-      <div className="flex gap-2 flex-col"> 
-      <PostReplies />
-      <PostFooter/>
+      <div className="flex flex-col gap-2">
+        <PostReplies />
+        <PostFooter />
       </div>
     </div>
   );
 };
 
-export default StoryPost;
+export default Post ; 

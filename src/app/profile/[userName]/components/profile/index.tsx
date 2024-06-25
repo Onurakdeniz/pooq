@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sailboat } from "lucide-react";
 import React from "react";
+import { PROFILE_TABS } from "@/lib/constants";
 
 interface IProfile {
   name: string;
@@ -35,7 +36,7 @@ const profile = {
     "https://wrpcd.net/cdn-cgi/image/fit=contain,f=auto,w=144/https%3A%2F%2Fi.imgur.com%2FIzJxuId.jpg",
   followers: 450,
   following: 200,
-  bio: "Tech enthusiast and software developer. Love to explore new technologies.",
+  bio: "Tech enthusiast and software developer. Love to explore new technologies.Deneme Burada bi zun bir title Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme",
   userName: "alice_j",
   fid: 101,
   custodyAddress: 1234567890,
@@ -64,12 +65,11 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 rounded-lg border bg-inherit p-2 text-center text-sm text-primary/70 ">
-              <Sailboat size={"16"} />
+            <div className="flex h-8 items-center gap-2 rounded-lg border bg-inherit p-2 text-center text-sm text-primary/70 ">
               <span className="font-semibold">12 </span>
               <span>Stories</span>
             </div>
-            <div className="flex items-center gap-2 rounded-lg border bg-inherit p-2 text-center text-sm text-primary/70 ">
+            <div className="flex h-8 items-center gap-2 rounded-lg  border bg-inherit p-2 text-center text-sm text-primary/70 ">
               <Sailboat size={"16"} />
               <span className="font-semibold">123 </span>
               <span>Posts</span>
@@ -84,23 +84,16 @@ const Profile = () => {
             </Button>
           </div>
         </div>
-        <div className="text-sm text-primary/60">
-          i like crypto and hockey…writing at paragraph.xyz/@nfa /mfers
-          /predictionmkts
+        <div className="line-clamp-2 text-sm  text-primary/60 ">
+          {profile.bio}
         </div>
-        <div className="flex items-center gap-4 ">
-          <Badge
-            variant={"secondary"}
-            className="h-8 rounded-sm font-light text-primary/60"
-          >
-            12K Followers
-          </Badge>
-          <Badge
-            variant={"secondary"}
-            className="h-8 rounded-sm font-light text-primary/60"
-          >
-            12K Followers
-          </Badge>
+        <div className="flex items-center gap-6 ">
+          <div className="h-8   rounded-sm  text-sm  text-primary/70">
+           <span className="font-semibold">  12K </span> Followers
+          </div>
+          <div className="h-8   rounded-sm  text-sm  text-primary/70">
+           <span className="font-semibold">  12K </span> Followers
+          </div>
         </div>
       </div>
     </div>

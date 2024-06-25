@@ -9,7 +9,7 @@ const PostFooter = () => {
         className="flex h-6 items-center  gap-1 bg-accent px-2   text-xs   text-primary/50 shadow-none  "
       >
         <ChevronsDown size={16} strokeWidth={1} />
-        <div>Show More</div>
+        <div>2 Replies</div>
       </Button>
     </div>
   );

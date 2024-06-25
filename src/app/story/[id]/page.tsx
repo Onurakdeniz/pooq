@@ -1,8 +1,8 @@
-import FeedCard from "@/app/feed/components/feed-card";
+import FeedCard from "@/components/shared/story-card";
 import FeedTop from "@/app/feed/components/top";
 import StoryHeader from "./components/header";
 import StoryTop from "./components/story-top";
-import StoryPost from "./components/post";
+import StoryPost from "../../../components/shared/post-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 

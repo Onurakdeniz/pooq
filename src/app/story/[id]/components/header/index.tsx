@@ -38,7 +38,7 @@ const StoryHeader = () => {
                   <Button
                     variant={"outline"}
                     className=" w-26 flex h-8 gap-2 p-1  px-2 "
-                    size="icon"
+         
                   >
                     <Bookmark size={20} strokeWidth={"1"} />
                     <div className="text-center   ">Bookmark</div>
@@ -55,8 +55,8 @@ const StoryHeader = () => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-20 gap-2 p-1  px-2 hover:text-emerald-400 "
-                    size="icon"
+                    className=" flex  w-20 gap-2 p-1  px-2 hover:text-emerald-400 "
+                   
                   >
                     <ChevronUp size={24} strokeWidth={"2"} />
                     <div className="    ">132</div>
