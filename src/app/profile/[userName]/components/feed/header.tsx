@@ -18,7 +18,7 @@ const FeedHeader = () => {
   const searchParams = useSearchParams();
 
   const getActiveTab = useCallback(() => {
-    return searchParams.get('tab') || DEFAULT_TAB;
+    return searchParams.get('tab') ?? DEFAULT_TAB;
   }, [searchParams]);
 
   const handleActiveTab = useCallback((title: string) => {

@@ -45,7 +45,7 @@ interface Post {
     replies : Reply[]
  }
 
-const Post = ({ withReplies , Post }) => {
+const Post = ({  }) => {
   return (
     <div className="flex flex-col gap-4 px-8  ">
       <div className="flex h-8 items-center justify-between gap-3">
