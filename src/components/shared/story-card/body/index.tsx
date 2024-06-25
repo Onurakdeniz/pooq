@@ -28,39 +28,39 @@ const CardBody = () => {
                   </Avatar>
                 </span>
                 <div className="flex flex-col gap-4">
-               < div className="flex h-8 items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <ProfileAvatar size="LARGE" />
+                  <div className="flex h-8 items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatar size="LARGE" />
 
-          <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
-            just now
-          </time>
-        </div>
+                      <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
+                        just now
+                      </time>
+                    </div>
 
-        <div className=" items-cetner flex gap-2 text-xs text-primary/60">
-          <Button
-            variant={"ghost"}
-            className="flex h-8    items-center   gap-1   px-2 text-xs  "
-          >
-            <Bookmark size={16} strokeWidth={1} />
-            <div>Bookmark</div>
-          </Button>
-          <Button
-            variant={"ghost"}
-            className="flex  h-8   items-center   gap-1 px-2 text-xs  "
-          >
-            <Reply size={16} strokeWidth={1} />
-            <div>Reply</div>
-          </Button>
-          <Button
-            variant={"outline"}
-            className="flex border-none bg-accent h-8  w-14 items-center hover:text-emerald-400  justify-between  gap-1 font-bold  px-2  text-xs  "
-          >
-            <ChevronUp size={16} strokeWidth={1} />
-            <div>0</div>
-          </Button>
-        </div>
-      </div>
+                    <div className=" items-cetner flex gap-2 text-xs text-primary/60">
+                      <Button
+                        variant={"ghost"}
+                        className="flex h-8    items-center   gap-1   px-2 text-xs  "
+                      >
+                        <Bookmark size={16} strokeWidth={1} />
+                        <div>Bookmark</div>
+                      </Button>
+                      <Button
+                        variant={"ghost"}
+                        className="flex  h-8   items-center   gap-1 px-2 text-xs  "
+                      >
+                        <Reply size={16} strokeWidth={1} />
+                        <div>Reply</div>
+                      </Button>
+                      <Button
+                        variant={"outline"}
+                        className="flex h-8 w-14 items-center  justify-between gap-1 border-none  bg-accent  px-2 text-xs  font-bold  hover:text-emerald-400  "
+                      >
+                        <ChevronUp size={16} strokeWidth={1} />
+                        <div>0</div>
+                      </Button>
+                    </div>
+                  </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between gap-6 rounded-md    border-gray-200  dark:border-gray-600   sm:flex">
                       <div className="text-sm font-light   text-muted-foreground ">
@@ -72,8 +72,8 @@ const CardBody = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                     <Tag/>
-                      <Badge className="  rounded-sm bg-emerald-50 px-2 font-normal   shadow-sm  py-1 text-[10px] text-emerald-500 dark:bg-emerald-950 dark:text-emerald-500 hover:bg-emerald-100 hover:dark:bg-emerald-900 hover:cursor-pointer">
+                      <Tag />
+                      <Badge className="  rounded-sm bg-emerald-50 px-2 py-1   text-[10px]  font-normal text-emerald-500 shadow-sm hover:cursor-pointer hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-500 hover:dark:bg-emerald-900">
                         AI Blockcian
                       </Badge>
                     </div>
@@ -92,7 +92,7 @@ const CardBody = () => {
                     <div className="text-sm text-primary/70">
                       Vitalik Buterin
                     </div>
-                    <time className="mb-1 w-1/12 text-xs font-normal text-gray-400 sm:order-last text-end sm:mb-0">
+                    <time className="mb-1 w-1/12 text-end text-xs font-normal text-gray-400 sm:order-last sm:mb-0">
                       just now
                     </time>
                   </div>

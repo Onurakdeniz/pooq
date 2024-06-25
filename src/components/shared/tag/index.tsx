@@ -7,15 +7,16 @@ import {
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
+import { Tag } from "@/types/index";
 
-const Tag = () => {
-  const tagName = "AI Blockchain";
+const Tag: React.FC<Tag> = (tag) => {
+ 
   return (
-    <div>
+ 
       <HoverCard>
         <HoverCardTrigger>
-          <Badge className="  rounded-sm  bg-inherit dark:border-stone-800 border-stone-200 shadow-none px-2 py-1 border     text-xs  font-normal text-primary/50 hover:cursor-pointer hover:bg-stone-200   dark:text-primary/50 hover:dark:bg-primary/10">
-            {tagName}
+          <Badge className="  rounded-sm  border border-stone-200 bg-inherit px-2 py-1 text-xs font-normal     text-primary/50  shadow-none hover:cursor-pointer hover:bg-stone-200 dark:border-stone-800   dark:text-primary/50 hover:dark:bg-primary/10">
+            {tag.name}
           </Badge>
         </HoverCardTrigger>
         <HoverCardContent
@@ -25,12 +26,33 @@ const Tag = () => {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span> {tagName}</span>
+              <span> {tag.name}</span>
               <div className="flex items-center gap-1 text-xs text-primary/40">
                 <User className="h-4 w-4" />
-                <span className="">22K</span>
-              </div>{" "}
+                <span className="">
+                  {tag.followers}
+                </span>
+              </div> 
             </div>
+
+            {tag.isFollowed ? (
+              <Button
+                className="flex h-6 w-20 justify-between px-3 text-primary/60 shadow-none   "
+                variant="outline"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Unfollow</span>
+              </Button>
+            ) : (
+              <Button
+                className="flex h-6 w-20 justify-between px-3 text-primary/60 shadow-none   "
+                variant="outline"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Follow</span>
+              </Button>
+            )}
+
             <Button
               className="flex h-6 w-20 justify-between px-3 text-primary/60 shadow-none   "
               variant="outline"
@@ -40,15 +62,11 @@ const Tag = () => {
             </Button>
           </div>
           <span className="text-xs text-primary/60">
-            {" "}
-            The React Framework – created and maintained by @vercel.Deneme
-            Burada bi zun bir title Deneme Burada ikinci tane title var bayada
-            uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada bi
-            zun bir title Deneme Burada ikinci tane title var b{" "}
+              {tag.description}
           </span>
         </HoverCardContent>
       </HoverCard>
-    </div>
+ 
   );
 };
 

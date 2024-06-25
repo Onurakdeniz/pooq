@@ -1,21 +1,22 @@
 import { Cast } from "./cast"
 import { User } from "./user"
 
-interface Tag {
+export interface Tag {
     id : string
-    tag : string
-    numberofFollowers : number
+    name : string
+    followers : number
     description : string
+    isFollowed : boolean
     // stories
 }
 
-interface Entity {
+export interface Entity {
     id : string
     entity : string
 }
 
 
-interface Bookmark {
+export interface Bookmark {
     id : string
     isBookmarked : boolean
     storyId : string 
@@ -54,3 +55,12 @@ interface Story {
   }
 
 
+
+  export interface Profile extends Omit<User, 'object' |   'verifications' | 'verified_addresses' | 'active_status' > {
+    tags: Tag[]; // Array of tags associated with the profile
+    stories: number; // Number of stories the user has posted
+    posts: number; // Number of posts the user has made
+  }
+
+
+ 

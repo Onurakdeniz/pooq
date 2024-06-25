@@ -33,5 +33,6 @@ export interface User {
   verified_addresses: UserVerification; // User's verified crypto addresses
   active_status: 'active' | 'inactive'; // User's active status
   power_badge: boolean; // Whether the user has a power badge
+  
   viewer_context: UserViewerContext; // Contextual information about the viewer's relationship to the user
 }

@@ -2,6 +2,8 @@ import React from 'react'
 import CardHeader from './header'
 import CardBody from './body'
 import CardFooter from './footer'
+import StoryHover from '../story-hover'
+import StoryText from './body/text'
 
 const FeedCard = () => {
   return (
@@ -12,9 +14,11 @@ Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun b
  
  <div>
   <span className='flex text-sm text-primary/60'>
-  Deneme Burada bi zun bir title Deneme Burada bi zun bir title
+
+    <StoryText tokenPattern="st:12323" text="Deneme Burada bi zun bir title st:12323 Deneme Burada bi zun bir title
 Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme
-Deneme Burada ikinci tane title  var bayada uzun bir title Deneme Burada bi zun bir title Deneme
+Deneme Burada ikinci tane title  var bayada uzun bir title Deneme Burada bi zun bir title Deneme"/> 
+
   </span>
   </div>
        
