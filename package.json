@@ -15,6 +15,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@mantine/hooks": "^7.10.2",
     "@prisma/client": "^5.14.0",
     "@privy-io/react-auth": "^1.71.0",

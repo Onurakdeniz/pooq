@@ -1,31 +1,34 @@
-import React from 'react'
-import CardHeader from './header'
-import CardBody from './body'
-import CardFooter from './footer'
-import StoryHover from '../story-hover'
-import StoryText from './body/text'
+import React from "react";
+import StoryHeader from "./header";
+import StoryBody from "./body";
+import StoryFooter from "./footer";
+import StoryHover from "../story-hover";
+import TextCard from "../text-card";
+import { Story } from "@/types/index";
 
-const FeedCard = () => {
+const StoryCard: React.FC<Story> = ({
+  title,
+  tags,
+  entities,
+  isBookmarked,
+  mentionedStories,
+  author,
+  cast,
+}) => {
   return (
-    <div className='flex-col flex gap-2 p-8 border-b  hover:bg-accent  hover:cursor-pointer '> 
-    <div className='flex-col flex gap-2 '>
-        <CardHeader title="Deneme Burada bi zun bir title
-Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme" />
- 
- <div>
-  <span className='flex text-sm text-primary/60'>
+    <div className="flex flex-col gap-2 border-b p-8 hover:cursor-pointer hover:bg-accent">
+      <div className="flex flex-col gap-2">
+        <StoryHeader title={title} tags={tags} author={author} />
 
-    <StoryText tokenPattern="st:12323" text="Deneme Burada bi zun bir title st:12323 Deneme Burada bi zun bir title
-Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme
-Deneme Burada ikinci tane title  var bayada uzun bir title Deneme Burada bi zun bir title Deneme"/> 
-
-  </span>
-  </div>
-       
+        <div>
+          <span className="flex text-sm text-primary/60">
+            <TextCard text={cast.text} storyId={mentionedStories} />
+          </span>
+        </div>
+      </div>
+      <StoryFooter />
     </div>
-    <CardFooter/>
-    </div>
-  )
-}
+  );
+};
 
-export default FeedCard
+export default StoryCard;

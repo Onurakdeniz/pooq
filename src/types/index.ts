@@ -30,13 +30,14 @@ export interface UserWithTags extends User {
 
  
 
-interface Story {
+export interface Story {
     id: string;
     title: string;
     tags: Tag[];
     entities : Entity[]
     isBookmarked: boolean;
-    author: UserWithTags;
+    mentionedStories : string []
+    author: Profile;
     cast: Omit<Cast, 'embeds' | 'frames' | 'author'>;
   }
 
@@ -60,6 +61,15 @@ interface Story {
     tags: Tag[]; // Array of tags associated with the profile
     stories: number; // Number of stories the user has posted
     posts: number; // Number of posts the user has made
+  }
+
+
+  export interface TrendingItem {
+    storyId : string
+    title : string
+    text : string
+    author : Profile
+    likes : number 
   }
 
 

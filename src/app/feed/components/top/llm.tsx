@@ -13,14 +13,12 @@ import {
 import { useLLMFilterStore } from "@/store/llm-button";
 
 const FeedLLM = () => {
-  const open = useLLMFilterStore((state)=>state.open)
-  const setOpen = useLLMFilterStore ( (state) => state.setOpen )
+  const open = useLLMFilterStore((state) => state.open);
+  const setOpen = useLLMFilterStore((state) => state.setOpen);
 
   const handleOpen = () => {
     setOpen();
   };
-
- 
 
   return (
     <div>
@@ -30,10 +28,8 @@ const FeedLLM = () => {
             <Button
               variant="outline"
               onClick={handleOpen}
-              className={`flex h-8 justify-between gap-2 border hover:bg-accent text-primary/70  px-3 shadow-none ${
-                open
-                  ? "   bg-primary/5  text-sm          "
-                  : ""
+              className={`flex h-8 justify-between gap-2 border px-3 text-primary/70  shadow-none hover:bg-accent ${
+                open ? "   bg-primary/5  text-sm          " : ""
               }`}
             >
               <div className="flex items-center justify-between gap-2 text-xs">
@@ -52,23 +48,27 @@ const FeedLLM = () => {
 
 export default FeedLLM;
 
- 
-
 export const LLMForm = () => {
-    const open = useLLMFilterStore((state)=>state.open)
-    const setOpen = useLLMFilterStore ( (state) => state.setOpen )
-    const handleClick = () => {
-        console.log("okay")
-        setOpen()
-    }
+  const open = useLLMFilterStore((state) => state.open);
+  const setOpen = useLLMFilterStore((state) => state.setOpen);
+  const handleClick = () => {
+    console.log("okay");
+    setOpen();
+  };
   return (
-    <div className= {`  h-48  flex-col gap-2 px-8 py-2 ${open  ? "flex" : "hidden"} `}>
+    <div
+      className={`  h-48  flex-col gap-2 px-8 py-2 ${open ? "flex" : "hidden"} `}
+    >
       <Textarea
         className="h-full border py-4 font-semibold text-primary/70 shadow-none focus-visible:ring-0"
         placeholder="Type your message here."
       />
       <div className="flex items-center justify-end">
-        <Button className="h-7 justify-end " variant="default" onClick={handleClick}>
+        <Button
+          className="h-7 justify-end "
+          variant="default"
+          onClick={handleClick}
+        >
           Create
         </Button>
       </div>

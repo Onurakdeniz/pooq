@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, Reply } from "lucide-react";
 import React from "react";
 
-const CardBody = () => {
+const StoryBody = () => {
   return (
     <div className="flex w-full flex-col gap-8">
       <div className="flex  text-sm   font-light   text-muted-foreground ">
@@ -115,4 +115,4 @@ const CardBody = () => {
   );
 };
 
-export default CardBody;
+export default StoryBody;

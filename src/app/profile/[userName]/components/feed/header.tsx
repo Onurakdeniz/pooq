@@ -13,7 +13,7 @@ import { PROFILE_TABS } from "@/lib/constants";
 
 const DEFAULT_TAB = 'Stories';
 
-const FeedHeader = () => {
+const ProfileHeader = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -65,4 +65,4 @@ const FeedHeader = () => {
   );
 };
 
-export default FeedHeader;
+export default ProfileHeader;

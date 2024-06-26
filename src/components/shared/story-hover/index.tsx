@@ -8,16 +8,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
 
-const StoryHover: React.FC<any> = ({ storyId }) => {
+const StoryHover: React.FC<any> = ({ storyId , children}) => {
   return (
-    <div>
+ 
       <HoverCard>
         <HoverCardTrigger asChild>
-          <span className="inline-flex items-center">
-            <Badge className="cursor-pointer rounded-sm border border-stone-200 bg-inherit px-2 py-1 text-xs font-normal text-primary/50 shadow-none hover:bg-stone-200 dark:border-stone-800 dark:text-primary/50 hover:dark:bg-primary/10">
-              {storyId}
-            </Badge>
-          </span>
+          {children}
         </HoverCardTrigger>
         <HoverCardContent
           align="center"
@@ -49,7 +45,7 @@ const StoryHover: React.FC<any> = ({ storyId }) => {
           </span>
         </HoverCardContent>
       </HoverCard>
-    </div>
+ 
   );
 };
 

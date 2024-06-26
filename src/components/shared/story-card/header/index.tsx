@@ -12,17 +12,20 @@ import {
 
 import React from "react";
 import Tag from "@/components/shared/tag";
+import { Profile , Tag as ITag } from "@/types/index";
 
-interface CardHeaderProps {
+interface IStoryHeader {
   title: string;
+  author: Profile ;
+  tags : ITag[]
 }
 
-const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
+const StoryHeader: React.FC<IStoryHeader> = ({ title, author ,tags }) => {
   return (
     <div className="mb-4 flex  w-full  flex-col gap-6  ">
       <div className="flex h-8 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ProfileAvatar size="LARGE" />
+          <ProfileAvatar profile={author} size="LARGE" isMentioned={false} />
 
           <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
             just now
@@ -35,7 +38,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-26 gap-2 p-1  font-light  px-2"
+                    className=" w-26 flex h-8 gap-2 p-1  px-2  font-light"
                     size="icon"
                   >
                     <Bookmark size={20} strokeWidth={"1"} />
@@ -53,7 +56,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
                 <TooltipTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className=" flex h-8 w-20 gap-2 p-1  font-light px-2"
+                    className=" flex h-8 w-20 gap-2 p-1  px-2 font-light"
                     size="icon"
                   >
                     <ChevronUp size={24} strokeWidth={"1"} />
@@ -75,12 +78,15 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title }) => {
         </div>
 
         <div className="flex items-center gap-2">
-           <Tag/>
-           <Tag/>
+            {tags.map((item) => (
+              <Tag {...item} key={item.id} />
+            )
+
+            )}
         </div>
       </div>
     </div>
   );
 };
 
-export default CardHeader;
+export default StoryHeader;

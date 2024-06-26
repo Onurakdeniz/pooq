@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckIcon } from "@radix-ui/react-icons"; // Import the icon correctly
+import { CheckIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -16,75 +16,89 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Filter, X } from "lucide-react"; // Adjust icons if necessary
+import { Filter, X } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const filters = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Artifical Intelligence",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
+  { value: "next.js", label: "Next.js" },
+  { value: "sveltekit", label: "SvelteKit" },
+  { value: "nuxt.js", label: "Artificial Intelligence" },
+  { value: "remix", label: "Remix" },
+  { value: "astro", label: "Astro" },
 ];
 
 const FeedFilter = () => {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState<{ value: string; label: string }[]>(
-    [],
-  );
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const selectedCount = value.length;
+  const getSelectedFilters = React.useCallback(() => {
+    const filterParam = searchParams.get('filters');
+    return filterParam ? filterParam.split(',') : [];
+  }, [searchParams]);
+
+  const selectedFilters = getSelectedFilters();
+
+  const updateURL = React.useCallback((newFilters: string[]) => {
+    const params = new URLSearchParams(searchParams);
+    if (newFilters.length > 0) {
+      params.set('filters', newFilters.join(','));
+    } else {
+      params.delete('filters');
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  }, [router, searchParams]);
+
+  const handleFilterToggle = (filterValue: string) => {
+    const isSelected = selectedFilters.includes(filterValue);
+    let newFilters: string[];
+
+    if (isSelected) {
+      newFilters = selectedFilters.filter(f => f !== filterValue);
+    } else if (selectedFilters.length >= 3) {
+      toast("You can select up to 3 filters", {
+        description: "Deselect an existing filter to add a new one.",
+      });
+      return;
+    } else {
+      newFilters = [...selectedFilters, filterValue];
+    }
+
+    updateURL(newFilters);
+    setOpen(false);
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex  w-full items-center gap-2 ">
-        <div className=" hidden items-center  gap-1 lg:flex    ">
-          {value.map((selectedFilter) => (
-            <Button
-              className="flex h-7 items-center justify-between   gap-2 px-2 text-[10px] text-primary/70    "
-              variant="outline"
-              key={selectedFilter.value}
-              onClick={() => {
-                setValue(
-                  value.filter(
-                    (filter) => filter.value !== selectedFilter.value,
-                  ),
-                );
-              }}
-            >
-              <span className=" ">{selectedFilter.label}</span>
-              <X className="h-3 w-3  " />
-            </Button>
-          ))}
+      <div className="flex w-full items-center gap-2">
+        <div className="hidden items-center gap-1 lg:flex">
+          {selectedFilters.map((filterValue) => {
+            const filter = filters.find(f => f.value === filterValue);
+            return (
+              <Button
+                className="flex h-7 items-center justify-between gap-2 px-2 text-[10px] text-primary/70"
+                variant="outline"
+                key={filterValue}
+                onClick={() => handleFilterToggle(filterValue)}
+              >
+                <span>{filter?.label}</span>
+                <X className="h-3 w-3" />
+              </Button>
+            );
+          })}
         </div>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             aria-expanded={open}
-            className={`flex h-8 justify-between gap-2 border  px-3 shadow-none ${
-              value.length > 0
-                ? "     text-primary/60  bg-primary/10  dark:text-primary/70   "
-                : ""
+            className={`flex h-8 justify-between gap-2 border px-3 shadow-none ${
+              selectedFilters.length > 0 ? "bg-primary/10 text-primary/60 dark:text-primary/70" : ""
             }`}
           >
             <div className="flex max-w-28 items-center justify-between gap-2">
-              <span className="  text-start  ">
-                {value.length > 0 ? `${selectedCount} Selected` : "Filter"}
+              <span className="text-start">
+                {selectedFilters.length > 0 ? `${selectedFilters.length} Selected` : "Filter"}
               </span>
               <Filter size="14" />
             </div>
@@ -106,32 +120,11 @@ const FeedFilter = () => {
                   className="flex items-center justify-between"
                   key={filter.value}
                   value={filter.value}
-                  onSelect={(currentValue) => {
-                    const isSelected = value.some(
-                      (item) => item.value === currentValue,
-                    );
-
-                    if (isSelected) {
-                      setValue(
-                        value.filter((item) => item.value !== currentValue),
-                      );
-                    } else if (value.length >= 3) {
-                      toast("You can select up to 3 filters", {
-                        description:
-                          "Deselect an existing filter to add a new one.",
-                      });
-                    } else {
-                      setValue([
-                        ...value,
-                        { value: currentValue, label: filter.label },
-                      ]);
-                    }
-                    setOpen(false);
-                  }}
+                  onSelect={() => handleFilterToggle(filter.value)}
                 >
                   <span>{filter.label}</span>
-                  {value.some((item) => item.value === filter.value) && (
-                    <CheckIcon className="h-4 w-4 " />
+                  {selectedFilters.includes(filter.value) && (
+                    <CheckIcon className="h-4 w-4" />
                   )}
                 </CommandItem>
               ))}

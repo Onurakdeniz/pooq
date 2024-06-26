@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { Bookmark, CircleUser } from 'lucide-react'
 import React from 'react'
 
-const CardFooter = () => {
+const StoryFooter = () => {
   return (
     <div className='flex text-sm text-primary/70    items-center justify-end'>
        
@@ -15,4 +15,4 @@ const CardFooter = () => {
   )
 }
 
-export default CardFooter
+export default StoryFooter
