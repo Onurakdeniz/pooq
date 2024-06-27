@@ -12,7 +12,7 @@ import {
 
 import React from "react";
 import Tag from "@/components/shared/tag";
-import {UserWithStories as Profile , Tag as ITag} from "@/server/api/routers/story"
+import {UserWithStories as Profile , Tag as ITag} from "@/types"
   
 
 interface IStoryHeader {

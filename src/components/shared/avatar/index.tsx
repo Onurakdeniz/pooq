@@ -12,9 +12,7 @@ import { Button } from "@/components/ui/button";
 import Tag from "../tag";
 import { api } from "@/trpc/react";
 import { formatDistanceToNow } from 'date-fns';
-import type { UserWithStories as Profile , Tag as ITag} from "@/server/api/routers/story"; 
-
-
+import type { UserWithStories as Profile, Tag as ITag } from "@/types";
 
 interface IProfileAvatar {
   size: string;
@@ -23,75 +21,73 @@ interface IProfileAvatar {
   profile?: Profile;
   children?: React.ReactNode;
   userName?: string;
-  date? : string
+  date?: string;
 }
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({
   size,
   userName,
- 
   isMentioned = false,
   profile,
   children,
   date
 }) => {
- 
-
   const [isHovered, setIsHovered] = useState(false);
 
-  const { data: hoveredProfile } = api.user.getUserByUserName.useQuery(
+  const { data: hoveredProfile } = api.user.getUserByUserName.useQuery<Profile | null>(
     { username: userName ?? "" },
     { enabled: !!userName && isMentioned && isHovered }
   );
+
   const avatarSize = size === "LARGE" ? "h-6 w-6" : "h-6 w-6";
   const avatarName = size === "LARGE" ? "flex text-sm " : "hidden";
 
-  // Safe assignment and type checking
-  const displayedProfile = isMentioned ? hoveredProfile ?? profile : undefined;
-  const firstLetter = displayedProfile?.display_name?.[0] ?? ''; 
+  const displayedProfile: Profile | undefined = isMentioned ? hoveredProfile ?? profile : undefined;
+  const firstLetter = displayedProfile?.display_name?.[0] ?? '';
 
   const formattedTimeAgo = formatDistanceToNow(
-    new Date(date ?? Date.now()), 
-    { addSuffix: true } 
+    new Date(date ?? Date.now()),
+    { addSuffix: true }
   ).replace(/^about\s/i, '');
 
-  console.log(formattedTimeAgo); // Output without "about"
+  console.log(formattedTimeAgo);
+
   return (
     <HoverCard onOpenChange={open => setIsHovered(open)}>
-    <HoverCardTrigger className="">
-      {isMentioned ? (
-        <> {children} </>
-      ) : (
-        <div className="flex items-center gap-2 hover:cursor-pointer">
-          <Avatar className={avatarSize}>
-            <AvatarImage src={displayedProfile?.pfp_url ?? ""} />
-            <AvatarFallback>{firstLetter}</AvatarFallback>
-          </Avatar>
-          <div className="flex gap-2 items-center">
-            <div className={avatarName}>{displayedProfile?.display_name}</div>
-            <div className={avatarName}>
-              <span className="text-xs text-primary/50 truncate">
-                @{displayedProfile?.username}
+      <HoverCardTrigger className="">
+        {isMentioned ? (
+          <> {children} </>
+        ) : (
+          <div className="flex items-center gap-2 hover:cursor-pointer">
+            <Avatar className={avatarSize}>
+              <AvatarImage src={displayedProfile?.pfp_url ?? ""} />
+              <AvatarFallback>{firstLetter}</AvatarFallback>
+            </Avatar>
+            <div className="flex gap-2 items-center">
+              <div className={avatarName}>{displayedProfile?.display_name}</div>
+              <div className={avatarName}>
+                <span className="text-xs text-primary/50 truncate">
+                  @{displayedProfile?.username}
+                </span>
+              </div>
+              <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
+                {formattedTimeAgo}
               </span>
             </div>
-            <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
-              {formattedTimeAgo}
-            </span>
           </div>
-        </div>
+        )}
+      </HoverCardTrigger>
+      {displayedProfile && (
+        <HoverCardContent
+          align="center"
+          sideOffset={12}
+          className="flex relative dark:bg-[#1a1a1a] bg-[#fdfcf5] z-90 w-96 flex-shrink shadow-lg"
+        >
+          <ProfileHoverContent {...displayedProfile} />
+        </HoverCardContent>
       )}
-    </HoverCardTrigger>
-    {displayedProfile && (
-      <HoverCardContent
-        align="center"
-        sideOffset={12}
-        className="flex relative dark:bg-[#1a1a1a] bg-[#fdfcf5] z-90 w-96 flex-shrink shadow-lg"
-      >
-        <ProfileHoverContent {...displayedProfile} />
-      </HoverCardContent>
-    )}
-  </HoverCard>
-);
+    </HoverCard>
+  );
 };
 
 export default ProfileAvatar;
@@ -107,7 +103,7 @@ type UserWithStories = {
       text: string;
     };
   };
-  tags:  ITag[]
+  tags: ITag[];
 };
 
 const ProfileHoverContent: React.FC<UserWithStories> = ({
@@ -152,10 +148,10 @@ const ProfileHoverContent: React.FC<UserWithStories> = ({
       </div>
       <span className="text-xs text-primary/60">{profile.bio.text}</span>
       <div className="flex flex-wrap gap-2">
-      {tags?.map((tag) => ( 
-        <Tag key={tag.id} {...tag} /> 
-      ))}
-    </div>
+        {tags?.map((tag) => (
+          <Tag key={tag.id} {...tag} />
+        ))}
+      </div>
     </div>
   );
 };

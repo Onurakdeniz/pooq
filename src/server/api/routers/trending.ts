@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { faker } from "@faker-js/faker";
 import { TrendingItem, Tag } from "@/types/index";
-import { UserWithStories } from "./story";
+import { UserWithStories } from "@/types";
 
 // Helper function to generate dummy data
 const generateDummyData = (): TrendingItem[] => {

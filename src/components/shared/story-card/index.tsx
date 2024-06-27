@@ -4,7 +4,7 @@ import StoryBody from "./body";
 import StoryFooter from "./footer";
 import StoryHover from "../story-hover";
 import TextCard from "../text-card";
-import { Story as IStory } from "@/server/api/routers/story";
+import { Story as IStory } from "@/types";
  
 const StoryCard: React.FC<IStory> = ({
   title,

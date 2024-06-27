@@ -4,7 +4,7 @@ import { Entity } from "@/types/index";
 import FeedFilter from './components/top/filter';
 import FeedList from './components/list';
 import FeedTop from './components/top';
-import { Story  } from "@/server/api/routers/story";
+import { Story  } from "@/types"
 // Update the APIStory interface to make author and cast optional
  
 

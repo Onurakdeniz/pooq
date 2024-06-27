@@ -20,7 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {exampleProfile} from "@/lib/dummy"
+ 
 
 const StoryHeader = () => {
   const title =

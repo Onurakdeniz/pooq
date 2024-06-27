@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { faker } from '@faker-js/faker';
-import {UserBase , UserWithStories} from "./story"
+import {UserBase , UserWithStories} from "@/types"
 
 // Define TagSchema
 const TagSchema = z.object({

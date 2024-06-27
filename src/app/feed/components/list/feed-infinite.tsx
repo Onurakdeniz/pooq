@@ -4,7 +4,7 @@ import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
 import StoryCard from "@/components/shared/story-card";
-import { Story as IStory } from "@/server/api/routers/story";
+import { Story as IStory } from "@/types";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 interface InfiniteScrollFeedProps {
