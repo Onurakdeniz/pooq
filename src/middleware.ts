@@ -1,64 +1,59 @@
 import { privy } from "@/lib/privy";
-import { NextRequest, NextResponse } from "next/server";
-import {UNAUTHENTICATED_PAGES } from "@/lib/constants"
-
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { UNAUTHENTICATED_PAGES } from "@/lib/constants";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get("privy-token");
-  const sessionCookie = request.cookies.get("privy-session");
+  const accessToken = request.cookies.get("privy-token")?.value;
 
-  console.log("accessToken",accessToken)
-
-  // Bypass middleware when `privy_oauth_code` is a query parameter, as
-  // we are in the middle of an authentication flow
+  // Bypass middleware for authentication flow and refresh
   if (
-    request.nextUrl.searchParams.get("privy_oauth_code") ??
-    request.nextUrl.searchParams.get("privy_oauth_state") ??
-    request.nextUrl.searchParams.get("privy_oauth_provider")
- 
+    request.nextUrl.searchParams.has("privy_oauth_code") ||
+    request.nextUrl.searchParams.has("privy_oauth_state") ||
+    request.nextUrl.searchParams.has("privy_oauth_provider") ||
+    pathname === "/refresh"
   ) {
     return NextResponse.next();
   }
 
-  // Bypass middleware when the /refresh page is fetched, otherwise
-  // we will enter an infinite loop
-  if (pathname === "/refresh") {
+  try {
+    let isAuthenticated = false;
+    console.log("accsmid", accessToken);
+    
+    if (accessToken) {
+      // Verify the token with Privy's API
+      try {
+        const verifiedClaims = await privy.verifyAuthToken(accessToken);
+        // verifiedClaims is not used, so we don't need to keep it.
+        isAuthenticated = true;
+      } catch (error) {
+        if (error instanceof Error) {
+          console.log(`Token verification failed with error: ${error.message}`);
+        } else {
+          console.log("Token verification failed with an unknown error.");
+        }
+      }
+    }
+
+    if (!isAuthenticated && !UNAUTHENTICATED_PAGES.includes(pathname)) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    if (isAuthenticated && (pathname === "/login" || pathname === "/")) {
+      return NextResponse.redirect(new URL("/feed", request.url));
+    }
+
     return NextResponse.next();
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Authentication error:", error.message);
+    } else {
+      console.error("Authentication error:", "Unknown error");
+    }
+    // Handle error appropriately, maybe redirect to an error page
+    return NextResponse.redirect(new URL("/error", request.url));
   }
-  console.log(pathname,"pathname")
-  // If the user has `privy-token`, they are definitely authenticated
-  const definitelyAuthenticated = Boolean(accessToken);
-
-  // If user has `privy-session`, they also have `privy-refresh-token` and
-  // may be authenticated once their session is refreshed in the client
-  const maybeAuthenticated = Boolean(sessionCookie);
-
-  if (!definitelyAuthenticated && maybeAuthenticated) {
-    // If user is not authenticated, but is maybe authenticated
-    // redirect them to the `/refresh` page to trigger client-side refresh flow
-    const redirectUrl = new URL("/refresh", request.url);
-    redirectUrl.searchParams.set("redirect_url", pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  // If the user is not authenticated and trying to access a protected page
-  // redirect them to the login page
-  if (!definitelyAuthenticated && !UNAUTHENTICATED_PAGES.includes(pathname)) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  // If the user is authenticated and on the login page, redirect to /feed
-  if (definitelyAuthenticated && pathname === "/login") {
-    return NextResponse.redirect(new URL("/feed", request.url));
-  }
-
-  if (definitelyAuthenticated && pathname === "/") {
-    return NextResponse.redirect(new URL("/feed", request.url));
-  }
-
-  // Default behavior for other paths
-  return NextResponse.next();
 }
 
 export const config = {

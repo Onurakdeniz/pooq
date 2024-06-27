@@ -1,19 +1,93 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  fid       Int        @unique
+  username  String     @unique
+  stories   Story[]
+  posts     Post[]
+  bookmarks Bookmark[]
+  tags      Tag[]
+}
+
+model Story {
+  id             Int         @id @default(autoincrement())
+  hash           String
+  userId         Int
+  user           User        @relation(fields: [userId], references: [id])
+  text           String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  posts          Post[]
+  extraction     Extraction?
+  bookmarkAmount Int         @default(0)
+  Bookmark       Bookmark?
+  tags           Tag[]       @relation("StoryTags")
+}
+
+model Extraction {
+  id               Int      @id @default(autoincrement())
+  storyId          Int      @unique
+  story            Story    @relation(fields: [storyId], references: [id])
+  title            String
+  type             String?
+  tags             Tag[]
+  entities         Entity[]
+  mentionedStories String[]
 }
 
 model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    @@index([name])
+  id             Int       @id @default(autoincrement())
+  hash           String
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+  text           String
+  storyId        Int?
+  story          Story?    @relation(fields: [storyId], references: [id])
+  content        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  tags           Tag[]     @relation("PostTags")
+  entities       Entity[]  @relation("PostEntities")
+  bookmarkAmount Int       @default(0)
+  Bookmark       Bookmark?
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  storyId   Int      @unique
+  story     Story    @relation(fields: [storyId], references: [id])
+  postId    Int      @unique
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id           Int        @id @default(autoincrement())
+  name         String     @unique
+  description  String?
+  extractionId Int
+  extraction   Extraction @relation(fields: [extractionId], references: [id])
+  posts        Post[]     @relation("PostTags")
+  stories      Story[]    @relation("StoryTags")
+  userId       Int
+  user         User       @relation(fields: [userId], references: [id])
+}
+
+model Entity {
+  id           Int        @id @default(autoincrement())
+  name         String     @unique
+  description  String?
+  extractionId Int
+  extraction   Extraction @relation(fields: [extractionId], references: [id])
+  posts        Post[]     @relation("PostEntities")
 }

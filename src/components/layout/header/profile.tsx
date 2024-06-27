@@ -20,22 +20,13 @@ import { useRouter } from "next/navigation";
 
 const Profile = () => {
   const router = useRouter();
-  const { ready, authenticated, user, getAccessToken, isModalOpen, logout } = usePrivy();
+  const { ready, authenticated, user, isModalOpen, logout } = usePrivy();
 
   const displayName = user?.farcaster?.displayName ?? "User";
 
   // Fetching updated user data upon login completion
   const { login } = useLogin({
-    onComplete: (user, isNewUser) => {
-      // Use void operator to explicitly ignore the Promise
-      void (async () => {
-        try {
-          await fetch("/api/register", { method: "POST" });
-        } catch (error) {
-          console.error("Error during registration:", error);
-        }
-      })();
-    },
+ 
   });
   if (!ready) {
     return <Skeleton className="mt-3 flex h-5 w-[160px] items-center" />;

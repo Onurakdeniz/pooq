@@ -12,7 +12,7 @@ interface SideProps {
 }
 
 export const LeftSide: React.FC<SideProps> = ({ className  }) => {
-  return <div className={cn("text-white-500 border-r  h-full flex-col flex gap-8  px-4 pt-4 ", className)}>
+  return <div className={cn("text-white-500 border-r  h-full flex-col flex gap-4 px-4 pt-4 ", className)}>
     <div className="flex-col flex gap-4"> 
     <Logo/>
     <SideMenu   />

@@ -14,14 +14,14 @@ export const SideMenuItem: React.FC<SideMenuItemProps> = ({ title, Icon , href }
     <div
     className={`flex gap-4 items-center  text-primary/70
     
-     hover:bg-primary-foreground hover:cursor-pointer  py-3 px-2`}
+     hover:bg-primary-foreground rounded-lg hover:cursor-pointer  py-2 px-2  `}
   >
-   
+ 
       <Icon className="w-5 h-5" />
-      <div className="text-base ">
+      <div className="text-base px-2 ">
         {title}
       </div>
-
+ 
     </div>
     </Link>
   );

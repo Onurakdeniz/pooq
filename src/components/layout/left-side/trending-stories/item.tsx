@@ -18,7 +18,7 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
 
   const firstLetter = author?.display_name?.[0]
   return (
-    <div className=" flex flex-col items-center gap-4 rounded-lg  border  p-4 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
+    <div className=" flex flex-col items-center gap-4 rounded-lg  border  py-2 px-4 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-9/12 flex-col gap-1">
         <Link href={`/story/${storyId}`}>
