@@ -23,7 +23,7 @@ import {User , UserViewerContext , UserProfile} from "@/types/user"
           pfp_url: 'https://example.com/johndoe.jpg',
           profile: {
             bio: { text: "Blockchain developer." },
-            mentioned_profiles: []
+      
           },
           follower_count: 1500,
           following_count: 300,

@@ -30,7 +30,7 @@ const StoryBody = () => {
                 <div className="flex flex-col gap-4">
                   <div className="flex h-8 items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <ProfileAvatar size="LARGE" />
+                      <ProfileAvatar size="LARGE" isMentioned />
 
                       <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
                         just now
@@ -70,9 +70,9 @@ const StoryBody = () => {
                         ikinci tane title var bayada uzun bir title Deneme
                         Burada bi zun bir title DenemeDeneme Burada bi zu
                       </div>
-                    </div>
+                    </div>         
                     <div className="flex items-center gap-2">
-                      <Tag />
+            
                       <Badge className="  rounded-sm bg-emerald-50 px-2 py-1   text-[10px]  font-normal text-emerald-500 shadow-sm hover:cursor-pointer hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-500 hover:dark:bg-emerald-900">
                         AI Blockcian
                       </Badge>

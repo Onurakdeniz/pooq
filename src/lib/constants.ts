@@ -33,11 +33,11 @@ export const HEADER_ITEMS = [
 ];
 
 export const SIDE_MENU_ITEMS = [
-  { title: "Home", icon: Home },
-  { title: "Discover", icon: SearchCheck },
-  { title: "Invite", icon: SquareArrowUpRight },
-  { title: "Bookmarks", icon: BookmarkCheck },
-  { title: "Profile", icon: CircleUser },
+  { title: "Home", icon: Home, href: "/" },
+  { title: "Discover", icon: SearchCheck, href: "discover" },
+  { title: "Invite", icon: SquareArrowUpRight, href: "invite" },
+  { title: "Bookmarks", icon: BookmarkCheck, href: "bookmarks" },
+  { title: "Profile", icon: CircleUser, href: "profile" },
 ];
 
 export const SUGGESTION_BOX_TYPES = {
@@ -53,11 +53,9 @@ export const SUGGESTION_BOX_TYPES = {
   },
 };
 
-export const PROFILE_TABS =  
-  [
-    { title: "Stories", icon: BookA, tooltip: "text" },
-    { title: "Posts", icon: MessageCircleMore, tooltip: "text" },
-    { title: "Votes", icon: SquareChevronUp, tooltip: "text" },
-    { title: "Tags", icon: FileText, tooltip: "text" },
-  ]
- 
+export const PROFILE_TABS = [
+  { title: "Stories", icon: BookA, tooltip: "text" },
+  { title: "Posts", icon: MessageCircleMore, tooltip: "text" },
+  { title: "Votes", icon: SquareChevronUp, tooltip: "text" },
+  { title: "Tags", icon: FileText, tooltip: "text" },
+];

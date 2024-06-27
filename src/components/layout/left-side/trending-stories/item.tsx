@@ -1,4 +1,4 @@
-import { AvatarType } from "@/types";
+ 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
     <div className=" flex flex-col items-center gap-4 rounded-lg  border  p-4 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-9/12 flex-col gap-1">
-          <Link className="" href="http://www.wdasdasd.sds">
+        <Link href={`/story/${storyId}`}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

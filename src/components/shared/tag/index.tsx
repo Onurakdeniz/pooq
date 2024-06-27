@@ -6,7 +6,7 @@ import { Plus, User } from "lucide-react";
 
 // Define the Tag type
 interface TagProps {
-  id: number;
+  id: string;
   name: string;
   followers: number;
   description: string;
@@ -22,9 +22,9 @@ const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) =
         </Badge>
       </HoverCardTrigger>
       <HoverCardContent
-        align="center"
+        align="start"
         sideOffset={12}
-        className="flex w-72 flex-col gap-4"
+        className="flex w-72 flex-col z-40 dark:bg-[#1a1a1a] bg-[#fdfcf5] gap-4"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

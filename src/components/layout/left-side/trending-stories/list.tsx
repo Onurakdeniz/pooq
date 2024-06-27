@@ -9,8 +9,8 @@ export const TrendingItemsList = async () => {
   const ITEMS = await api.trending.getTrendingStories();
   return (
     <ScrollArea
-      className="flex overflow-auto "
-      style={{ height: "calc(100vh - 160px)" }}
+      className="flex h-[600px]   "
+      
     >
       <div className="flex flex-col gap-3 pr-4 ">
         {ITEMS.map((item,index) => (

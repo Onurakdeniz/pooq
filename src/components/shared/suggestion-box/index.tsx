@@ -20,7 +20,7 @@ const SuggestionBox = ({type} : ISuggestionBox) => {
 
         />
         <SuggestionBoxBody/>
-        <SuggestionBoxFooter/>
+ 
     </div>
   )
 }

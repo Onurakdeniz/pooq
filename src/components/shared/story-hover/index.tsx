@@ -7,8 +7,14 @@ import {
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
+interface StoryHoverProps {
+  storyId: string;
+  content: string; // <-- Add the content prop
+  children: React.ReactNode;
+}
 
-const StoryHover: React.FC<any> = ({ storyId , children}) => {
+
+const StoryHover: React.FC<StoryHoverProps> = ({ storyId, content, children }) => {
   return (
  
       <HoverCard>

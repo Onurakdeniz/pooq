@@ -6,7 +6,7 @@ import React from "react";
 const BookmarksTop = () => {
   return (
     <div className="flex flex-col w-full  ">
-    <div className=" flex h-16 w-full items-center justify-between border-b  px-8">
+    <div className=" flex h-16 w-full items-center justify-between border-b  ">
       <div className="text-2xl font-light  ">
         Bookmarks
       </div>

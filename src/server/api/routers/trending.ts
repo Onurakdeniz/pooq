@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { faker } from "@faker-js/faker";
-import { TrendingItem, Profile, Tag } from "@/types/index";
-import { User } from "@/types/user";
+import { TrendingItem, Tag } from "@/types/index";
+import { UserWithStories } from "./story";
 
 // Helper function to generate dummy data
 const generateDummyData = (): TrendingItem[] => {
@@ -14,7 +14,7 @@ const generateDummyData = (): TrendingItem[] => {
     isFollowed: faker.datatype.boolean(),
   }));
 
-  const generateDummyUser = (): User => ({
+  const generateDummyUserWithStories = (): UserWithStories => ({
     object: "user",
     fid: faker.number.int(),
     custody_address: faker.finance.ethereumAddress(),
@@ -23,37 +23,33 @@ const generateDummyData = (): TrendingItem[] => {
     pfp_url: faker.image.avatar(),
     profile: {
       bio: {
-        text: faker.lorem.sentences({min:2 , max:4}),
+        text: faker.lorem.sentences({min:2, max:4}),
         mentioned_profiles: [],
       },
     },
     follower_count: faker.number.int({ min: 1, max: 3000 }),
     following_count: faker.number.int({ min: 1, max: 500 }),
     verifications: [],
+    active_status: faker.helpers.arrayElement(["active", "inactive"]),
+    power_badge: faker.datatype.boolean(),
     verified_addresses: {
       eth_addresses: [faker.finance.ethereumAddress()],
       sol_addresses: [faker.finance.ethereumAddress()],
     },
-    active_status: faker.helpers.arrayElement(["active", "inactive"]),
-    power_badge: faker.datatype.boolean(),
     viewer_context: {
       following: faker.datatype.boolean(),
       followed_by: faker.datatype.boolean(),
     },
-  });
-
-  const generateDummyProfile = (): Profile => ({
-    ...generateDummyUser(),
-    tags,
+    tags: tags,
     stories: faker.number.int({ min: 1, max: 20 }),
     posts: faker.number.int({ min: 1, max: 100 }),
   });
 
   const generateDummyStory = (): TrendingItem => ({
     storyId: faker.string.uuid(),
-    title: faker.lorem.sentences({min:1 , max:4}),
+    title: faker.lorem.sentences({min:1, max:4}),
     text: faker.lorem.paragraphs(2),
-    author: generateDummyProfile(),
+    author: generateDummyUserWithStories(),
     likes: faker.number.int({ min: 1, max: 500 }),
   });
 

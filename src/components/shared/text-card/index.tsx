@@ -1,18 +1,21 @@
 import React from "react";
 import StoryHover from "../story-hover";
 import ProfileAvatar from "../avatar";
-import { Badge } from "@/components/ui/badge";
+import { Tag as Itag } from "@/types";
+import Tag from "../tag";
+import StoryFooter from "../story-card/footer";
 
 interface TextCardProps {
   storyId?: string[];
   text: string;
+  tags: Itag[];
 }
 
-const TextCard: React.FC<TextCardProps> = ({ text, storyId }) => {
+const TextCard: React.FC<TextCardProps> = ({ text, storyId, tags }) => {
   const parts = text.split(/(@[\w.-]+|<[\w.-]+>)/gi);
 
   return (
-    <p style={{ display: 'inline' }}>
+    <div className="flex-col flex  w-full font-light text-primary/70">
       {parts.map((part, index) => {
         if (part.startsWith("@")) {
           const userName = part.substring(1); // Remove @
@@ -23,10 +26,7 @@ const TextCard: React.FC<TextCardProps> = ({ text, storyId }) => {
               isMentioned
               userName={userName}
             >
-              <span
-                className="rounded-md font-semibold text-emerald-400"
-                style={{ display: "inline" }}
-              >
+              <span className="rounded-md font-semibold text-emerald-400">
                 {part}
               </span>
             </ProfileAvatar>
@@ -35,22 +35,32 @@ const TextCard: React.FC<TextCardProps> = ({ text, storyId }) => {
           const storyName = part.slice(1, -1); // Remove < and >
           return (
             <StoryHover
-              key={index}
-              storyId={storyName}
-              content={`Hover content for ${storyName}`}
+            key={index}
+    storyId={storyName}
+    content={`Hover content for ${storyName}`} 
             >
-              <span
-                className="rounded-md font-semibold text-emerald-400"
-                style={{ display: "inline" }}
-              >
+              <span className="rounded-md font-semibold text-emerald-400">
                 chk:{storyName}
               </span>
             </StoryHover>
           );
         }
-        return <span key={index} style={{ display: "inline" }}>{part}</span>;
+        return <span className="mb-4 flex w-full" key={index}>{part}</span>;
       })}
-    </p>
+      <div className="flex justify-between w-full items-center">
+      {tags.length > 0 && (
+        
+
+        <div className="flex items-center gap-2 mt-2">
+          {tags.map((item) => (
+            <Tag {...item} key={item.id} />
+          ))}
+        </div>
+      )}
+      
+      <StoryFooter numberofPosts={23} /> 
+      </div>
+    </div>
   );
 };
 

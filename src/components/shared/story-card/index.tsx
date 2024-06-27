@@ -4,9 +4,9 @@ import StoryBody from "./body";
 import StoryFooter from "./footer";
 import StoryHover from "../story-hover";
 import TextCard from "../text-card";
-import { Story } from "@/types/index";
-
-const StoryCard: React.FC<Story> = ({
+import { Story as IStory } from "@/server/api/routers/story";
+ 
+const StoryCard: React.FC<IStory> = ({
   title,
   tags,
   entities,
@@ -15,18 +15,25 @@ const StoryCard: React.FC<Story> = ({
   author,
   cast,
 }) => {
+  const numberofPosts = cast.direct_replies.length;
   return (
-    <div className="flex flex-col gap-2 border-b p-8 hover:cursor-pointer hover:bg-accent">
-      <div className="flex flex-col gap-2">
-        <StoryHeader title={title} tags={tags} author={author} />
+    <div className="flex flex-col  w-full border-b p-8 hover:cursor-pointer hover:bg-accent">
+      <div className="flex flex-col  w-full  gap-2">
+        <StoryHeader
+          title={title}
+          tags={tags}
+          author={author}
+          date={cast.timestamp}
+        />
 
-        <div>
-          <span className="flex text-sm text-primary/60">
-            <TextCard text={cast.text} storyId={mentionedStories} />
-          </span>
-        </div>
+    
+          <div className="flex text-sm w-full text-primary/60">
+            <TextCard text={cast.text} storyId={mentionedStories} tags={tags} />
+          </div>
+  
+   
       </div>
-      <StoryFooter />
+  
     </div>
   );
 };

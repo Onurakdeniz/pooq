@@ -26,11 +26,11 @@ const StoryHeader = () => {
   const title =
     "Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada";
   return (
-    <div className=" flex  flex-col   gap-2 bg-accent p-8   hover:bg-accent  ">
+    <div className=" flex  flex-col     gap-2   p-8   hover:bg-accent  ">
       <div className="  flex  w-full  flex-col gap-6   ">
         <div className="flex h-8 items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ProfileAvatar size="LARGE" profile={exampleProfile} isMentioned />
+            <ProfileAvatar size="LARGE"   isMentioned />
 
             <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
               just now
@@ -81,9 +81,8 @@ const StoryHeader = () => {
               {title}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Tag />
-              <Tag />
+            <div className="flex items-center gap-2">  
+            
             </div>
           </div>
           <div>

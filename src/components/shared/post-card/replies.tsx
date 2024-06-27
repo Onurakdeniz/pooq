@@ -25,7 +25,7 @@ const PostReply = () => {
       <div className="flex flex-col gap-6">
         <div className="flex h-8 items-center justify-between  gap-3">
           <div className="flex items-center gap-3">
-            <ProfileAvatar size="LARGE" />
+            <ProfileAvatar size="LARGE" isMentioned />
 
             <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
               just now
@@ -51,9 +51,9 @@ const PostReply = () => {
               uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada
               bi zu
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Tag />
+          </div>       
+          <div className="flex items-center gap-2"> 
+     
           </div>
         </div>
       </div>

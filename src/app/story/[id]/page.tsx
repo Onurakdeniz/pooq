@@ -11,16 +11,19 @@ import Post from "@/components/shared/post-card";
 export default function Story() {
     return(
         <div className="flex-col flex flex-1">
+            <div className="flex-col flex flex-1   ">
                 <StoryTop/>
                 <div className="flex-col flex  ">
                 <StoryHeader/>
                 <div className="border-b "></div>
+                </div>
+                </div>
                 <ScrollArea className="flex h-screen "> 
                 <div className="flex-col  flex gap-10   py-8">
                 <Post/>
                 </div>
                 </ScrollArea>
-                </div>
+              
         </div>
     )
 }

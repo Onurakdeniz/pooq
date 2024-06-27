@@ -4,9 +4,9 @@ import React from 'react'
 import Profile from '../header/profile'
 import AiBox from './ai-box'
 
-export const RightSide = ({className} : {className:string}) => {
+export const RightSide = ({className} : {className?:string}) => {
   return (
-    <div className={cn("text-white-500 border-l flex-col flex gap-4 pl-4 ", className)}>
+    <div className={cn("text-white-500   flex-col flex gap-4 p-4 ", className)}>
         <Profile/>
         <AiBox/>
         <SuggestionBox type="FOLLOWERS"/>

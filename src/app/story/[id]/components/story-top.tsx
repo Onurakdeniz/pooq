@@ -5,7 +5,7 @@ import { PostWrite } from "./write";
 
 const StoryTop = () => {
   return (
-    <div className="flex h-16 items-center justify-between border-b px-8 ">
+    <div className="flex h-16 items-center justify-between   border-b px-8 ">
       <div className="flex items-center gap-4 text-primary/80">
         <Button variant={"outline"} size="icon">
           <ArrowLeft size="20" />

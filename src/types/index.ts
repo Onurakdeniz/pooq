@@ -1,6 +1,6 @@
 import { Cast } from "./cast"
 import { User } from "./user"
-
+import { UserWithStories } from "@/server/api/routers/story";
 export interface Tag {
     id : string
     name : string
@@ -11,10 +11,11 @@ export interface Tag {
 }
 
 export interface Entity {
-    id : string
-    entity : string
+  type : string;
+  name: string;
+  description: string;
+  id: string;
 }
-
 
 export interface Bookmark {
     id : string
@@ -68,7 +69,7 @@ export interface Story {
     storyId : string
     title : string
     text : string
-    author : Profile
+    author : UserWithStories
     likes : number 
   }
 
