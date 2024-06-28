@@ -25,6 +25,7 @@ model Story {
   text           String
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
+  isProcessed    Boolean     @default(false)
   posts          Post[]
   extraction     Extraction?
   bookmarkAmount Int         @default(0)

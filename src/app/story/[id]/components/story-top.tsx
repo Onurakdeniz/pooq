@@ -11,7 +11,7 @@ const StoryTop = () => {
           <ArrowLeft size="20" />
         </Button>
 
-        <span>Back to feed</span>
+        <span>Back Feed</span>
       </div>
       <div>
         <PostWrite />

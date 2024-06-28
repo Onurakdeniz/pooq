@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { api } from "@/trpc/server";
 import { Entity } from "@/types/index";
 import FeedFilter from './components/top/filter';
-import FeedList from './components/list';
+import StoryList from './components/list';
 import FeedTop from './components/top';
 import { Story  } from "@/types"
 // Update the APIStory interface to make author and cast optional
@@ -25,6 +25,10 @@ export default async function FeedPage({ searchParams }: {    searchParams: Reco
       apiResponse = await api.story.getStories({ limit: 10 });
     }
 
+    const exampleTag  = await api.story.getHoverStory({storyId : "2323" })
+    console.log("exampleTag",exampleTag)
+    
+
     // Map the API stories to your Story type
     const initialStories: Story[] = apiResponse.items.map(apiStory => ({
       ...apiStory,
@@ -37,7 +41,7 @@ export default async function FeedPage({ searchParams }: {    searchParams: Reco
       <div className='flex flex-col min-h-screen z-0  '>
         <FeedTop />
         <Suspense fallback={<div>Loading stories...</div>}>
-          <FeedList 
+          <StoryList 
             initialStories={initialStories} 
             searchParams={searchParams} 
             initialCursor={apiResponse.nextCursor}

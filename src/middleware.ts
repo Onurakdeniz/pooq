@@ -25,8 +25,8 @@ export async function middleware(request: NextRequest) {
       // Verify the token with Privy's API
       try {
         const verifiedClaims = await privy.verifyAuthToken(accessToken);
-        // verifiedClaims is not used, so we don't need to keep it.
-        isAuthenticated = true;
+        isAuthenticated  = true
+        console.log("isAuth",isAuthenticated)
       } catch (error) {
         if (error instanceof Error) {
           console.log(`Token verification failed with error: ${error.message}`);

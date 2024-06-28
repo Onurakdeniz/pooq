@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { faker } from "@faker-js/faker";
-import { TagSchema, EntitySchema, UserBaseSchema, UserSchema, UserWithStoriesSchema, CastBaseSchema, CastSchema , StorySchema, StoriesSchema } from "@/schemas"
-import { Tag,Entity , UserBase , User , Cast , CastBase , Story, Stories, UserWithStories } from "@/types"
+import { TagSchema, EntitySchema, UserBaseSchema, UserSchema, UserWithStoriesSchema, CastBaseSchema, CastSchema , StorySchema, StoriesSchema , hoverStorySchema , SuggestedStorySchema} from "@/schemas"
+import { Tag,Entity , UserBase , User , HoverStory, Cast , CastBase , Story, Stories, UserWithStories , SuggestedStory } from "@/types"
 
 
 // Helper functions to generate fake data
@@ -99,6 +99,58 @@ const generateFakeStory = (): Story => {
     cast: generateFakeCast(author),
   };
 };
+
+async function fetchHoverStoryById(storyId: string): Promise<HoverStory> {
+  // Generate fake tags
+  const tags = Array.from({ length: 3 }, () => ({
+    id: faker.string.uuid(),
+    name: faker.lorem.word(),
+  }));
+
+  // Generate a fake story
+  return {
+    id: storyId,
+    title: faker.lorem.sentence(),
+    timestamp: faker.date.past(),
+    text: faker.lorem.paragraph(),
+    authorFid: faker.datatype.number({ min: 1000, max: 9999 }),
+    authorUserName: faker.internet.userName(),
+    tags: Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
+      id: faker.string.uuid(),
+      name: faker.word.noun(),
+      followers: faker.number.int({ min: 0, max: 10000 }),
+      isFollowed: faker.datatype.boolean(),
+      description: faker.lorem.sentence(),
+    })),
+    type: faker.word.sample(),
+    numberofPosts: faker.number.int({ min: 0, max: 10 }),
+  };
+}
+
+
+export function generateFakeSuggestedStory(): SuggestedStory {
+  const tags = Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => ({
+    id: faker.string.uuid(),
+    name: faker.word.noun(),
+    followers: faker.number.int({ min: 0, max: 10000 }),
+    isFollowed: faker.datatype.boolean(),
+    description: faker.lorem.sentence(),
+  }));
+
+  return {
+    id: faker.string.uuid(),
+    title: faker.lorem.sentence(),
+    text: faker.lorem.paragraph(),
+    timestamp: faker.date.past(),
+    tags: tags,
+    type: faker.word.sample(),
+    numberofPosts: faker.number.int({ min: 0, max: 10 }),
+  };
+}
+
+//////////////// routers  //////////////////////
+
+
 
 export const storyRouter = createTRPCRouter({
   getStories: publicProcedure
@@ -268,33 +320,37 @@ export const storyRouter = createTRPCRouter({
       return z.array(StorySchema).parse(stories);
     }),
 
-  getSuggestedStoriesByUser: publicProcedure
+ 
+
+    getSuggestedStoriesByUser: publicProcedure
     .input(z.object({ userId: z.string() }))
-    .output(z.array(StorySchema))
-    .query(async () => {
-      const stories: Story[] = Array.from({ length: 10 }, generateFakeStory);
-      return z.array(StorySchema).parse(stories);
+    .output(z.array(SuggestedStorySchema))
+    .query(async ({ input }) => {
+      const {userId} = input
+      const stories = Array.from({ length: 5 }, generateFakeSuggestedStory);
+      return z.array(SuggestedStorySchema).parse(stories);
     }),
+
+ 
+
 
   getSuggestedStoriesByStoryId: publicProcedure
     .input(z.object({ storyId: z.string() }))
-    .output(z.array(StorySchema))
-    .query(async () => {
-      const stories: Story[] = Array.from({ length: 10 }, generateFakeStory);
-      return z.array(StorySchema).parse(stories);
+    .output(z.array(SuggestedStorySchema))
+    .query(async ({ input }) => {
+      const {storyId} = input
+      const stories = Array.from({ length: 5 }, generateFakeSuggestedStory);
+      return z.array(SuggestedStorySchema).parse(stories);
     }),
 
-  getStoryTag: publicProcedure
-    .input(z.object({ tagId: z.string() }))
-    .output(TagSchema)
-    .query(async () => {
-      const tag: Tag = {
-        id: faker.string.uuid(),
-        name: faker.word.noun(),
-        followers: faker.number.int({ min: 0, max: 10000 }),
-        isFollowed: faker.datatype.boolean(),
-        description: faker.lorem.sentence(),
-      };
-      return TagSchema.parse(tag);
-    }),
+    getHoverStory : publicProcedure
+    .input(z.object({ storyId: z.string() }))
+    .output(hoverStorySchema)
+    .query(async ({ input }) => {
+      const { storyId } = input;
+      const story = await fetchHoverStoryById(storyId);
+      return hoverStorySchema.parse(story);
+    })
+
 });
+ 

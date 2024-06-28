@@ -165,4 +165,26 @@ export type Stories = {
   }
 
 
+  export interface HoverStory {
+    id : string
+    title : string
+    timestamp : Date
+    text : string
+    authorFid : number
+    authorUserName : string
+    tags : Tag[]
+    type? : string
+    numberofPosts? : number
+  }
+
+
+  export interface SuggestedStory {
+    id : string 
+    title : string 
+    text : string
+    timestamp : Date
+    tags : Tag[]
+    type? : string
+    numberofPosts? : number
+  }
  

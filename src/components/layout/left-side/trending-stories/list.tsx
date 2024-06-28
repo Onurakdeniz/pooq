@@ -7,6 +7,7 @@ import { api } from "@/trpc/server";
 
 export const TrendingItemsList = async () => {
   const ITEMS = await api.trending.getTrendingStories();
+  console.log("trending",ITEMS)
   return (
     <ScrollArea
       className="flex h-[600px]   "

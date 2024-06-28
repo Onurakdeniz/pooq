@@ -7,13 +7,13 @@ import StoryCard from "@/components/shared/story-card";
 import { Story as IStory } from "@/types";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-interface InfiniteScrollFeedProps {
+interface InfiniteScrollStoryListProps {
   initialStories: IStory[];  
   searchParams: Record<string, string | string[] | undefined>;
   initialCursor: string | null;
 }
 
-export const InfiniteScrollFeed: React.FC<InfiniteScrollFeedProps> = ({
+export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = ({
   initialStories,
   searchParams,
   initialCursor,

@@ -16,6 +16,7 @@ import {
   Users,
   SquareArrowUpRight,
   BookmarkCheck,
+  Hash,
 } from "lucide-react";
 
 export const UNAUTHENTICATED_PAGES = [
@@ -41,14 +42,20 @@ export const SIDE_MENU_ITEMS = [
 ];
 
 export const SUGGESTION_BOX_TYPES = {
-  FOLLOWERS: {
+  USER: {
     title: "Suggested Followers",
     Icon: CircleUser, // Use the component directly
     info: "People you might know",
   },
-  TAGS: {
+  TAG: {
     title: "Suggested Tags",
     Icon: AlignLeft, // Use the component directly
+    info: "Popular tags in your area",
+  },
+
+  STORY: {
+    title: "Suggested Stories",
+    Icon: Hash, // Use the component directly
     info: "Popular tags in your area",
   },
 };

@@ -1,6 +1,6 @@
 
 import { z } from "zod";
-import { Tag,Entity , UserBase , User , Cast , CastBase , Story, Stories, UserWithStories } from "@/types"
+import { Tag,Entity , UserBase , User , Cast , CastBase , Story, Stories, UserWithStories ,HoverStory , SuggestedStory } from "@/types"
 
 // ===========================
 // 1. Define Base Types
@@ -166,3 +166,29 @@ export const StoriesSchema: z.ZodType<Stories> = z.object({
   stories: z.array(StorySchema),
   nextCursor: z.string().optional(),
 });
+
+
+export const hoverStorySchema : z.ZodType <HoverStory> = z.object({
+  id: z.string(),
+  title: z.string(),
+  timestamp: z.date(), 
+  text: z.string(),
+  authorFid: z.number(),
+  authorUserName: z.string(),
+  tags: z.array(TagSchema),
+  type: z.string().optional(), 
+  numberofPosts: z.number().optional(), 
+});
+
+
+export const SuggestedStorySchema : z.ZodType <SuggestedStory> = z.object(
+  {
+    id: z.string(),
+    title : z.string(),
+    text: z.string(),
+    timestamp : z.date(),
+    tags: z.array(TagSchema),
+    type: z.string().optional(), 
+    numberofPosts: z.number().optional(), 
+  }
+)

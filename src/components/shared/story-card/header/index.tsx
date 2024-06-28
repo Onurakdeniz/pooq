@@ -2,7 +2,7 @@ import ProfileAvatar from "@/components/shared/avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bookmark, ChevronUp } from "lucide-react";
+import { Bookmark, ChevronUp, Info } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -28,19 +28,25 @@ const StoryHeader: React.FC<IStoryHeader> = ({ title, author ,tags , date }) => 
     <div className="mb-4 flex  w-full  flex-col gap-4   ">
 
 <div className="flex flex-col gap-4">
-  <div className="flex w-full">
-        <div className=" line-clamp-2  w-11/12 text-primary/80 font-semibold text-xl flex    ">
+  <div className="flex w-full justify-between items-center text-primary/80">
+        <div className=" line-clamp-2  w-11/12  font-semibold text-xl flex    ">
           {title}
         </div>
-        <div className="w-1/12">
-sdsd
-        </div>
+        <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                <Info className="h-4 w-4" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>AI Generated</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
         </div>
         <div className="flex h-8 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <ProfileAvatar profile={author} size="LARGE" isMentioned={false} date={date} />
-
-        
         </div>
         <div className="flex items-center gap-2 ">
           <div className=" items-cetner flex gap-2 text-xs text-primary/60">

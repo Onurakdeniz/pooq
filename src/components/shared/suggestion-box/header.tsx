@@ -25,13 +25,11 @@ const SuggestionBoxHeader: React.FC<ISuggestionBoxHeader> = ({
       </div>
       <HoverCard>
         <HoverCardTrigger>
-          {" "}
           <Info className="h-4 w-4 text-primary/30" />
         </HoverCardTrigger>
         <HoverCardContent align="end" className="border-none" >
           <div className="flex text-xs text-primary/50"> 
-asdasdasdasd asdadasdas dasdasdasd asdadasd sadsadsdasdsad sadadas Deneme Burada bi zun bir title Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada bi zun bir title Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada bi zu
-          {info}
+              {info}
           </div>
         
         </HoverCardContent>
