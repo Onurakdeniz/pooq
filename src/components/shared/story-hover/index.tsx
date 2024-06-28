@@ -7,14 +7,14 @@ import {
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
+import { HoverStory } from "@/types";
 interface StoryHoverProps {
-  storyId: string;
-  content: string; // <-- Add the content prop
+  hoverStory : HoverStory
   children: React.ReactNode;
 }
 
 
-const StoryHover: React.FC<StoryHoverProps> = ({ storyId, content, children }) => {
+const StoryHover: React.FC<StoryHoverProps> = ({ hoverStory, children }) => {
   return (
  
       <HoverCard>
@@ -28,7 +28,7 @@ const StoryHover: React.FC<StoryHoverProps> = ({ storyId, content, children }) =
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span> {storyId}</span>
+              <span> {hoverStory.id}</span>
               <div className="flex items-center gap-1 text-xs text-primary/40">
                 <User className="h-4 w-4" />
                 <span className="">22K</span>
@@ -43,11 +43,7 @@ const StoryHover: React.FC<StoryHoverProps> = ({ storyId, content, children }) =
             </Button>
           </div>
           <span className="text-xs text-primary/60">
-            {" "}
-            The React Framework – created and maintained by @vercel.Deneme
-            Burada bi zun bir title Deneme Burada ikinci tane title var bayada
-            uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada bi
-            zun bir title Deneme Burada ikinci tane title var b{" "}
+           {hoverStory.text}
           </span>
         </HoverCardContent>
       </HoverCard>

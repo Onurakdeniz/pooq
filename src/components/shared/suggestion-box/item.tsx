@@ -2,32 +2,17 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, User } from 'lucide-react'
 import React from 'react'
+import {SuggestedStory,SuggestedTag,SuggestedUser} from "@/types"
 
-export interface SuggestedUser {
-  id: string;
-  name: string;
-  followers: number;
-}
 
-export interface SuggestedTag {
-  id: string;
-  name: string;
-  followers: number;
-}
 
-export interface SuggestStory {
-  id: string;
-  title: string;
-  text : string
-  numberofPosts? : number
-}
-
+ 
 export type SuggestedItemType = "user" | "tag" | "other";
 
 export type SuggestedItemProps =
   | { type: "user"; item: SuggestedUser }
   | { type: "tag"; item: SuggestedTag }
-  | { type: "story"; item: SuggestStory };
+  | { type: "story"; item: SuggestedStory };
 
   const SuggestedItem: React.FC<SuggestedItemProps> = ({ item, type }) => {
     switch (type) {

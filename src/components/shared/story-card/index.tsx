@@ -14,8 +14,9 @@ const StoryCard: React.FC<IStory> = ({
   mentionedStories,
   author,
   cast,
+  numberofPosts
 }) => {
-  const numberofPosts = cast.direct_replies.length;
+ 
   return (
     <div className="flex flex-col  w-full border-b p-8 hover:cursor-pointer hover:bg-accent">
       <div className="flex flex-col  w-full  gap-2">

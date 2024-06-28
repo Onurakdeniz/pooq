@@ -1,15 +1,8 @@
 
 import { z } from "zod";
-import { Tag,Entity , UserBase , User , Cast , CastBase , Story, Stories, UserWithStories ,HoverStory , SuggestedStory } from "@/types"
+import { Tag,Entity , UserBase , User , Post, Posts,Cast ,CastFull, CastBase , Story, Stories, UserWithStories ,HoverStory , SuggestedStory ,SuggestedTag ,SuggestedUser } from "@/types"
 
-// ===========================
-// 1. Define Base Types
-// ===========================
-
-
-// ===========================
-// 5. Zod Schemas (Defined After Types)
-// ===========================
+ 
 
 export const TagSchema: z.ZodType<Tag> = z.object({
   id: z.string().uuid(),
@@ -78,7 +71,7 @@ export const CastBaseSchema: z.ZodType<CastBase> = z.object({
   timestamp: z.string(),
 });
 
-export const CastSchema: z.ZodType<Cast> = z.lazy(() =>
+export const CastFullSchema: z.ZodType<Cast> = z.lazy(() =>
   z.object({ 
     object: z.literal("cast"),
     hash: z.string(),
@@ -152,15 +145,86 @@ export const CastSchema: z.ZodType<Cast> = z.lazy(() =>
   })
 );
 
-export const StorySchema: z.ZodType<Story> = z.object({
+
+export const CastSchema: z.ZodType<Cast> = z.lazy(() =>
+  z.object({ 
+    object: z.literal("cast"),
+    hash: z.string(),
+    thread_hash: z.string(),
+    parent_hash: z.string().nullable(),
+    parent_url: z.string().nullable(),
+    root_parent_url: z.string().nullable(),
+    text: z.string(),
+    timestamp: z.string(),
+    parent_author: z.object({
+      fid: z.number().nullable(),
+    }),
+    reactions: z.object({
+      likes_count: z.number(),
+      recasts_count: z.number(),
+      likes: z.array(
+        z.object({
+          fid: z.number(),
+          fname: z.string(),
+        }),
+      ),
+      recasts: z.array(
+        z.object({
+          fid: z.number(),
+          fname: z.string(),
+        }),
+      ),
+    }),
+    replies: z.object({
+      count: z.number(),
+    }),
+    channel: z
+      .object({
+        object: z.string(),
+        id: z.string(),
+        name: z.string(),
+        image_url: z.string(),
+      })
+      .nullable(),
+    mentioned_profiles: z.array(UserBaseSchema),
+    viewer_context: z.object({
+      liked: z.boolean(),
+      recasted: z.boolean(),
+    }),
+  })
+);
+
+
+export const PostSchema : z.ZodType<Post> = z.object({
   id: z.string(),
-  title: z.string(),
   tags: z.array(TagSchema),
   entities: z.array(EntitySchema),
   isBookmarked: z.boolean(),
   mentionedStories: z.array(z.string()),
-  author: UserWithStoriesSchema, // Change this from UserSchema to UserWithStoriesSchema
+  author: UserWithStoriesSchema,  
   cast: CastSchema,
+  numberofReplies: z.number()
+});
+
+export const PostsSchema: z.ZodType<Posts> = z.object({
+  posts: z.array(PostSchema),
+  nextCursor: z.string().optional(),
+});
+
+
+
+export const StorySchema: z.ZodType<Story> = z.object({
+  id: z.string(),
+  title: z.string(),
+  type: z.string().optional(),
+  tags: z.array(TagSchema),
+  entities: z.array(EntitySchema),
+  isBookmarked: z.boolean(),
+  mentionedStories: z.array(z.string()),
+  author: UserWithStoriesSchema,  
+  cast: CastSchema,
+  numberofPosts: z.number(),
+  posts : z.array(PostSchema)
 });
 export const StoriesSchema: z.ZodType<Stories> = z.object({
   stories: z.array(StorySchema),
@@ -192,3 +256,18 @@ export const SuggestedStorySchema : z.ZodType <SuggestedStory> = z.object(
     numberofPosts: z.number().optional(), 
   }
 )
+
+export const SuggestedTagSchema : z.ZodType <SuggestedTag> = z.object(
+  {
+  id: z.string(),
+  name: z.string(),
+  followers: z.number()
+});
+
+
+export const SuggestedUserSchema : z.ZodType <SuggestedUser> = z.object(
+  {
+  id: z.string(),
+  name: z.string(),
+  followers: z.number()
+});

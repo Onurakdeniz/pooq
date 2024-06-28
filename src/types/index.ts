@@ -71,7 +71,7 @@ export type CastBase = {
 };
 
 
-export type Cast = CastBase & {
+export type CastFull = CastBase & {
   parent_author: {
     fid: number | null;
   };
@@ -110,7 +110,32 @@ export type Cast = CastBase & {
     liked: boolean;
     recasted: boolean;
   };
-  direct_replies: Cast[]; // Recursive type
+  direct_replies: CastFull[]; // Recursive type
+};
+
+
+export type Cast = CastBase & {
+  parent_author: {
+    fid: number | null;
+  };
+  reactions: {
+    likes_count: number;
+    recasts_count: number;
+    likes: { fid: number; fname: string }[];
+    recasts: { fid: number; fname: string }[];
+  };
+  replies: { count: number };
+  channel: {
+    object: string;
+    id: string;
+    name: string;
+    image_url: string;
+  } | null;
+  mentioned_profiles: UserBase[];
+  viewer_context: {
+    liked: boolean;
+    recasted: boolean;
+  };
 };
 
 // ===========================
@@ -120,12 +145,15 @@ export type Cast = CastBase & {
 export type Story = {
   id: string;
   title: string;
+  type? : string
   tags: Tag[];
   entities: Entity[];
   isBookmarked: boolean;
   mentionedStories: string[];
   author: UserWithStories; 
   cast: Cast;
+  posts?: Post[]
+  numberofPosts : number
 };
 
 export type Stories = {
@@ -134,25 +162,26 @@ export type Stories = {
 };
 
 
-  interface Post {
-    isBookmarked : boolean
+  export interface Post {
+    id: string;
     tags: Tag[];
-    entities : Entity[]
-    author : UserWithStories
-    cast: Omit<Cast, 'embeds' | 'frames' | 'author'>;
+    entities: Entity[];
+    isBookmarked: boolean;
+    mentionedStories: string[];
+    author: UserWithStories; 
+    cast: Cast;
+    numberofReplies : number
   }
 
-  interface Reply {
+  export type Posts = {
+    posts: Post[];
+    nextCursor?: string;
+  };
+
+
+  export interface Reply {
     author : UserWithStories
-    cast: Omit<Cast, 'embeds' | 'frames' | 'author'>;
-  }
-
-
-
-  export interface Profile extends Omit<User, 'object' |   'verifications' | 'verified_addresses' | 'active_status' > {
-    tags: Tag[]; // Array of tags associated with the profile
-    stories: number; // Number of stories the user has posted
-    posts: number; // Number of posts the user has made
+    cast: Cast
   }
 
 
@@ -188,3 +217,15 @@ export type Stories = {
     numberofPosts? : number
   }
  
+  export interface SuggestedTag {
+    id: string;
+    name: string;
+    followers: number;
+  }
+
+  export interface SuggestedUser {
+    id: string;
+    name: string;
+    followers: number;
+  }
+  

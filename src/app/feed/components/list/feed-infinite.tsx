@@ -69,6 +69,7 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
           isBookmarked={story.isBookmarked}
           title={story.title}
           tags={story.tags}
+          numberofPosts={23}
         />
       ))}
     </InfiniteScroll>

@@ -47,11 +47,8 @@ const generateFakeCast = (author: UserWithStories): Cast => ({
   parent_author: {
     fid: faker.helpers.arrayElement([null, faker.number.int()]),
   },
-  author,
   text: faker.lorem.paragraphs({min:0 , max:5}),
   timestamp: faker.date.recent().toISOString(),
-  embeds: [],
-  frames: [],
   reactions: {
     likes_count: faker.number.int({ min: 0, max: 1000 }),
     recasts_count: faker.number.int({ min: 0, max: 500 }),
@@ -65,7 +62,6 @@ const generateFakeCast = (author: UserWithStories): Cast => ({
     liked: faker.datatype.boolean(),
     recasted: faker.datatype.boolean(),
   },
-  direct_replies: [],
 
 });
 
@@ -81,24 +77,20 @@ const generateFakeStory = (): Story => {
       isFollowed: faker.datatype.boolean(),
       description: faker.lorem.sentence(),
     })),
-    entities: Array.from(
-      { length: faker.number.int({ min: 1, max: 3 }) },
-      () => ({
-        id: faker.string.uuid(),
-        name: faker.company.name(),
-        description: faker.lorem.sentence(),
-        type: faker.lorem.word(), // <-- Now correctly includes 'type'
-      }),
-    ),
+    entities: Array.from({ length: faker.number.int({ min: 1, max: 3 }) }, () => ({
+      id: faker.string.uuid(),
+      name: faker.company.name(),
+      description: faker.lorem.sentence(),
+      type: faker.lorem.word(),
+    })),
     isBookmarked: faker.datatype.boolean(),
-    mentionedStories: Array.from(
-      { length: faker.number.int({ min: 0, max: 3 }) },
-      () => faker.string.uuid(),
-    ),
+    mentionedStories: Array.from({ length: faker.number.int({ min: 0, max: 3 }) }, () => faker.string.uuid()),
     author,
     cast: generateFakeCast(author),
+    numberofPosts: faker.number.int({ min: 0, max: 100 }), // Added numberofPosts
   };
 };
+
 
 async function fetchHoverStoryById(storyId: string): Promise<HoverStory> {
   // Generate fake tags
