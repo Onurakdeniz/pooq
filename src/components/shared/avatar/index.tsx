@@ -18,7 +18,7 @@ interface IProfileAvatar {
   size: string;
   isMentioned: boolean;
   badges?: string[];
-  profile?: Profile;
+  profile: Profile;
   children?: React.ReactNode;
   userName?: string;
   date?: string;
@@ -42,7 +42,8 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
   const avatarSize = size === "LARGE" ? "h-6 w-6" : "h-6 w-6";
   const avatarName = size === "LARGE" ? "flex text-sm " : "hidden";
 
-  const displayedProfile: Profile | undefined = isMentioned ? hoveredProfile ?? profile : undefined;
+  // Change this line
+  const displayedProfile: Profile | undefined = isMentioned ? hoveredProfile ?? profile : profile;
   const firstLetter = displayedProfile?.display_name?.[0] ?? '';
 
   const formattedTimeAgo = formatDistanceToNow(

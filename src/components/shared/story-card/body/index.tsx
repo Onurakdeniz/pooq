@@ -30,7 +30,7 @@ const StoryBody = () => {
                 <div className="flex flex-col gap-4">
                   <div className="flex h-8 items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <ProfileAvatar size="LARGE" isMentioned />
+                      <ProfileAvatar size="LARGE" isMentioned  profile={author}/>
 
                       <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
                         just now

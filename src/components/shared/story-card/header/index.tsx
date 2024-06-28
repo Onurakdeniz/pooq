@@ -46,7 +46,7 @@ const StoryHeader: React.FC<IStoryHeader> = ({ title, author ,tags , date }) => 
         </div>
         <div className="flex h-8 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <ProfileAvatar profile={author} size="LARGE" isMentioned={false} date={date} />
+          <ProfileAvatar profile={author} size="LARGE" isMentioned={false} date={date}  />
         </div>
         <div className="flex items-center gap-2 ">
           <div className=" items-cetner flex gap-2 text-xs text-primary/60">

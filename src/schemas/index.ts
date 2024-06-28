@@ -224,7 +224,7 @@ export const StorySchema: z.ZodType<Story> = z.object({
   author: UserWithStoriesSchema,  
   cast: CastSchema,
   numberofPosts: z.number(),
-  posts : z.array(PostSchema)
+  posts : z.array(PostSchema).optional()
 });
 export const StoriesSchema: z.ZodType<Stories> = z.object({
   stories: z.array(StorySchema),

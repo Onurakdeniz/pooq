@@ -65,7 +65,7 @@ const generateFakeCast = (author: UserWithStories): Cast => ({
 
 });
 
-const generateFakeStory = (): Story => {
+ const generateFakeStory = (): Story => {
   const author = generateFakeUser();
   return {
     id: faker.string.uuid(),
