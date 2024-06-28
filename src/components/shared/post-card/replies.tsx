@@ -25,7 +25,7 @@ const PostReply = () => {
       <div className="flex flex-col gap-6">
         <div className="flex h-8 items-center justify-between  gap-3">
           <div className="flex items-center gap-3">
-            <ProfileAvatar size="LARGE" isMentioned />
+           <div>profile</div>
 
             <time className="mb-1  text-end text-xs  font-normal text-primary/60 sm:order-last sm:mb-0">
               just now

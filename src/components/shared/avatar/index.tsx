@@ -18,7 +18,7 @@ interface IProfileAvatar {
   size: string;
   isMentioned: boolean;
   badges?: string[];
-  profile: Profile;
+  profile?: Profile;
   children?: React.ReactNode;
   userName?: string;
   date?: string;
