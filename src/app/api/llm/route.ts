@@ -150,21 +150,8 @@ export async function POST(req: NextRequest) {
       data: { isProcessed: true },
     });
 
-    // Check if a user with this fid exists, if not create one
-    let user = await prisma.user.findUnique({
-      where: { fid: data.author.fid },
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          fid: data.author.fid,
-          pid: data.author.custody_address, // Assuming custody_address is the pid
-          username: data.author.username,
-          isRegistered: false, // Set to false by default
-        },
-      });
-    }
+  
+   
 
     return NextResponse.json({
       success: true,

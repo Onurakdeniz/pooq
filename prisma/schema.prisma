@@ -15,10 +15,11 @@ model User {
   isRegistered Boolean    @default(false)
   bookmarks    Bookmark[]
   tags         Tag[]
+  categories   Category[]
 }
 
 model Author {
-  fid      Int     @unique
+  fid      Int     @id @unique
   userName String
   posts    Post[]
   stories  Story[]
@@ -26,69 +27,87 @@ model Author {
 
 model Story {
   id             Int         @id @default(autoincrement())
-  hash           String
+  hash           String      @unique
   authorId       Int
   text           String
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   isProcessed    Boolean     @default(false)
   bookmarkAmount Int         @default(0)
-  Bookmark       Bookmark?
+  bookmarks      Bookmark[]
   extraction     Extraction?
   posts          Post[]
   author         Author      @relation(fields: [authorId], references: [fid])
   tags           Tag[]       @relation("StoryTags")
-}
-
-model Extraction {
-  id               Int      @id @default(autoincrement())
-  storyId          Int      @unique
-  title            String
-  type             String?
-  mentionedStories String[]
-  entities         Entity[]
-  story            Story    @relation(fields: [storyId], references: [id])
-  tags             Tag[]
+  categories     Category[]  @relation("StoryCategories")
 }
 
 model Post {
-  id             Int       @id @default(autoincrement())
-  hash           String
+  id             Int        @id @default(autoincrement())
+  hash           String     @unique
   authorId       Int
   text           String
   storyId        Int?
   content        String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  bookmarkAmount Int       @default(0)
-  Bookmark       Bookmark?
-  author         Author    @relation(fields: [authorId], references: [fid])
-  story          Story?    @relation(fields: [storyId], references: [id])
-  entities       Entity[]  @relation("PostEntities")
-  tags           Tag[]     @relation("PostTags")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  bookmarkAmount Int        @default(0)
+  bookmarks      Bookmark[]
+  author         Author     @relation(fields: [authorId], references: [fid])
+  story          Story?     @relation(fields: [storyId], references: [id])
+  entities       Entity[]   @relation("PostEntities")
+  tags           Tag[]      @relation("PostTags")
+  categories     Category[] @relation("PostCategories")
+}
+
+model Extraction {
+  id               Int        @id @default(autoincrement())
+  storyId          Int        @unique
+  title            String
+  type             String?
+  mentionedStories String[]
+  story            Story      @relation(fields: [storyId], references: [id])
+  tags             Tag[]
+  entities         Entity[]
+  categories       Category[]
 }
 
 model Bookmark {
   id        Int      @id @default(autoincrement())
   userId    Int
-  storyId   Int      @unique
-  postId    Int      @unique
+  storyId   Int?
+  postId    Int?
   createdAt DateTime @default(now())
-  post      Post     @relation(fields: [postId], references: [id])
-  story     Story    @relation(fields: [storyId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id])
+  story     Story?   @relation(fields: [storyId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, storyId])
+  @@unique([userId, postId])
+}
+
+model Category {
+  id           Int         @id @default(autoincrement())
+  name         String      @unique
+  description  String?
+  extractionId Int?
+  userId       Int?
+  extraction   Extraction? @relation(fields: [extractionId], references: [id])
+  user         User?       @relation(fields: [userId], references: [id])
+  posts        Post[]      @relation("PostCategories")
+  stories      Story[]     @relation("StoryCategories")
 }
 
 model Tag {
-  id           Int        @id @default(autoincrement())
-  name         String     @unique
+  id           Int         @id @default(autoincrement())
+  name         String      @unique
   description  String?
-  extractionId Int
-  userId       Int
-  extraction   Extraction @relation(fields: [extractionId], references: [id])
-  user         User       @relation(fields: [userId], references: [id])
-  posts        Post[]     @relation("PostTags")
-  stories      Story[]    @relation("StoryTags")
+  extractionId Int?
+  userId       Int?
+  extraction   Extraction? @relation(fields: [extractionId], references: [id])
+  user         User?       @relation(fields: [userId], references: [id])
+  posts        Post[]      @relation("PostTags")
+  stories      Story[]     @relation("StoryTags")
 }
 
 model Entity {
