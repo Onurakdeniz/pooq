@@ -69,9 +69,9 @@ model Extraction {
   mentionedStories String[]
   post             Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
   story            Story?     @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags             Tag[]
-  entities         Entity[]
-  categories       Category[]
+  tags             TagOnExtraction[]
+  entities         EntityOnExtraction[]
+  categories       CategoryOnExtraction[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 }
@@ -97,7 +97,7 @@ model Category {
   description  String?
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
-  extractions  Extraction[]
+  extractions  CategoryOnExtraction[]
   users        User[]
   stories      CategoryOnStory[]
 }
@@ -111,13 +111,22 @@ model CategoryOnStory {
   @@id([categoryId, storyId])
 }
 
+model CategoryOnExtraction {
+  categoryId   String
+  extractionId Int
+  category     Category   @relation(fields: [categoryId], references: [id])
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, extractionId])
+}
+
 model Tag {
   id           String       @id @default(uuid())
   name         String       @unique
   description  String?
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
-  extractions  Extraction[]
+  extractions  TagOnExtraction[]
   users        User[]
   stories      TagOnStory[]
   posts        TagOnPost[]
@@ -141,13 +150,31 @@ model TagOnPost {
   @@id([tagId, postId])
 }
 
+model TagOnExtraction {
+  tagId        String
+  extractionId Int
+  tag          Tag        @relation(fields: [tagId], references: [id])
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, extractionId])
+}
+
 model Entity {
   id           Int          @id @default(autoincrement())
   name         String       @unique
   description  String?
-  extractions  Extraction[]
+  extractions  EntityOnExtraction[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+model EntityOnExtraction {
+  entityId     Int
+  extractionId Int
+  entity       Entity      @relation(fields: [entityId], references: [id])
+  extraction   Extraction  @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+
+  @@id([entityId, extractionId])
 }
 
 enum CastType {

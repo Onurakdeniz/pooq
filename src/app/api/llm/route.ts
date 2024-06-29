@@ -2,8 +2,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { CastFull , Tag,Category,Entity } from '@/types';
- 
+import { CastFull } from '@/types';
 
 const prisma = new PrismaClient();
 
@@ -16,9 +15,8 @@ interface LLMResponse {
 interface WebhookData {
   created_at: number;
   type: string;
-  data:  CastFull
+  data: CastFull;
 }
-
 
 interface UpdateStoryPayload {
   id: number;
@@ -119,11 +117,8 @@ export async function POST(req: NextRequest) {
     const llmResult = await llmResponse.json() as LLMResponse;
 
     console.log('LLM Result:', llmResult);
- 
 
-    await createExtraction(llmResult.body)
-  
-   
+    await createExtraction(llmResult.body);
 
     return NextResponse.json({
       success: true,
@@ -149,7 +144,6 @@ interface CreateExtractionPayload {
   entities: string[];
 }
 
-
 async function createExtraction(payload: CreateExtractionPayload): Promise<void> {
   const { id, title, category, tags, entities } = payload;
 
@@ -162,21 +156,33 @@ async function createExtraction(payload: CreateExtractionPayload): Promise<void>
             title,
             type: "STORY",
             entities: {
-              connectOrCreate: entities.map((entity) => ({
-                where: { name: entity },
-                create: { name: entity },
+              create: entities.map((entity) => ({
+                entity: {
+                  connectOrCreate: {
+                    where: { name: entity },
+                    create: { name: entity },
+                  },
+                },
               })),
             },
             categories: {
-              connectOrCreate: category.map((cat) => ({
-                where: { name: cat },
-                create: { name: cat },
+              create: category.map((cat) => ({
+                category: {
+                  connectOrCreate: {
+                    where: { name: cat },
+                    create: { name: cat },
+                  },
+                },
               })),
             },
             tags: {
-              connectOrCreate: tags.map((tag) => ({
-                where: { name: tag },
-                create: { name: tag },
+              create: tags.map((tag) => ({
+                tag: {
+                  connectOrCreate: {
+                    where: { name: tag },
+                    create: { name: tag },
+                  },
+                },
               })),
             },
           },
