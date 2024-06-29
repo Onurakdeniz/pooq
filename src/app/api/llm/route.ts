@@ -1,15 +1,17 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { createHmac } from "crypto";
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
 
-// Define the expected structure of the request body
-interface RequestBody {
-  userId?: string;
-  text?: string;
-  hash?: string;
+// Define the expected structure of the webhook data
+interface WebhookData {
+  cast: {
+    hash: string;
+  };
+  text: string;
 }
 
 // Define the structure of the LLM response
@@ -19,20 +21,31 @@ interface LLMResponse {
   error?: string;
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  console.log("Processing request");
-
+export async function POST(req: NextRequest) {
   try {
-    // Explicitly typecast the request body
-    const body: RequestBody = await req.json() as RequestBody;
-    const { userId, text } = body;
+    const body = await req.text();
+  
+    const sig = req.headers.get("X-Neynar-Signature");
+    if (!sig) {
+      throw new Error("Neynar signature missing from request headers");
+    }
 
-    // Create dummy data for the story
-    const dummyStory = {
-      id: 'dummy-story-id-123',
-      text: text ?? 'This is a dummy story text.', // Use nullish coalescing
-      userId: userId ?? 'dummy-user-id-456', // Use nullish coalescing
-    };
+    const webhookSecret = process.env.NEYNAR_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      throw new Error("Make sure you set NEYNAR_WEBHOOK_SECRET in your .env file");
+    }
+
+    const hmac = createHmac("sha512", webhookSecret);
+    hmac.update(body);
+
+    const generatedSignature = hmac.digest("hex");
+
+    const isValid = generatedSignature === sig;
+    if (!isValid) {
+      throw new Error("Invalid webhook signature");
+    }
+  
+    const hookData: WebhookData = JSON.parse(body);
 
     // Define the Fleek Functions URL
     const fleekFunctionUrl = 'https://full-napkin-square.functions.on-fleek.app';
@@ -44,10 +57,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: "12312312",
-        text: "adasd asdasd asdas das dasdsa",
-        type: "story",
-        hash: 'dummy-hash-789'
+        id: hookData.cast.hash,
+        text: hookData.text,
+        type: "STORY",
+        hash: hookData.cast.hash
       }),
     });
 
@@ -55,21 +68,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       throw new Error('Failed to process story with LLM');
     }
 
-    // Explicitly typecast the LLM response
-    const llmResult: LLMResponse = await llmResponse.json() as LLMResponse;
+    const llmResult: LLMResponse = await llmResponse.json();
     console.log("llmResult", llmResult);
 
     return NextResponse.json({
       success: true,
-      storyId: dummyStory.id,
       llmResult,
     });
   } catch (error: unknown) {
     console.error('Error processing story:', error);
 
-    // Ensure the error message is properly extracted
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
-  }
+  }   
 }
