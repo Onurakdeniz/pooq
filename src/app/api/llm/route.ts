@@ -1,6 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 interface LLMResponse {
   success: boolean;
@@ -87,6 +90,35 @@ export async function POST(req: NextRequest) {
       console.error("Invalid data structure. Received:", JSON.stringify(hookData, null, 2));
       throw new Error('Invalid structure for WebhookData: missing required fields');
     }
+
+    const { data } = hookData;
+
+    // Check if the author exists, if not create a new author
+    let author = await prisma.author.findUnique({
+      where: { fid: data.author.fid },
+    });
+
+    if (!author) {
+      author = await prisma.author.create({
+        data: {
+          fid: data.author.fid,
+          userName: data.author.username,
+        },
+      });
+    }
+
+    // Create a new story
+    const story = await prisma.story.create({
+      data: {
+        hash: data.hash,
+        text: data.text,
+        authorId: author.fid,
+        isProcessed: false,
+      },
+    });
+
+    console.log('Saved story:', story);
+
     // Define the Fleek Functions URL
     const fleekFunctionUrl = 'https://full-napkin-square.functions.on-fleek.app';
 
@@ -97,10 +129,10 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: hookData.data.hash,
-        text: hookData.data.text,
+        id: data.hash,
+        text: data.text,
         type: "STORY",
-        hash: hookData.data.hash
+        hash: data.hash
       }),
     });
 
@@ -112,9 +144,32 @@ export async function POST(req: NextRequest) {
 
     console.log('LLM Result:', llmResult);
 
+    // Update the story as processed after LLM processing
+    await prisma.story.update({
+      where: { id: story.id },
+      data: { isProcessed: true },
+    });
+
+    // Check if a user with this fid exists, if not create one
+    let user = await prisma.user.findUnique({
+      where: { fid: data.author.fid },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          fid: data.author.fid,
+          pid: data.author.custody_address, // Assuming custody_address is the pid
+          username: data.author.username,
+          isRegistered: false, // Set to false by default
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       llmResult,
+      savedStory: story,
     });
   } catch (error: unknown) {
     console.error('Error processing story:', error);
@@ -122,5 +177,7 @@ export async function POST(req: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

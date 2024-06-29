@@ -8,20 +8,27 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  fid       Int        @unique
-  username  String     @unique
-  stories   Story[]
-  posts     Post[]
-  bookmarks Bookmark[]
-  tags      Tag[]
+  id           Int        @id @default(autoincrement())
+  fid          Int        @unique
+  pid          String     @unique
+  username     String     @unique
+  isRegistered Boolean    @default(false)
+  bookmarks    Bookmark[]
+  tags         Tag[]
+}
+
+model Author {
+  fid      Int     @unique
+  userName String
+  stories  Story[]
+  posts    Post[]
 }
 
 model Story {
   id             Int         @id @default(autoincrement())
   hash           String
-  userId         Int
-  user           User        @relation(fields: [userId], references: [id])
+  authorId       Int
+  author         Author      @relation(fields: [authorId], references: [fid])
   text           String
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
@@ -47,8 +54,8 @@ model Extraction {
 model Post {
   id             Int       @id @default(autoincrement())
   hash           String
-  userId         Int
-  user           User      @relation(fields: [userId], references: [id])
+  authorId       Int
+  author         Author    @relation(fields: [authorId], references: [fid])
   text           String
   storyId        Int?
   story          Story?    @relation(fields: [storyId], references: [id])
