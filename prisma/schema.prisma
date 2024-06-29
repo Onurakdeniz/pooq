@@ -16,60 +16,64 @@ model User {
   bookmarks    Bookmark[]
   tags         Tag[]
   categories   Category[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
 
 model Author {
-  fid      Int     @id
-  userName String
+  fid      Int     @id @unique
+  userName String   
   posts    Post[]
   stories  Story[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Story {
-  id             Int         @id @default(autoincrement())
-  hash           String      @unique
+  id             Int                 @id @default(autoincrement())
+  hash           String              @unique
   authorId       Int
   text           String
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  isProcessed    Boolean     @default(false)
-  bookmarkAmount Int         @default(0)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  isProcessed    Boolean             @default(false)
   bookmarks      Bookmark[]
   extraction     Extraction?
   posts          Post[]
-  author         Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  tags           Tag[]       @relation("StoryTags")
-  categories     Category[]  @relation("StoryCategories")
+  author         Author              @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  categories     CategoryOnStory[]
+  tags           TagOnStory[]
 }
 
 model Post {
-  id             Int        @id @default(autoincrement())
-  hash           String     @unique
+  id             Int                @id @default(autoincrement())
+  hash           String             @unique
   authorId       Int
   text           String
   storyId        Int?
-  content        String
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  bookmarkAmount Int        @default(0)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  extraction     Extraction?
   bookmarks      Bookmark[]
-  author         Author     @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  story          Story?     @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  entities       Entity[]   @relation("PostEntities")
-  tags           Tag[]      @relation("PostTags")
-  categories     Category[] @relation("PostCategories")
+  author         Author             @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  story          Story?             @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tags           TagOnPost[]
 }
 
 model Extraction {
   id               Int        @id @default(autoincrement())
-  storyId          Int        @unique
+  storyId          Int?       @unique
+  postId           Int?       @unique
   title            String
-  type             String?    // Consider using an enum here
+  type             CastType
   mentionedStories String[]
-  story            Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  post             Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  story            Story?     @relation(fields: [storyId], references: [id], onDelete: Cascade)
   tags             Tag[]
   entities         Entity[]
   categories       Category[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 }
 
 model Bookmark {
@@ -78,43 +82,75 @@ model Bookmark {
   storyId   Int?
   postId    Int?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   story     Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, storyId], map: "UniqueUserStoryBookmark")
-  @@unique([userId, postId], map: "UniqueUserPostBookmark")
+  @@unique([userId, storyId])
+  @@unique([userId, postId])
 }
 
 model Category {
-  id           Int         @id @default(autoincrement())
-  name         String      @unique
+  id           String             @id @default(uuid())
+  name         String             @unique
   description  String?
-  extractionId Int?
-  userId       Int?
-  extraction   Extraction? @relation(fields: [extractionId], references: [id], onDelete: Cascade)
-  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  posts        Post[]      @relation("PostCategories")
-  stories      Story[]     @relation("StoryCategories")
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  extractions  Extraction[]
+  users        User[]
+  stories      CategoryOnStory[]
+}
+
+model CategoryOnStory {
+  categoryId   String
+  storyId      Int
+  category     Category   @relation(fields: [categoryId], references: [id])
+  story        Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, storyId])
 }
 
 model Tag {
-  id           Int         @id @default(autoincrement())
-  name         String      @unique
+  id           String       @id @default(uuid())
+  name         String       @unique
   description  String?
-  extractionId Int?
-  userId       Int?
-  extraction   Extraction? @relation(fields: [extractionId], references: [id], onDelete: Cascade)
-  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  posts        Post[]      @relation("PostTags")
-  stories      Story[]     @relation("StoryTags")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  extractions  Extraction[]
+  users        User[]
+  stories      TagOnStory[]
+  posts        TagOnPost[]
+}
+
+model TagOnStory {
+  tagId    String
+  storyId  Int
+  tag      Tag    @relation(fields: [tagId], references: [id])
+  story    Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, storyId])
+}
+
+model TagOnPost {
+  tagId   String
+  postId  Int
+  tag     Tag   @relation(fields: [tagId], references: [id])
+  post    Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([tagId, postId])
 }
 
 model Entity {
-  id           Int        @id @default(autoincrement())
-  name         String     @unique
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
   description  String?
-  extractionId Int
-  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
-  posts        Post[]     @relation("PostEntities")
+  extractions  Extraction[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+enum CastType {
+  POST
+  STORY
 }

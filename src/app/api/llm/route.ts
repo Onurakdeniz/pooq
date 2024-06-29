@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 interface LLMResponse {
   success: boolean;
-  body: UpdateStoryPayload;
+  body: CreateExtractionPayload;
   error?: string;
 }
 
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     console.log('LLM Result:', llmResult);
  
 
-    await updateStory(llmResult.body)
+    await createExtraction(llmResult.body)
   
    
 
@@ -141,75 +141,65 @@ export async function POST(req: NextRequest) {
   }
 }
 
+interface CreateExtractionPayload {
+  id: number;
+  title: string;
+  category: string[];
+  tags: string[];
+  entities: string[];
+}
 
 
-
-async function updateStory(updatePayload: UpdateStoryPayload): Promise<void> {
-  const { id, title, category = [], tags, entities } = updatePayload;
+async function createExtraction(payload: CreateExtractionPayload): Promise<void> {
+  const { id, title, category, tags, entities } = payload;
 
   try {
     const updatedStory = await prisma.story.update({
       where: { id },
       data: {
-        isProcessed: true,
+        extraction: {
+          create: {
+            title,
+            type: "STORY",
+            entities: {
+              connectOrCreate: entities.map((entity) => ({
+                where: { name: entity },
+                create: { name: entity },
+              })),
+            },
+            categories: {
+              connectOrCreate: category.map((cat) => ({
+                where: { name: cat },
+                create: { name: cat },
+              })),
+            },
+            tags: {
+              connectOrCreate: tags.map((tag) => ({
+                where: { name: tag },
+                create: { name: tag },
+              })),
+            },
+          },
+        },
         categories: {
-          connectOrCreate: category.map((cat) => ({
-            where: { name: cat },
-            create: { name: cat },
+          create: category.map((cat) => ({
+            category: {
+              connectOrCreate: {
+                where: { name: cat },
+                create: { name: cat },
+              },
+            },
           })),
         },
         tags: {
-          connectOrCreate: tags.map((tag) => ({
-            where: { name: tag },
-            create: { name: tag },
+          create: tags.map((tag) => ({
+            tag: {
+              connectOrCreate: {
+                where: { name: tag },
+                create: { name: tag },
+              },
+            },
           })),
-        },
-        extraction: {
-          upsert: {
-            create: {
-              title,
-              type: 'someType', // Replace with actual type or enum
-              entities: {
-                connectOrCreate: entities.map((entity) => ({
-                  where: { name: entity },
-                  create: { name: entity, extractionId: id },
-                })),
-              },
-              categories: {
-                connectOrCreate: category.map((cat) => ({
-                  where: { name: cat },
-                  create: { name: cat },
-                })),
-              },
-              tags: {
-                connectOrCreate: tags.map((tag) => ({
-                  where: { name: tag },
-                  create: { name: tag },
-                })),
-              },
-            },
-            update: {
-              title,
-              entities: {
-                connectOrCreate: entities.map((entity) => ({
-                  where: { name: entity },
-                  create: { name: entity, extractionId: id },
-                })),
-              },
-              categories: {
-                connectOrCreate: category.map((cat) => ({
-                  where: { name: cat },
-                  create: { name: cat },
-                })),
-              },
-              tags: {
-                connectOrCreate: tags.map((tag) => ({
-                  where: { name: tag },
-                  create: { name: tag },
-                })),
-              },
-            },
-          },
         },
       },
       include: {
@@ -225,12 +215,12 @@ async function updateStory(updatePayload: UpdateStoryPayload): Promise<void> {
       },
     });
 
-    console.log('Story updated:', updatedStory);
+    console.log('Extraction created and story updated:', updatedStory);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.error('Prisma error:', error.message);
     } else {
-      console.error('Error updating story:', error);
+      console.error('Error creating extraction:', error);
     }
     throw error;
   }
