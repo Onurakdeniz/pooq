@@ -1,55 +1,31 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { CastFull , Tag,Category,Entity } from '@/types';
+ 
 
 const prisma = new PrismaClient();
 
 interface LLMResponse {
   success: boolean;
-  data?: unknown;
+  data: UpdateStoryPayload;
   error?: string;
 }
 
 interface WebhookData {
   created_at: number;
   type: string;
-  data: {
-    object: string;
-    hash: string;
-    thread_hash: string;
-    parent_hash: string | null;
-    parent_url: string | null;
-    root_parent_url: string | null;
-    parent_author: { fid: number | null };
-    author: {
-      object: string;
-      fid: number;
-      custody_address: string;
-      username: string;
-      display_name: string;
-      pfp_url: string;
-      profile: unknown;
-      follower_count: number;
-      following_count: number;
-      verifications: string[];
-      verified_addresses: unknown;
-      active_status: string;
-      power_badge: boolean;
-    };
-    text: string;
-    timestamp: string;
-    embeds: unknown[];
-    reactions: {
-      likes_count: number;
-      recasts_count: number;
-      likes: unknown[];
-      recasts: unknown[];
-    };
-    replies: { count: number };
-    channel: unknown;
-    mentioned_profiles: unknown[];
-  };
+  data:  CastFull
+}
+
+
+interface UpdateStoryPayload {
+  id: number;
+  title: string;
+  category?: string[];
+  tags: string[];
+  entities: string[];
 }
 
 export async function POST(req: NextRequest) {
@@ -129,10 +105,10 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: data.hash,
-        text: data.text,
+        id: story.id,
+        text: story.text,
         type: "STORY",
-        hash: data.hash
+        hash: story.hash
       }),
     });
 
@@ -143,13 +119,9 @@ export async function POST(req: NextRequest) {
     const llmResult = await llmResponse.json() as LLMResponse;
 
     console.log('LLM Result:', llmResult);
+ 
 
-    // Update the story as processed after LLM processing
-    await prisma.story.update({
-      where: { id: story.id },
-      data: { isProcessed: true },
-    });
-
+    await updateStory(llmResult.data)
   
    
 
@@ -166,5 +138,100 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   } finally {
     await prisma.$disconnect();
+  }
+}
+
+
+
+
+async function updateStory(updatePayload: UpdateStoryPayload): Promise<void> {
+  const { id, title, category = [], tags, entities } = updatePayload;
+
+  try {
+    const updatedStory = await prisma.story.update({
+      where: { id },
+      data: {
+        isProcessed: true,
+        categories: {
+          connectOrCreate: category.map((cat) => ({
+            where: { name: cat },
+            create: { name: cat },
+          })),
+        },
+        tags: {
+          connectOrCreate: tags.map((tag) => ({
+            where: { name: tag },
+            create: { name: tag },
+          })),
+        },
+        extraction: {
+          upsert: {
+            create: {
+              title,
+              type: 'someType', // Replace with actual type or enum
+              entities: {
+                connectOrCreate: entities.map((entity) => ({
+                  where: { name: entity },
+                  create: { name: entity, extractionId: id },
+                })),
+              },
+              categories: {
+                connectOrCreate: category.map((cat) => ({
+                  where: { name: cat },
+                  create: { name: cat },
+                })),
+              },
+              tags: {
+                connectOrCreate: tags.map((tag) => ({
+                  where: { name: tag },
+                  create: { name: tag },
+                })),
+              },
+            },
+            update: {
+              title,
+              entities: {
+                connectOrCreate: entities.map((entity) => ({
+                  where: { name: entity },
+                  create: { name: entity, extractionId: id },
+                })),
+              },
+              categories: {
+                connectOrCreate: category.map((cat) => ({
+                  where: { name: cat },
+                  create: { name: cat },
+                })),
+              },
+              tags: {
+                connectOrCreate: tags.map((tag) => ({
+                  where: { name: tag },
+                  create: { name: tag },
+                })),
+              },
+            },
+          },
+        },
+      },
+      include: {
+        extraction: {
+          include: {
+            entities: true,
+            categories: true,
+            tags: true,
+          },
+        },
+        categories: true,
+        tags: true,
+      },
+    });
+
+    console.log('Story updated:', updatedStory);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('Prisma error:', error.message);
+    } else {
+      console.error('Error updating story:', error);
+    }
+    throw error;
   }
 }

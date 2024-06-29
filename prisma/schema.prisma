@@ -19,7 +19,7 @@ model User {
 }
 
 model Author {
-  fid      Int     @id @unique
+  fid      Int     @id
   userName String
   posts    Post[]
   stories  Story[]
@@ -37,7 +37,7 @@ model Story {
   bookmarks      Bookmark[]
   extraction     Extraction?
   posts          Post[]
-  author         Author      @relation(fields: [authorId], references: [fid])
+  author         Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
   tags           Tag[]       @relation("StoryTags")
   categories     Category[]  @relation("StoryCategories")
 }
@@ -53,8 +53,8 @@ model Post {
   updatedAt      DateTime   @updatedAt
   bookmarkAmount Int        @default(0)
   bookmarks      Bookmark[]
-  author         Author     @relation(fields: [authorId], references: [fid])
-  story          Story?     @relation(fields: [storyId], references: [id])
+  author         Author     @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  story          Story?     @relation(fields: [storyId], references: [id], onDelete: Cascade)
   entities       Entity[]   @relation("PostEntities")
   tags           Tag[]      @relation("PostTags")
   categories     Category[] @relation("PostCategories")
@@ -64,9 +64,9 @@ model Extraction {
   id               Int        @id @default(autoincrement())
   storyId          Int        @unique
   title            String
-  type             String?
+  type             String?    // Consider using an enum here
   mentionedStories String[]
-  story            Story      @relation(fields: [storyId], references: [id])
+  story            Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
   tags             Tag[]
   entities         Entity[]
   categories       Category[]
@@ -78,12 +78,12 @@ model Bookmark {
   storyId   Int?
   postId    Int?
   createdAt DateTime @default(now())
-  post      Post?    @relation(fields: [postId], references: [id])
-  story     Story?   @relation(fields: [storyId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  story     Story?   @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, storyId])
-  @@unique([userId, postId])
+  @@unique([userId, storyId], map: "UniqueUserStoryBookmark")
+  @@unique([userId, postId], map: "UniqueUserPostBookmark")
 }
 
 model Category {
@@ -92,8 +92,8 @@ model Category {
   description  String?
   extractionId Int?
   userId       Int?
-  extraction   Extraction? @relation(fields: [extractionId], references: [id])
-  user         User?       @relation(fields: [userId], references: [id])
+  extraction   Extraction? @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   posts        Post[]      @relation("PostCategories")
   stories      Story[]     @relation("StoryCategories")
 }
@@ -104,8 +104,8 @@ model Tag {
   description  String?
   extractionId Int?
   userId       Int?
-  extraction   Extraction? @relation(fields: [extractionId], references: [id])
-  user         User?       @relation(fields: [userId], references: [id])
+  extraction   Extraction? @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+  user         User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   posts        Post[]      @relation("PostTags")
   stories      Story[]     @relation("StoryTags")
 }
@@ -115,6 +115,6 @@ model Entity {
   name         String     @unique
   description  String?
   extractionId Int
-  extraction   Extraction @relation(fields: [extractionId], references: [id])
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
   posts        Post[]     @relation("PostEntities")
 }

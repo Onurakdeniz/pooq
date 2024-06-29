@@ -229,3 +229,9 @@ export type Stories = {
     followers: number;
   }
   
+
+  export interface Category {
+    id : string
+    name : string
+    description? : string 
+  }
