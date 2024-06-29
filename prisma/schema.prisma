@@ -11,7 +11,7 @@ model User {
   id           Int        @id @default(autoincrement())
   fid          Int        @unique
   pid          String     @unique
-  username     String     @unique
+  userName     String     @unique
   isRegistered Boolean    @default(false)
   bookmarks    Bookmark[]
   tags         Tag[]
@@ -20,63 +20,63 @@ model User {
 model Author {
   fid      Int     @unique
   userName String
-  stories  Story[]
   posts    Post[]
+  stories  Story[]
 }
 
 model Story {
   id             Int         @id @default(autoincrement())
   hash           String
   authorId       Int
-  author         Author      @relation(fields: [authorId], references: [fid])
   text           String
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   isProcessed    Boolean     @default(false)
-  posts          Post[]
-  extraction     Extraction?
   bookmarkAmount Int         @default(0)
   Bookmark       Bookmark?
+  extraction     Extraction?
+  posts          Post[]
+  author         Author      @relation(fields: [authorId], references: [fid])
   tags           Tag[]       @relation("StoryTags")
 }
 
 model Extraction {
   id               Int      @id @default(autoincrement())
   storyId          Int      @unique
-  story            Story    @relation(fields: [storyId], references: [id])
   title            String
   type             String?
-  tags             Tag[]
-  entities         Entity[]
   mentionedStories String[]
+  entities         Entity[]
+  story            Story    @relation(fields: [storyId], references: [id])
+  tags             Tag[]
 }
 
 model Post {
   id             Int       @id @default(autoincrement())
   hash           String
   authorId       Int
-  author         Author    @relation(fields: [authorId], references: [fid])
   text           String
   storyId        Int?
-  story          Story?    @relation(fields: [storyId], references: [id])
   content        String
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  tags           Tag[]     @relation("PostTags")
-  entities       Entity[]  @relation("PostEntities")
   bookmarkAmount Int       @default(0)
   Bookmark       Bookmark?
+  author         Author    @relation(fields: [authorId], references: [fid])
+  story          Story?    @relation(fields: [storyId], references: [id])
+  entities       Entity[]  @relation("PostEntities")
+  tags           Tag[]     @relation("PostTags")
 }
 
 model Bookmark {
   id        Int      @id @default(autoincrement())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
   storyId   Int      @unique
-  story     Story    @relation(fields: [storyId], references: [id])
   postId    Int      @unique
-  post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id])
+  story     Story    @relation(fields: [storyId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Tag {
@@ -84,11 +84,11 @@ model Tag {
   name         String     @unique
   description  String?
   extractionId Int
+  userId       Int
   extraction   Extraction @relation(fields: [extractionId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
   posts        Post[]     @relation("PostTags")
   stories      Story[]    @relation("StoryTags")
-  userId       Int
-  user         User       @relation(fields: [userId], references: [id])
 }
 
 model Entity {
