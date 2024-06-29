@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 interface LLMResponse {
   success: boolean;
-  data: UpdateStoryPayload;
+  body: UpdateStoryPayload;
   error?: string;
 }
 
@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
     console.log('LLM Result:', llmResult);
  
 
-    await updateStory(llmResult.data)
+    await updateStory(llmResult.body)
   
    
 
