@@ -1,13 +1,78 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
-import type { CastFull } from '@/types';
 
 // Define the structure of the LLM response
 interface LLMResponse {
   success: boolean;
-  data?: unknown; // Adjust based on actual structure
+  data?: unknown;
   error?: string;
+}
+
+// Define the structure of the incoming webhook data
+interface WebhookData {
+  cast: {
+    object: string;
+    hash: string;
+    thread_hash: string;
+    parent_hash: string | null;
+    parent_url: string | null;
+    root_parent_url: string | null;
+    parent_author: {
+      fid: number | null;
+    };
+    author: {
+      object: string;
+      fid: number;
+      custody_address: string;
+      username: string;
+      display_name: string;
+      pfp_url: string;
+      profile: {
+        bio: {
+          text: string;
+        };
+      };
+      follower_count: number;
+      following_count: number;
+      verifications: string[];
+      active_status: string;
+    };
+    text: string;
+    timestamp: string;
+    embeds: Array<{ url: string }>;
+    reactions: {
+      likes_count: number;
+      recasts_count: number;
+      likes: Array<{ fid: number; fname: string }>;
+      recasts: Array<{ fid: number; fname: string }>;
+    };
+    replies: {
+      count: number;
+    };
+    mentioned_profiles: Array<{
+      object: string;
+      fid: number;
+      custody_address: string;
+      username: string;
+      display_name: string;
+      pfp_url: string;
+      profile: {
+        bio: {
+          text: string;
+          mentioned_profiles: unknown[];
+        };
+      };
+      follower_count: number;
+      following_count: number;
+      verifications: string[];
+      active_status: string;
+    }>;
+    viewer_context: {
+      liked: boolean;
+      recasted: boolean;
+    };
+  };
 }
 
 export async function POST(req: NextRequest) {
@@ -33,22 +98,19 @@ export async function POST(req: NextRequest) {
       throw new Error('Invalid webhook signature');
     }
 
-    let hookData: CastFull;
+    let hookData: WebhookData;
+
     try {
-      const parsedBody = JSON.parse(body) as {cast?: unknown; text?: unknown};
-      // Type checking and ensuring that the parsed body matches the WebhookData structure
-      if (
-        parsedBody &&
-        typeof parsedBody.cast === 'object' &&
-        parsedBody.cast !== null &&
-        typeof parsedBody.text === 'string'
-      ) {
-        hookData = parsedBody as CastFull;
-      } else {
-        throw new Error('Invalid structure for WebhookData');
-      }
-    } catch {
+      hookData = JSON.parse(body) as WebhookData;
+      console.log("Received webhook data:", hookData);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
       throw new Error('Invalid JSON in request body');
+    }
+
+    // Validate the structure of hookData
+    if (!hookData.cast || typeof hookData.cast.hash !== 'string' || typeof hookData.cast.text !== 'string') {
+      throw new Error('Invalid structure for WebhookData');
     }
 
     // Define the Fleek Functions URL
@@ -61,10 +123,10 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: hookData.hash,
-        text: hookData.text,
+        id: hookData.cast.hash,
+        text: hookData.cast.text,
         type: 'STORY',
-        hash: hookData.hash
+        hash: hookData.cast.hash
       }),
     });
 
@@ -74,7 +136,7 @@ export async function POST(req: NextRequest) {
 
     const llmResult = await llmResponse.json() as LLMResponse;
 
-    console.log('llmResult', llmResult);
+    console.log('LLM Result:', llmResult);
 
     return NextResponse.json({
       success: true,
