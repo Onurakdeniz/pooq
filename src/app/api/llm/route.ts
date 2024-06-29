@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         id: hookData.data.hash,
         text: hookData.data.text,
-        type: hookData.type,
+        type: "STORY",
         hash: hookData.data.hash
       }),
     });
