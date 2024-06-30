@@ -97,37 +97,75 @@ export async function POST(req: NextRequest) {
 
     let savedItem;
 
-    switch (castType) {
-      case 'story':
-        savedItem = await prisma.story.create({
-          data: {
-            hash: data.hash,
-            text: data.text,
-            authorId: author.fid,
-            isProcessed: false,
-          },
-        });
-        break;
-      case 'post':
-        const parentStory = await prisma.story.findUnique({
-          where: { hash: data.thread_hash }
-        });
+switch (castType) {
+  case 'story':
+    // Check if the story already exists
+    savedItem = await prisma.story.findUnique({
+      where: { hash: data.hash },
+    });
 
-        if (!parentStory) {
-          throw new Error('Parent story not found');
-        }
-
-        savedItem = await prisma.post.create({
-          data: {
-            hash: data.hash,
-            text: data.text,
-            authorId: author.fid,
-            isProcessed: false,
-            storyId: parentStory.id,
-          },
-        });
-        break;
+    if (savedItem) {
+      // If it exists, update it
+      savedItem = await prisma.story.update({
+        where: { hash: data.hash },
+        data: {
+          text: data.text,
+          authorId: author.fid,
+          isProcessed: false,
+        },
+      });
+    } else {
+      // If it doesn't exist, create a new one
+      savedItem = await prisma.story.create({
+        data: {
+          hash: data.hash,
+          text: data.text,
+          authorId: author.fid,
+          isProcessed: false,
+        },
+      });
     }
+    break;
+
+  case 'post':
+    const parentStory = await prisma.story.findUnique({
+      where: { hash: data.thread_hash }
+    });
+
+    if (!parentStory) {
+      throw new Error('Parent story not found');
+    }
+
+    // Check if the post already exists
+    savedItem = await prisma.post.findUnique({
+      where: { hash: data.hash },
+    });
+
+    if (savedItem) {
+      // If it exists, update it
+      savedItem = await prisma.post.update({
+        where: { hash: data.hash },
+        data: {
+          text: data.text,
+          authorId: author.fid,
+          isProcessed: false,
+          storyId: parentStory.id,
+        },
+      });
+    } else {
+      // If it doesn't exist, create a new one
+      savedItem = await prisma.post.create({
+        data: {
+          hash: data.hash,
+          text: data.text,
+          authorId: author.fid,
+          isProcessed: false,
+          storyId: parentStory.id,
+        },
+      });
+    }
+    break;
+}
 
     console.log(`Saved ${castType}:`, savedItem);
 
