@@ -136,5 +136,15 @@ export interface Bio {
     nextCursor: string | null;
   }
 
-
+  export interface Post {
+    id: string;
+    hash: string;
+    tags: Tag[];
+    entities: Entity[];
+    isBookmarkedByUser: boolean;
+    author: Author;
+    cast: Cast;
+    isLikedByUser: boolean;
+    text: string;
+  }
   ///////// FEED //////////

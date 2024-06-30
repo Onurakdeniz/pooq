@@ -57,8 +57,8 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
       dataLength={allStories.length}
       next={loadMore}
       hasMore={!!hasNextPage}
-      loader={<div>Loading more...</div>}
-      endMessage={<div>No more stories to load.</div>}
+      loader={<div className="flex justify-center text-sm p-2 text-primary/60">... Loading more</div>}
+      endMessage={<div className="flex justify-center text-sm p-2 text-primary/60">No more stories to load.</div>}
     >
       {allStories.map((story) => (
        <StoryCard
