@@ -1,6 +1,6 @@
 
 import { z } from "zod";
-import { Tag,Entity , UserBase , User , Post, Posts,Cast ,CastFull, CastBase , Story, Stories, UserWithStories ,HoverStory , SuggestedStory ,SuggestedTag ,SuggestedUser } from "@/types"
+import { Tag,Entity , UserBase , User , Post, Posts,Cast ,CastFull, CastinFeed, CastBase , Story, Stories, UserWithStories ,HoverStory , SuggestedStory ,SuggestedTag ,SuggestedUser } from "@/types"
 
  
 
@@ -71,7 +71,7 @@ export const CastBaseSchema: z.ZodType<CastBase> = z.object({
   timestamp: z.string(),
 });
 
-export const CastFullSchema: z.ZodType<Cast> = z.lazy(() =>
+export const CastFullSchema: z.ZodType<CastFull> = z.lazy(() =>
   z.object({ 
     object: z.literal("cast"),
     hash: z.string(),
@@ -141,9 +141,87 @@ export const CastFullSchema: z.ZodType<Cast> = z.lazy(() =>
       liked: z.boolean(),
       recasted: z.boolean(),
     }),
-    direct_replies: z.array(CastSchema), 
+    direct_replies: z.array(CastFullSchema), 
   })
 );
+
+ 
+
+export const CastinFeedSchema: z.ZodType<CastinFeed> = z.lazy(() =>
+  z.object({ 
+    object: z.literal("cast"),
+    hash: z.string(),
+    thread_hash: z.string(),
+    parent_hash: z.string().nullable(),
+    parent_url: z.string().nullable(),
+    root_parent_url: z.string().nullable(),
+    text: z.string(),
+    timestamp: z.string(),
+    parent_author: z.object({
+      fid: z.number().nullable(),
+    }),
+    author: UserBaseSchema,
+    embeds: z.array(
+      z.object({
+        url: z.string(),
+      }),
+    ),
+    frames: z.array(
+      z.object({
+        version: z.string(),
+        title: z.string(),
+        image: z.string(),
+        image_aspect_ratio: z.string(),
+        buttons: z.array(
+          z.object({
+            index: z.number(),
+            title: z.string(),
+            action_type: z.string(),
+          }),
+        ),
+        input: z.record(z.unknown()),
+        state: z.record(z.unknown()),
+        post_url: z.string(),
+        frames_url: z.string(),
+      }),
+    ).optional(),
+    reactions: z.object({
+      likes_count: z.number(),
+      recasts_count: z.number(),
+      likes: z.array(
+        z.object({
+          fid: z.number(),
+          fname: z.string(),
+        }),
+      ),
+      recasts: z.array(
+        z.object({
+          fid: z.number(),
+          fname: z.string(),
+        }),
+      ),
+    }),
+    replies: z.object({
+      count: z.number(),
+    }),
+    channel: z
+      .object({
+        object: z.string(),
+        id: z.string(),
+        name: z.string(),
+        image_url: z.string(),
+      })
+      .nullable(),
+    mentioned_profiles: z.array(UserBaseSchema),
+    viewer_context: z.object({
+      liked: z.boolean(),
+      recasted: z.boolean(),
+    }),
+ 
+  })
+);
+
+ 
 
 
 export const CastSchema: z.ZodType<Cast> = z.lazy(() =>

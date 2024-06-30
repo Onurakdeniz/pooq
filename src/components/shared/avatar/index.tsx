@@ -12,17 +12,20 @@ import { Button } from "@/components/ui/button";
 import Tag from "../tag";
 import { api } from "@/trpc/react";
 import { formatDistanceToNow } from 'date-fns';
-import type { UserWithStories as Profile, Tag as ITag } from "@/types";
+import type { Author } from "@/types/type";
+import type { Tag as ITag } from "@/types";
 
 interface IProfileAvatar {
   size: string;
   isMentioned: boolean;
   badges?: string[];
-  profile?: Profile;
+  profile?: Author;
   children?: React.ReactNode;
   userName?: string;
   date?: string;
 }
+
+ 
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({
   size,
@@ -34,17 +37,14 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const { data: hoveredProfile } = api.user.getUserByUserName.useQuery<Profile | null>(
-    { username: userName ?? "" },
-    { enabled: !!userName && isMentioned && isHovered }
-  );
+ 
 
   const avatarSize = size === "LARGE" ? "h-6 w-6" : "h-6 w-6";
   const avatarName = size === "LARGE" ? "flex text-sm " : "hidden";
 
   // Change this line
-  const displayedProfile: Profile | undefined = isMentioned ? hoveredProfile ?? profile : profile;
-  const firstLetter = displayedProfile?.display_name?.[0] ?? '';
+  const firstLetter = profile?.display_name?.[0];
+
 
   const formattedTimeAgo = formatDistanceToNow(
     new Date(date ?? Date.now()),
@@ -61,14 +61,14 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
         ) : (
           <div className="flex items-center gap-2 hover:cursor-pointer">
             <Avatar className={avatarSize}>
-              <AvatarImage src={displayedProfile?.pfp_url ?? ""} />
+              <AvatarImage src={profile?.pfp_url ?? ""} />
               <AvatarFallback>{firstLetter}</AvatarFallback>
             </Avatar>
             <div className="flex gap-2 items-center">
-              <div className={avatarName}>{displayedProfile?.display_name}</div>
+              <div className={avatarName}>{profile?.display_name}</div>
               <div className={avatarName}>
                 <span className="text-xs text-primary/50 truncate">
-                  @{displayedProfile?.username}
+                  @{profile?.username}
                 </span>
               </div>
               <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
@@ -78,13 +78,13 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
           </div>
         )}
       </HoverCardTrigger>
-      {displayedProfile && (
+      {profile && (
         <HoverCardContent
           align="center"
           sideOffset={12}
           className="flex relative dark:bg-[#1a1a1a] bg-[#fdfcf5] z-90 w-96 flex-shrink shadow-lg"
         >
-          <ProfileHoverContent {...displayedProfile} />
+          <ProfileHoverContent {...profile} />
         </HoverCardContent>
       )}
     </HoverCard>
@@ -93,21 +93,8 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
 
 export default ProfileAvatar;
 
-type UserWithStories = {
-  pfp_url: string;
-  display_name: string;
-  username: string;
-  following_count: number;
-  follower_count: number;
-  profile: {
-    bio: {
-      text: string;
-    };
-  };
-  tags: ITag[];
-};
-
-const ProfileHoverContent: React.FC<UserWithStories> = ({
+  
+const ProfileHoverContent: React.FC<Author> = ({
   pfp_url,
   display_name,
   username,

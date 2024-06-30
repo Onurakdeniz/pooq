@@ -43,13 +43,8 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
 
         <div className="flex w-3/12  justify-end gap-4">
           <div className="flex  items-center self-end    ">
-            <ProfileAvatar size="NORMAL" profile={author} isMentioned >
-            <Avatar className="w-6 h-6" >
-              <AvatarImage src={author.pfp_url} />
-              <AvatarFallback>{firstLetter}</AvatarFallback>
-            </Avatar>
-
-            </ProfileAvatar>
+    
+        
            
           </div>
           <span className=" w-6 text-end text-primary/70">{likes} </span>

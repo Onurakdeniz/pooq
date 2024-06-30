@@ -3,7 +3,12 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { faker } from "@faker-js/faker";
 import { TagSchema, EntitySchema, UserBaseSchema, UserSchema, UserWithStoriesSchema, CastBaseSchema, CastSchema , StorySchema, StoriesSchema , hoverStorySchema , SuggestedStorySchema} from "@/schemas"
 import { Tag,Entity , UserBase , User , HoverStory, Cast , CastBase , Story, Stories, UserWithStories , SuggestedStory } from "@/types"
+import {fetchFromNeynarAPI} from "@/lib/lib"
+import { PrismaClient } from "@prisma/client";
+import {StoriesResponse, Story as FStory ,Reactions , CastType} from "@/types/type"
+import { TRPCError } from '@trpc/server';
 
+const prisma = new PrismaClient();
 
 // Helper functions to generate fake data
 const generateFakeUser = (): UserWithStories => ({
@@ -146,41 +151,175 @@ export function generateFakeSuggestedStory(): SuggestedStory {
 
 export const storyRouter = createTRPCRouter({
   getStories: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).optional(),
-        cursor: z.string().optional(),
-      }),
-    )
-    .output(
-      z.object({
-        items: z.array(StorySchema),
-        nextCursor: z.string().nullable(),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { limit = 10, cursor } = input;
+  .input(
+    z.object({
+      limit: z.number().min(1).max(100).optional().default(10),
+      cursor: z.string().optional(),
+      userId: z.number().optional(),
+      fid: z.number().optional(),
+    }),
+  )
+  .query(async ({ input, ctx }) => {
+    const { limit, cursor, userId, fid } = input;
 
-      // Generate more stories than necessary to simulate a larger dataset
-      const allStories: Story[] = Array.from(
-        { length: limit * 2 },
-        generateFakeStory,
-      );
+    try {
+      // Fetch stories
+      let dbStories;
+      try {
+        dbStories = await prisma.story.findMany({
+          where: {
+            isProcessed: true,
+            id: cursor ? { gt: parseInt(cursor) } : undefined,
+          },
+          orderBy: { id: 'asc' },
+          take: limit + 1,
+          include: {
+            extraction: {
+              include: {
+                tags: { include: { tag: true } },
+                entities: { include: { entity: true } },
+                categories:  { include: { category: true } },
+              },
+            },
+            bookmarks: userId ? { where: { userId }, select: { id: true } } : false,
+          },
+        });
+      } finally {
+        await prisma.$disconnect();
+      }
+    
+      if (!dbStories || dbStories.length === 0) {
+        return { items: [], nextCursor: null };
+      }
+    
+      const hasNextPage = dbStories.length > limit;
+      const stories = hasNextPage ? dbStories.slice(0, -1) : dbStories;
+    
 
-      // Simulate cursor-based pagination
-      const startIndex = cursor
-        ? allStories.findIndex((story) => story.id === cursor) + 1
-        : 0;
-      const paginatedStories = allStories.slice(startIndex, startIndex + limit);
+      // Fetch author story counts
+      const authorIds = [...new Set(stories.map(story => story.authorId))];
+      let authorStoryCounts;
+      try {
+        authorStoryCounts = await prisma.story.groupBy({
+          by: ['authorId'],
+          where: { authorId: { in: authorIds } },
+          _count: true,
+        });
+      } finally {
+        await prisma.$disconnect();
+      }
 
-      const nextCursor =
-      paginatedStories[paginatedStories.length - 1]?.id ?? null;
+      const authorStoryCountMap = new Map(authorStoryCounts.map(count => [count.authorId, count._count]));
 
+      // Fetch story posts counts
+      const storyIds = stories.map(story => story.id);
+      let storyPostsCounts;
+      try {
+        storyPostsCounts = await prisma.post.groupBy({
+          by: ['storyId'],
+          where: { storyId: { in: storyIds } },
+          _count: true,
+        });
+      } finally {
+        await prisma.$disconnect();
+      }
+
+      const storyPostsCountMap = new Map(storyPostsCounts.map(count => [count.storyId, count._count]));
+
+      // Fetch Neynar data
+      const hashes = stories.map(story => story.hash);
+      const neynarData = await fetchFromNeynarAPI(hashes, fid);
+ 
+      const formatReactions = (reactions: Partial<Reactions>): Reactions => ({
+        likes_count: reactions?.likes?.length ?? 0,
+        recasts_count: reactions?.recasts?.length ?? 0,
+        likes: reactions?.likes?.map((like) => ({
+          fid: like.fid,
+          fname: like.fname
+        })) ?? [],
+        recasts: reactions?.recasts?.map((recast) => ({
+          fid: recast.fid,
+          fname: recast.fname
+        })) ?? [],
+      });
+      
+      const formattedStories: FStory[] = stories.map((story, index) => {
+        const thirdPartyData = neynarData[index];
+        const extraction = story.extraction;
+        const storyCount = authorStoryCountMap.get(story.authorId) ?? 0;
+        const postsCount = storyPostsCountMap.get(story.id) ?? 0;
+        
+        return {
+          id: story.id.toString(),
+          title: extraction?.title ?? '',
+          type: (extraction?.type as CastType) ?? CastType.POST,
+          tags: extraction?.tags?.map(t => ({ id: t.tag.id, name: t.tag.name })) ?? [],
+          entities: extraction?.entities?.map(e => ({ id: e.entity.id, name: e.entity.name })) ?? [],
+          categories: extraction?.categories?.map(c => ({ id: c.category.id, name: c.category.name })) ?? [],
+          isBookmarked: userId ? story.bookmarks.length > 0 : false,
+          mentionedStories: extraction?.mentionedStories ?? [],
+          numberofPosts: postsCount,
+          author: {
+            ...(thirdPartyData?.author ?? {}),
+            numberOfStories: storyCount,
+            numberOfPosts: 0,
+            object: thirdPartyData?.author?.object ?? "user",
+            username: thirdPartyData?.author?.username ?? "",
+            fid: thirdPartyData?.author?.fid ?? 0,
+            custody_address: thirdPartyData?.author?.custody_address ?? "",
+            display_name: thirdPartyData?.author?.display_name ?? "",
+            pfp_url: thirdPartyData?.author?.pfp_url ?? "",
+            profile: thirdPartyData?.author?.profile ?? { bio: { text: "" } },
+            follower_count: thirdPartyData?.author?.follower_count ?? 0,
+            following_count: thirdPartyData?.author?.following_count ?? 0,
+            verifications: thirdPartyData?.author?.verifications ?? [],
+            verified_addresses: thirdPartyData?.author?.verified_addresses ?? { eth_addresses: [], sol_addresses: [] },
+            active_status: thirdPartyData?.author?.active_status ?? "",
+            power_badge: thirdPartyData?.author?.power_badge ?? false,
+            viewer_context: thirdPartyData?.author?.viewer_context ?? { following: false, followed_by: false },
+          },
+          cast: thirdPartyData?.cast 
+            ? {
+                ...thirdPartyData.cast,
+                reactions: formatReactions(thirdPartyData.cast.reactions),
+              }
+            : {
+                parent_author: { fid: null },
+                hash: "",
+                thread_hash: "",
+                parent_hash: null,
+                text: "",
+                timestamp: "",
+                reactions: { likes_count: 0, recasts_count: 0, likes: [], recasts: [] },
+                mentioned_profiles: [],
+                viewer_context: { liked: false, recasted: false },
+              },
+        };
+      });
+
+
+
+
+
+const nextCursor = hasNextPage && stories.length > 0
+  ? stories[stories.length - 1]?.id?.toString() ?? null
+  : null;
       return {
-        items: z.array(StorySchema).parse(paginatedStories),
+        items: formattedStories,
         nextCursor,
       };
-    }),
+    } catch (error) {
+      console.error('Error fetching stories:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch stories',
+        cause: error,
+      });
+    } finally {
+      // Ensure disconnect even if an error occurs
+      await prisma.$disconnect();
+    }
+  }),
 
   getStoriesByTags: publicProcedure
     .input(

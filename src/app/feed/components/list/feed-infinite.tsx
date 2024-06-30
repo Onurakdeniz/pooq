@@ -4,11 +4,11 @@ import React from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
 import StoryCard from "@/components/shared/story-card";
-import { Story as IStory } from "@/types";
+import { Story as IStory } from "@/types/type";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 interface InfiniteScrollStoryListProps {
-  initialStories: IStory[];  
+  initialStories: IStory[];  // This should now match the updated Story interface
   searchParams: Record<string, string | string[] | undefined>;
   initialCursor: string | null;
 }
@@ -22,19 +22,19 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
   const tags = filterParam ? filterParam.split(",") : [];
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    api.story.getStories.useInfiniteQuery(
-      {
-        limit: 10,
- 
+  api.story.getStories.useInfiniteQuery(
+    {
+      limit: 10,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      initialData: {
+        pages: [{ items: initialStories, nextCursor: initialCursor }],
+        pageParams: [undefined],
       },
-      {
-        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-        initialData: {
-          pages: [{ items: initialStories, nextCursor: initialCursor }],
-          pageParams: [undefined],
-        },
-      }
-    );
+    }
+  );
+  
 
   const allStories = React.useMemo(() => {
     return data ? data.pages.flatMap((page) => page.items) : initialStories;
@@ -50,6 +50,8 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
     }
   };
 
+  console.log("allStories",allStories)
+
   return (
     <InfiniteScroll
       dataLength={allStories.length}
@@ -59,18 +61,20 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
       endMessage={<div>No more stories to load.</div>}
     >
       {allStories.map((story) => (
-        <StoryCard
-          key={story.id}
-          id={story.id}
-          author={story.author}
-          cast={story.cast}
-          entities={story.entities}
-          mentionedStories={story.mentionedStories}
-          isBookmarked={story.isBookmarked}
-          title={story.title}
-          tags={story.tags}
-          numberofPosts={23}
-        />
+       <StoryCard
+       key={story.id}
+       id={story.id}
+       type={story.type}
+       author={story.author}
+       cast={story.cast}
+       entities={story.entities}
+       mentionedStories={story.mentionedStories}
+       isBookmarked={story.isBookmarked}
+       title={story.title}
+       tags={story.tags}
+       numberofPosts={story.numberofPosts}
+       categories={story.categories}
+     />
       ))}
     </InfiniteScroll>
   );

@@ -161,7 +161,7 @@ model TagOnExtraction {
 }
 
 model Entity {
-  id          Int                  @id @default(autoincrement())
+  id          String                     @id @default(uuid())
   name        String               @unique
   description String?
   extractions EntityOnExtraction[]
@@ -170,7 +170,7 @@ model Entity {
 }
 
 model EntityOnExtraction {
-  entityId     Int
+  entityId     String
   extractionId Int
   entity       Entity     @relation(fields: [entityId], references: [id])
   extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)

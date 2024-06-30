@@ -8,12 +8,13 @@ import { Plus, User } from "lucide-react";
 interface TagProps {
   id: string;
   name: string;
-  followers: number;
-  description: string;
-  isFollowed: boolean;
+  followers?: number;
+  description?: string;
+  isFollowed?: boolean;
 }
 
 const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) => {
+
   return (
     <HoverCard>
       <HoverCardTrigger>

@@ -114,6 +114,50 @@ export type CastFull = CastBase & {
 };
 
 
+
+export type CastinFeed = CastBase & {
+  parent_author: {
+    fid: number | null;
+  };
+  author: UserBase;
+  embeds: { url: string }[];
+  frames?: {
+    version: string;
+    title: string;
+    image: string;
+    image_aspect_ratio: string;
+    buttons: {
+      index: number;
+      title: string;
+      action_type: string;
+    }[];
+    input: Record<string, unknown>;
+    state: Record<string, unknown>;
+    post_url: string;
+    frames_url: string;
+  }[];
+  reactions: {
+    likes_count: number;
+    recasts_count: number;
+    likes: { fid: number; fname: string }[];
+    recasts: { fid: number; fname: string }[];
+  };
+  replies: { count: number };
+  channel: {
+    object: string;
+    id: string;
+    name: string;
+    image_url: string;
+  } | null;
+  mentioned_profiles: UserBase[];
+  viewer_context: {
+    liked: boolean;
+    recasted: boolean;
+  };
+};
+
+
+
 export type Cast = CastBase & {
   parent_author: {
     fid: number | null;

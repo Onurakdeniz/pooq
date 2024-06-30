@@ -4,9 +4,10 @@ import StoryBody from "./body";
 import StoryFooter from "./footer";
 import StoryHover from "../story-hover";
 import TextCard from "../text-card";
-import { Story as IStory } from "@/types";
- 
+import { Story as IStory } from "@/types/type";
+
 const StoryCard: React.FC<IStory> = ({
+  id,
   title,
   tags,
   entities,
@@ -14,27 +15,23 @@ const StoryCard: React.FC<IStory> = ({
   mentionedStories,
   author,
   cast,
-  numberofPosts
+  numberofPosts,
+  type,
 }) => {
- 
   return (
-    <div className="flex flex-col  w-full border-b p-8 hover:cursor-pointer hover:bg-accent">
-      <div className="flex flex-col  w-full  gap-2">
+    <div className="flex w-full  flex-col border-b p-8 hover:cursor-pointer hover:bg-accent">
+      <div className="flex w-full  flex-col  gap-2">
         <StoryHeader
           title={title}
-          tags={tags}
+          numberOfLikes={cast.reactions.likes_count}
           author={author}
           date={cast.timestamp}
         />
 
-    
-          <div className="flex text-sm w-full text-primary/60">
-            <TextCard text={cast.text} storyId={mentionedStories} tags={tags} />
-          </div>
-  
-   
+        <div className="flex w-full text-sm text-primary/60">
+          <TextCard text={cast.text} storyId={mentionedStories} tags={tags} numberofPosts={numberofPosts} />
+        </div>
       </div>
-  
     </div>
   );
 };
