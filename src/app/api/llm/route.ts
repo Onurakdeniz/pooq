@@ -205,6 +205,8 @@ switch (castType) {
       castType,
       llmResult
     });
+
+    console.log("embeddingResult",embeddingResult)
     
     return NextResponse.json({
       success: true,
