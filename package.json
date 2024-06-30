@@ -17,6 +17,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
     "@mantine/hooks": "^7.10.2",
+    "@pinecone-database/pinecone": "^2.2.2",
     "@prisma/client": "^5.16.0",
     "@privy-io/react-auth": "^1.71.0",
     "@privy-io/server-auth": "^1.7.3",

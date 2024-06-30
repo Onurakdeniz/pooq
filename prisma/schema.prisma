@@ -21,59 +21,60 @@ model User {
 }
 
 model Author {
-  fid      Int     @id @unique
-  userName String   
-  posts    Post[]
-  stories  Story[]
+  fid       Int      @id @unique
+  userName  String
+  posts     Post[]
+  stories   Story[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Story {
-  id             Int                 @id @default(autoincrement())
-  hash           String              @unique
-  authorId       Int
-  text           String
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  isProcessed    Boolean             @default(false)
-  bookmarks      Bookmark[]
-  extraction     Extraction?
-  posts          Post[]
-  author         Author              @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  categories     CategoryOnStory[]
-  tags           TagOnStory[]
+  id          Int               @id @default(autoincrement())
+  hash        String            @unique
+  authorId    Int
+  text        String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  isProcessed Boolean           @default(false)
+  bookmarks   Bookmark[]
+  extraction  Extraction?
+  posts       Post[]
+  author      Author            @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  categories  CategoryOnStory[]
+  tags        TagOnStory[]
 }
 
 model Post {
-  id             Int                @id @default(autoincrement())
-  hash           String             @unique
-  authorId       Int
-  text           String
-  storyId        Int?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  extraction     Extraction?
-  bookmarks      Bookmark[]
-  author         Author             @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  story          Story?             @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags           TagOnPost[]
+  id          Int         @id @default(autoincrement())
+  hash        String      @unique
+  authorId    Int
+  text        String
+  storyId     Int
+  isProcessed Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  extraction  Extraction?
+  bookmarks   Bookmark[]
+  author      Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  story       Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tags        TagOnPost[]
 }
 
 model Extraction {
-  id               Int        @id @default(autoincrement())
-  storyId          Int?       @unique
-  postId           Int?       @unique
+  id               Int                    @id @default(autoincrement())
+  storyId          Int?                   @unique
+  postId           Int?                   @unique
   title            String
   type             CastType
   mentionedStories String[]
-  post             Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  story            Story?     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  post             Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  story            Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)
   tags             TagOnExtraction[]
   entities         EntityOnExtraction[]
   categories       CategoryOnExtraction[]
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
 }
 
 model Bookmark {
@@ -92,21 +93,21 @@ model Bookmark {
 }
 
 model Category {
-  id           String             @id @default(uuid())
-  name         String             @unique
-  description  String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  extractions  CategoryOnExtraction[]
-  users        User[]
-  stories      CategoryOnStory[]
+  id          String                 @id @default(uuid())
+  name        String                 @unique
+  description String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  extractions CategoryOnExtraction[]
+  users       User[]
+  stories     CategoryOnStory[]
 }
 
 model CategoryOnStory {
-  categoryId   String
-  storyId      Int
-  category     Category   @relation(fields: [categoryId], references: [id])
-  story        Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  categoryId String
+  storyId    Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  story      Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@id([categoryId, storyId])
 }
@@ -121,31 +122,31 @@ model CategoryOnExtraction {
 }
 
 model Tag {
-  id           String       @id @default(uuid())
-  name         String       @unique
-  description  String?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  extractions  TagOnExtraction[]
-  users        User[]
-  stories      TagOnStory[]
-  posts        TagOnPost[]
+  id          String            @id @default(uuid())
+  name        String            @unique
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  extractions TagOnExtraction[]
+  users       User[]
+  stories     TagOnStory[]
+  posts       TagOnPost[]
 }
 
 model TagOnStory {
-  tagId    String
-  storyId  Int
-  tag      Tag    @relation(fields: [tagId], references: [id])
-  story    Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tagId   String
+  storyId Int
+  tag     Tag    @relation(fields: [tagId], references: [id])
+  story   Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@id([tagId, storyId])
 }
 
 model TagOnPost {
-  tagId   String
-  postId  Int
-  tag     Tag   @relation(fields: [tagId], references: [id])
-  post    Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId  String
+  postId Int
+  tag    Tag    @relation(fields: [tagId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([tagId, postId])
 }
@@ -160,19 +161,19 @@ model TagOnExtraction {
 }
 
 model Entity {
-  id           Int          @id @default(autoincrement())
-  name         String       @unique
-  description  String?
-  extractions  EntityOnExtraction[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          Int                  @id @default(autoincrement())
+  name        String               @unique
+  description String?
+  extractions EntityOnExtraction[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 }
 
 model EntityOnExtraction {
   entityId     Int
   extractionId Int
-  entity       Entity      @relation(fields: [entityId], references: [id])
-  extraction   Extraction  @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+  entity       Entity     @relation(fields: [entityId], references: [id])
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
 
   @@id([entityId, extractionId])
 }
