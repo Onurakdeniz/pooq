@@ -1,13 +1,9 @@
 import { Prisma, PrismaClient, CastType } from '@prisma/client';
-import { Pinecone } from '@pinecone-database/pinecone'
+ 
 
 const prisma = new PrismaClient();
 
  
-
-const pc = new Pinecone({ apiKey: "process.env.PINECONE"})
-const index = pc.index("pinecone-index")
-
 
 export interface CreateExtractionPayload {
   id: number;
@@ -26,61 +22,59 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
       title,
       type,
       entities: {
-        create: entities.map((entity) => ({
+        create: entities.map((name) => ({
           entity: {
             connectOrCreate: {
-              where: { name: entity },
-              create: { name: entity },
+              where: { name },
+              create: { name },
             },
           },
         })),
       },
       categories: {
-        create: category.map((cat) => ({
+        create: category.map((name) => ({
           category: {
             connectOrCreate: {
-              where: { name: cat },
-              create: { name: cat },
+              where: { name },
+              create: { name },
             },
           },
         })),
       },
       tags: {
-        create: tags.map((tag) => ({
+        create: tags.map((name) => ({
           tag: {
             connectOrCreate: {
-              where: { name: tag },
-              create: { name: tag },
+              where: { name },
+              create: { name },
             },
           },
         })),
       },
     };
 
-    let updatedItem;
-
     if (type === 'STORY') {
-      updatedItem = await prisma.story.update({
+      await prisma.story.update({
         where: { id },
         data: {
           isProcessed: true,
           extraction: { create: extractionData },
           categories: {
-            create: category.map((cat) => ({
+            create: category.map((name) => ({
               category: {
                 connectOrCreate: {
-                  where: { name: cat },
-                  create: { name: cat },
+                  where: { name },
+                  create: { name },
                 },
               },
             })),
           },
           tags: {
-            create: tags.map((tag) => ({
+            create: tags.map((name) => ({
               tag: {
                 connectOrCreate: {
-                  where: { name: tag },
-                  create: { name: tag },
+                  where: { name },
+                  create: { name },
                 },
               },
             })),
@@ -99,17 +93,17 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
         },
       });
     } else if (type === 'POST') {
-      updatedItem = await prisma.post.update({
+      await prisma.post.update({
         where: { id },
         data: {
           isProcessed: true,
           extraction: { create: extractionData },
           tags: {
-            create: tags.map((tag) => ({
+            create: tags.map((name) => ({
               tag: {
                 connectOrCreate: {
-                  where: { name: tag },
-                  create: { name: tag },
+                  where: { name },
+                  create: { name },
                 },
               },
             })),
@@ -130,7 +124,7 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
       throw new Error(`Invalid type: ${type as string}`);
     }
 
-    console.log(`Extraction created and ${type.toLowerCase()} updated:`, updatedItem);
+    console.log(`Extraction created and ${type.toLowerCase()} updated for id:`, id);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.error('Prisma error:', error.message);
