@@ -225,7 +225,6 @@ switch (castType) {
 }
 
 
-
 async function processEmbedding(params: {
   data: {
     id: string;
@@ -240,32 +239,31 @@ async function processEmbedding(params: {
     const { data, castType, llmResult } = params;
     const fleekembedding = "https://refined-laptop-late.functions.on-fleek.app";
 
-    interface EmbeddingPayload {
-      id: string;
-      text: string;
+    interface EmbeddingPayloadBody {
       type: string;
       hash: string;
+      text: string;
       tags: string[];
       entities: string[];
       category: string[];
       storyId?: string;  // Make this optional
     }
 
-    const embeddingPayload: EmbeddingPayload = {
-      id: data.id,
-      text: data.text,
-      type: castType.toUpperCase(),
-      hash: data.hash,
-      tags: llmResult.body.tags,
-      entities: llmResult.body.entities,
-      category: llmResult.body.category
+    const embeddingPayload: { body: EmbeddingPayloadBody } = {
+      body: {
+        type: castType.toUpperCase(),
+        hash: data.hash,
+        text: data.text,
+        tags: llmResult.body.tags,
+        entities: llmResult.body.entities,
+        category: llmResult.body.category
+      }
     };
 
     if (castType.toLowerCase() === 'post' && data.parentHash) {
-      embeddingPayload.storyId = data.parentHash;
+      embeddingPayload.body.storyId = data.parentHash;
     }
 
-  
     const embedding = await fetch(fleekembedding, {
       method: 'POST',
       headers: {
