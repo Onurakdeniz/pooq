@@ -11,6 +11,7 @@ import { TRPCClientErrorLike } from "@trpc/client";
 import { AppRouter } from "@/server/api/root";
 import { Post } from "@/types/type";
 import StoryCard from "@/components/shared/story-card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Story() {
   const { id: storyId } = useParams();
@@ -47,7 +48,9 @@ export default function Story() {
       <div className="flex flex-1 flex-col">
         <StoryTop />
         <div className="flex flex-col">
-          {story && (
+          {isLoading ? (
+            <StoryCardSkeleton />
+          ) : story ? (
             <StoryCard
               key={story.id}
               id={story.id}
@@ -62,20 +65,48 @@ export default function Story() {
               numberofPosts={story.numberofPosts}
               categories={story.categories}
             />
-          )}
+          ) : null}
           <div className="border-b"></div>
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <PostList
-          posts={posts}
-          isLoading={isLoading}
-          error={error as TRPCClientErrorLike<AppRouter> | null}
-          hasNextPage={hasNextPage ?? false}
-          isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
-        />
+        {isLoading ? (
+          <PostListSkeleton />
+        ) : (
+          <PostList
+            posts={posts}
+            isLoading={isLoading}
+            error={error as TRPCClientErrorLike<AppRouter> | null}
+            hasNextPage={hasNextPage ?? false}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
+        )}
       </ScrollArea>
+    </div>
+  );
+}
+
+function StoryCardSkeleton() {
+  return (
+    <div className="p-4 space-y-4">
+      <Skeleton className="h-8 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+      <Skeleton className="h-4 w-1/4" />
+    </div>
+  );
+}
+
+function PostListSkeleton() {
+  return (
+    <div className="space-y-4 p-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      ))}
     </div>
   );
 }
