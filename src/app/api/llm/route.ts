@@ -241,31 +241,29 @@ async function processEmbedding(params: {
     const { data, castType, llmResult } = params;
     const fleekembedding = "https://refined-laptop-late.functions.on-fleek.app";
 
-    interface EmbeddingPayloadBody {
+    interface EmbeddingPayload {
       type: string;
       hash: string;
       text: string;
       tags: string[];
       entities: string[];
       category: string[];
-      storyId?: string;  // Make this optional
+      storyId?: string;  // Make storyId optional
     }
-
-    const embeddingPayload: { body: EmbeddingPayloadBody } = {
-      body: {
-        type: castType.toUpperCase(),
-        hash: data.hash,
-        text: data.text,
-        tags: llmResult.body.tags,
-        entities: llmResult.body.entities,
-        category: llmResult.body.category
-      }
+    
+    const embeddingPayload: EmbeddingPayload = {
+      type: castType.toUpperCase(),
+      hash: data.hash,
+      text: data.text,
+      tags: llmResult.body.tags,
+      entities: llmResult.body.entities,
+      category: llmResult.body.category
     };
-
+    
     if (castType.toLowerCase() === 'post' && data.parentHash) {
-      embeddingPayload.body.storyId = data.parentHash;
+      embeddingPayload.storyId = data.parentHash;
     }
-
+    
     const embedding = await fetch(fleekembedding, {
       method: 'POST',
       headers: {
@@ -273,6 +271,7 @@ async function processEmbedding(params: {
       },
       body: JSON.stringify(embeddingPayload),
     });
+ 
 
     if (!embedding.ok) {
       throw new Error(`Failed to process ${castType} with LLM`);
