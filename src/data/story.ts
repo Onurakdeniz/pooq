@@ -57,23 +57,15 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
           isProcessed: true,
           extraction: { create: extractionData },
           categories: {
-            create: category.map((name) => ({
-              category: {
-                connectOrCreate: {
-                  where: { name },
-                  create: { name },
-                },
-              },
+            connectOrCreate: category.map((name) => ({
+              where: { categoryId_storyId: { categoryId: name, storyId: id } },
+              create: { category: { connectOrCreate: { where: { name }, create: { name } } } },
             })),
           },
           tags: {
-            create: tags.map((name) => ({
-              tag: {
-                connectOrCreate: {
-                  where: { name },
-                  create: { name },
-                },
-              },
+            connectOrCreate: tags.map((name) => ({
+              where: { tagId_storyId: { tagId: name, storyId: id } },
+              create: { tag: { connectOrCreate: { where: { name }, create: { name } } } },
             })),
           },
         },
@@ -96,13 +88,9 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
           isProcessed: true,
           extraction: { create: extractionData },
           tags: {
-            create: tags.map((name) => ({
-              tag: {
-                connectOrCreate: {
-                  where: { name },
-                  create: { name },
-                },
-              },
+            connectOrCreate: tags.map((name) => ({
+              where: { tagId_postId: { tagId: name, postId: id } },
+              create: { tag: { connectOrCreate: { where: { name }, create: { name } } } },
             })),
           },
         },
