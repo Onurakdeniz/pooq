@@ -30,39 +30,15 @@ interface IProfileAvatar {
   badges?: string[];
 }
 
-const profile = {
-  name: "Alice Johnson",
-  avatarUrl:
-    "https://wrpcd.net/cdn-cgi/image/fit=contain,f=auto,w=144/https%3A%2F%2Fi.imgur.com%2FIzJxuId.jpg",
-  followers: 450,
-  following: 200,
-  bio: "Tech enthusiast and software developer. Love to explore new technologies.Deneme Burada bi zun bir title Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme Deneme Burada ikinci tane title var bayada uzun bir title Deneme Burada bi zun bir title Deneme",
-  userName: "alice_j",
-  fid: 101,
-  custodyAddress: 1234567890,
-  verifications: ["Twitter", "GitHub"],
-  verifiedEthAddresses: ["0x1234567890abcdef1234567890abcdef12345678"],
-  activeStatus: true,
-  powerBadge: true,
-  viewer: {
-    following: "yes",
-    followedBy: "no",
-  },
-};
-
+ 
 const Profile = () => {
   return (
     <div className="flex flex-col border-b px-8 py-4 ">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between  ">
           <div className="flex items-center gap-2">
-            <Avatar>
-              <AvatarImage src={profile.avatarUrl} />
-            </Avatar>
-            <div className="flex flex-col gap-1">
-              <div>{profile.name}</div>
-              <div className="text-xs">@{profile.userName}</div>
-            </div>
+            
+            
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 items-center gap-2 rounded-lg border bg-inherit p-2 text-center text-sm text-primary/70 ">
@@ -85,7 +61,7 @@ const Profile = () => {
           </div>
         </div>
         <div className="line-clamp-2 text-sm  text-primary/60 ">
-          {profile.bio}
+ 
         </div>
         <div className="flex items-center gap-6 ">
           <div className="h-8   rounded-sm  text-sm  text-primary/70">

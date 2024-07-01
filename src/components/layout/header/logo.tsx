@@ -1,12 +1,16 @@
 import React from "react";
-import {LibraryBig} from "lucide-react"
+import { Lightbulb } from "lucide-react";
 
-const Logo : React.FC = () => {
-  return <div className="md:text-xl lg:text-3xl font-extralight  px-2 flex gap-2 items-center ">
-      <LibraryBig className="w-8 h-8" strokeWidth="1" />
-    <span> STORY</span>
-    
-    </div>;
+const Logo: React.FC = () => {
+  return (
+    <div className="flex items-center gap-2">
+      <Lightbulb className="w-6 h-6 md:w-10 md:h-10" strokeWidth={1.5} />
+      <div className="flex flex-col">
+        <span className="text-lg md:text-xl lg:text-2xl font-bold lowercase">p<span className="font-bold">oo</span>q</span>
+        <span className="text-xs md:text-sm text-primary/60">Idea Exchange</span>
+      </div>
+    </div>
+  );
 };
 
 export default Logo;

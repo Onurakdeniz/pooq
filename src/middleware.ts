@@ -3,55 +3,63 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { UNAUTHENTICATED_PAGES } from "@/lib/constants";
 
+// Helper function to verify token with a timeout
+const verifyTokenWithTimeout = async (token: string, timeoutMs: number) => {
+  return Promise.race([
+    privy.verifyAuthToken(token),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Verification timeout')), timeoutMs))
+  ]);
+};
+
+// Helper function to check if a user is authenticated
+const isUserAuthenticated = async (accessToken: string | undefined) => {
+  if (!accessToken) return false;
+  try {
+    await verifyTokenWithTimeout(accessToken, 3000); // 3 second timeout
+    return true;
+  } catch (error) {
+    console.log(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return false;
+  }
+};
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("privy-token")?.value;
+
+  console.log(`Middleware called for path: ${pathname}`);
 
   // Bypass middleware for authentication flow and refresh
   if (
     request.nextUrl.searchParams.has("privy_oauth_code") ||
     request.nextUrl.searchParams.has("privy_oauth_state") ||
     request.nextUrl.searchParams.has("privy_oauth_provider") ||
-    pathname === "/refresh"
+    pathname === "/refresh" ||
+    UNAUTHENTICATED_PAGES.includes(pathname)
   ) {
+    console.log("Bypassing middleware checks");
     return NextResponse.next();
   }
 
   try {
-    let isAuthenticated = false;
-    console.log("accsmid", accessToken);
-    
-    if (accessToken) {
-      // Verify the token with Privy's API
-      try {
-        const verifiedClaims = await privy.verifyAuthToken(accessToken);
-        isAuthenticated  = true
-        console.log("isAuth",isAuthenticated)
-      } catch (error) {
-        if (error instanceof Error) {
-          console.log(`Token verification failed with error: ${error.message}`);
-        } else {
-          console.log("Token verification failed with an unknown error.");
-        }
-      }
-    }
+    console.log(`Checking authentication for token: ${accessToken ? 'exists' : 'does not exist'}`);
+    const isAuthenticated = await isUserAuthenticated(accessToken);
+    console.log(`Authentication check result: ${isAuthenticated}`);
 
-    if (!isAuthenticated && !UNAUTHENTICATED_PAGES.includes(pathname)) {
+    if (!isAuthenticated && pathname !== "/login") {
+      console.log("User not authenticated. Redirecting to login page");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     if (isAuthenticated && (pathname === "/login" || pathname === "/")) {
+      console.log("User authenticated. Redirecting to feed page");
       return NextResponse.redirect(new URL("/feed", request.url));
     }
 
+    console.log("Proceeding to next middleware or page handler");
     return NextResponse.next();
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Authentication error:", error.message);
-    } else {
-      console.error("Authentication error:", "Unknown error");
-    }
-    // Handle error appropriately, maybe redirect to an error page
+    console.error("Authentication error:", error instanceof Error ? error.message : "Unknown error");
     return NextResponse.redirect(new URL("/error", request.url));
   }
 }

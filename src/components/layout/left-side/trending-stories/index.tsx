@@ -7,7 +7,7 @@ const TrendingStories = () => {
     <div className="flex flex-col gap-2   ">
       <div className="flex gap-2 pb-2 text-primary/80 items-center text-lg ">
       <TrendingUp className="h-5 w-5" />
-        <span className="">Trending Stories </span>
+        <span className="">Trending </span>
         
       </div>
 

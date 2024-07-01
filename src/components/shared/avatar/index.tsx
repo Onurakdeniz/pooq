@@ -46,13 +46,14 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
   const firstLetter = profile?.display_name?.[0];
 
 
-  const formattedTimeAgo = formatDistanceToNow(
-    new Date(date ?? Date.now()),
-    { addSuffix: true }
-  ).replace(/^about\s/i, '');
+  const dateValue = date ? new Date(date) : new Date();
+const isValidDate = !isNaN(dateValue.getTime());
 
-  console.log(formattedTimeAgo);
+const formattedTimeAgo = isValidDate
+  ? formatDistanceToNow(dateValue, { addSuffix: true }).replace(/^about\s/i, '')
+  : 'Invalid date';
 
+console.log(formattedTimeAgo);
   return (
     <HoverCard onOpenChange={open => setIsHovered(open)}>
       <HoverCardTrigger className="">

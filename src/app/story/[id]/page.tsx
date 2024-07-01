@@ -26,7 +26,7 @@ export default function Story() {
   } = api.story.getStoryWithPosts.useInfiniteQuery(
     {
       storyId: storyId as string,
-      userId: 1,
+      userId: "1",
       fid: 367559,
       limit: 10,
     },
@@ -44,7 +44,7 @@ export default function Story() {
   const story = data?.pages[0]?.story;
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="z-0 flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col">
         <StoryTop />
         <div className="flex flex-col">

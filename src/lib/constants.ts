@@ -37,7 +37,6 @@ export const SIDE_MENU_ITEMS = [
   { title: "Home", icon: Home, href: "/" },
   { title: "Discover", icon: SearchCheck, href: "discover" },
   { title: "Invite", icon: SquareArrowUpRight, href: "invite" },
-  { title: "Bookmarks", icon: BookmarkCheck, href: "bookmarks" },
   { title: "Profile", icon: CircleUser, href: "profile" },
 ];
 

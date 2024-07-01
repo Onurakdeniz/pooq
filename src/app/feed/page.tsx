@@ -1,9 +1,9 @@
 // app/feed/page.tsx
 
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import { api } from "@/trpc/server";
-import StoryList from './components/list';
-import FeedTop from './components/top';
+import StoryList from "./components/list";
+import FeedTop from "./components/top";
 import { Story } from "@/types/type";
 
 interface APIResponse {
@@ -11,11 +11,19 @@ interface APIResponse {
   nextCursor: string | null;
 }
 
-export default async function FeedPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function FeedPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   const limit = 10;
   const cursor = searchParams.cursor as string | undefined;
-  const userId = searchParams.userId ? parseInt(searchParams.userId as string) : undefined;
-  const fid = searchParams.fid ? parseInt(searchParams.fid as string) : undefined;
+  const userId = searchParams.userId
+    ? searchParams.userId as string
+    : undefined;
+  const fid = searchParams.fid
+    ? parseInt(searchParams.fid as string)
+    : undefined;
 
   try {
     const apiResponse = await api.story.getStories({
@@ -25,15 +33,15 @@ export default async function FeedPage({ searchParams }: { searchParams: Record<
       fid,
     });
 
-    const initialStories:  Story[] = apiResponse.items;
+    const initialStories: Story[] = apiResponse.items;
 
     return (
-      <div className='flex flex-col min-h-screen z-0'>
+      <div className="z-0 flex min-h-screen flex-col">
         <FeedTop />
         <Suspense fallback={<div>Loading stories...</div>}>
-          <StoryList 
-            initialStories={initialStories} 
-            searchParams={searchParams} 
+          <StoryList
+            initialStories={initialStories}
+            searchParams={searchParams}
             initialCursor={apiResponse.nextCursor}
           />
         </Suspense>

@@ -45,11 +45,7 @@ const PostReply = () => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-6 rounded-md    border-gray-200  dark:border-gray-600   sm:flex">
             <div className="text-sm font-light   text-muted-foreground ">
-              Deneme Burada bi zun bir title Deneme Burada ikinci tane title var
-              bayada uzun bir title Deneme Burada bi zun bir title DenemeDeneme
-              Burada bi zun bir title Deneme Burada ikinci tane title var bayada
-              uzun bir title Deneme Burada bi zun bir title DenemeDeneme Burada
-              bi zu
+         
             </div>
           </div>       
           <div className="flex items-center gap-2"> 

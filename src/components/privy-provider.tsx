@@ -28,7 +28,7 @@ export default function PrivyProviderWrapper({
         }, 
         appearance: {
           // Defaults ['detected_wallets', 'metamask', 'coinbase_wallet', 'rainbow', 'wallet_connect']
-          walletList: ['coinbase_wallet','metamask'], 
+          walletList: ['coinbase_wallet'], 
  
         },
         

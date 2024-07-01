@@ -183,7 +183,7 @@ export const storyRouter = createTRPCRouter({
     z.object({
       limit: z.number().min(1).max(100).optional().default(10),
       cursor: z.string().optional(),
-      userId: z.number().optional(),
+      userId: z.string().optional(),
       fid: z.number().optional(),
     }),
   )
@@ -335,7 +335,7 @@ export const storyRouter = createTRPCRouter({
   .input(
     z.object({
       storyId: z.string(),
-      userId: z.number().optional(),
+      userId: z.string().optional(),
       fid: z.number().optional(),
       cursor: z.number().optional(),
       limit: z.number().default(10),
