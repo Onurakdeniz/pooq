@@ -1,40 +1,38 @@
+// app/components/LoginButton.tsx
 'use client'
 
 import { useState } from 'react'
-import { useLogin  } from '@privy-io/react-auth'
-import { useRouter } from 'next/navigation'
+import { useLogin } from '@privy-io/react-auth'
+import { loginUser } from "@/actions/login"
 
 type LoginButtonProps = {
   variant: 'page' | 'header'
   className?: string
 }
 
-async function upsertUser(userId: string): Promise<void> {
-  // ... (unchanged)
-}
-
 export default function LoginButton({ variant, className = '' }: LoginButtonProps) {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-
+ 
   const { login } = useLogin({
     onComplete: (user) => {
-      setIsLoading(true)
-      upsertUser(user.id)
-        .then(() => router.push('/feed'))
-        .catch((error) => {
-          console.error('Failed to upsert user:', error)
-        // Handle error (e.g., show error message to user)
-      })
-      .finally(() => setIsLoading(false))
- 
+      void (async () => {
+        setIsLoading(true)
+        try {
+          await loginUser(user.id)
+        } catch (error) {
+          console.error('Login failed:', error)
+          // Handle error (e.g., show error message to user)
+        } finally {
+          setIsLoading(false)
+        }
+      })()
     },
     onError: (error) => {
       console.error('Login error:', error)
       setIsLoading(false)
     },
   })
-
+  
   const handleLogin = () => {
     setIsLoading(true)
     login()
@@ -53,7 +51,7 @@ export default function LoginButton({ variant, className = '' }: LoginButtonProp
 
   return (
     <button
-      onClick={handleLogin}
+      onClick={() => handleLogin()} // Wrap handleLogin in an arrow function
       disabled={isLoading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
