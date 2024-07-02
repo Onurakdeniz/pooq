@@ -21,6 +21,7 @@ export type AuthMiddlewareResult =
 
     const result = await privy.verifyAuthToken(accessToken.value);
     const { userId: privyUserId } = result;
+    console.log("privyid",privyUserId)
 
     if (!privyUserId) {
       console.error("Unauthorized: User ID not found");

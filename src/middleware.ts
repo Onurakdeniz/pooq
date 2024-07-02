@@ -11,6 +11,8 @@ const verifyTokenWithTimeout = async (token: string, timeoutMs: number) => {
   ]);
 };
 
+console.log("verifyTokenWithTimeout",verifyTokenWithTimeout)
+
 // Helper function to check if a user is authenticated
 const isUserAuthenticated = async (accessToken: string | undefined) => {
   if (!accessToken) return false;
@@ -18,14 +20,16 @@ const isUserAuthenticated = async (accessToken: string | undefined) => {
     await verifyTokenWithTimeout(accessToken, 3000); // 3 second timeout
     return true;
   } catch (error) {
-    console.log(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    return false;
+    console.error(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw error; // Re-throw the error for debugging
   }
 };
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("privy-token")?.value;
+  console.log("Access Token:", accessToken ? "Present" : "Not Present");
+
 
   console.log(`Middleware called for path: ${pathname}`);
 

@@ -17,12 +17,12 @@ function isValidRequestBody(body: unknown): body is RequestBody {
     typeof body === 'object' &&
     body !== null &&
     'storyId' in body &&
-    'userAddress' in body &&
-    'timestamp' in body &&
-    'signature' in body &&
     typeof (body as RequestBody).storyId === 'string' &&
+    'userAddress' in body &&
     typeof (body as RequestBody).userAddress === 'string' &&
+    'timestamp' in body &&
     typeof (body as RequestBody).timestamp === 'string' &&
+    'signature' in body &&
     typeof (body as RequestBody).signature === 'string'
   );
 }

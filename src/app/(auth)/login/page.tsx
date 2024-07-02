@@ -4,9 +4,10 @@ import { usePrivy } from "@privy-io/react-auth";
 import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import { Flame, Wallet } from "lucide-react";
+import LoginButton from "@/components/shared/login";
 
 export default function Login() {
-  const { login } = usePrivy();
+  const { login ,ready, } = usePrivy();
 
   return (
     <>
@@ -37,13 +38,7 @@ export default function Login() {
             </div>
           </div>
 
-          <Button
-            onClick={login}
-            variant={"outline"}
-            className="w-full rounded-full px-4 py-5 font-bold transition duration-300"
-          >
-            Login with Farcaster or Coinbase Wallet
-          </Button>
+          <LoginButton variant="page" />
         </div>
       </main>
     </>

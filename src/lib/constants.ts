@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 export const UNAUTHENTICATED_PAGES = [
-  "/login",
+
   "/api/register",
   "/api/trigger",
   "/_next/static",

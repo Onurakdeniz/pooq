@@ -17,6 +17,7 @@ import { usePrivy, useLogin } from "@privy-io/react-auth";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import LoginButton from "@/components/shared/login";
 
 const Profile = () => {
   const router = useRouter();
@@ -85,9 +86,7 @@ const Profile = () => {
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />
-            <Button onClick={login} className="rounded-md px-4 py-2">
-              Login
-            </Button>
+            <LoginButton variant="header" />
           </div>
         </div>
       )}

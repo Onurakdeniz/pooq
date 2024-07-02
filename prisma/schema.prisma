@@ -8,15 +8,15 @@ datasource db {
 }
 
 model User {
-   id          String     @id @unique
-  fid          Int?        @unique
-  userName     String?     @unique
-  bookmarks    Bookmark[]
-  tags         Tag[]
-  categories   Category[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  llmFeeds     LLMFeed[]
+  id         String     @id @unique
+  fid        Int?       @unique
+  userName   String?    @unique
+  bookmarks  Bookmark[]
+  tags       Tag[]
+  categories Category[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  llmFeeds   LLMFeed[]
 }
 
 model Author {
@@ -77,7 +77,7 @@ model Extraction {
 }
 
 model Bookmark {
-   id          String                 @id @default(uuid())
+  id        String   @id @default(uuid())
   userId    String
   storyId   Int?
   postId    Int?
