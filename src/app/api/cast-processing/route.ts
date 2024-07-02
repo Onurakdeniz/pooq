@@ -1,3 +1,5 @@
+export const maxDuration = 45;
+
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
