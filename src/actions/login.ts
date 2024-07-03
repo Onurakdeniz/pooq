@@ -1,4 +1,4 @@
-
+'use server'
 import { redirect } from 'next/navigation'
 import { PrismaClient } from '@prisma/client'
 
@@ -22,8 +22,8 @@ async function upsertUser(userId: string): Promise<void> {
 export async function loginUser(userId: string) {
   try {
     await upsertUser(userId)
-    
-    // Set a cookie to indicate the user is logged in
+    console.log("userid",userId)
+ 
  
   } catch (error) {
     console.error('Failed to upsert user:', error)

@@ -11,8 +11,6 @@ const verifyTokenWithTimeout = async (token: string, timeoutMs: number) => {
   ]);
 };
 
-console.log("verifyTokenWithTimeout",verifyTokenWithTimeout)
-
 // Helper function to check if a user is authenticated
 const isUserAuthenticated = async (accessToken: string | undefined) => {
   if (!accessToken) return false;
@@ -21,25 +19,40 @@ const isUserAuthenticated = async (accessToken: string | undefined) => {
     return true;
   } catch (error) {
     console.error(`Token verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    throw error; // Re-throw the error for debugging
+    return false;
   }
+};
+
+// Helper function to log all cookies
+const logAllCookies = (request: NextRequest) => {
+  console.log("All cookies:");
+  request.cookies.getAll().forEach(cookie => {
+    console.log(`${cookie.name}: ${cookie.value}`);
+  });
 };
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  console.log(`Middleware called for path: ${pathname}`);
+  
+  // Log all cookies
+  logAllCookies(request);
+  
   const accessToken = request.cookies.get("privy-token")?.value;
   console.log("Access Token:", accessToken ? "Present" : "Not Present");
 
+  // Check for a temporary login flag
+  const isJustLoggedIn = request.cookies.get("just_logged_in")?.value === "true";
 
-  console.log(`Middleware called for path: ${pathname}`);
-
-  // Bypass middleware for authentication flow and refresh
+  // Bypass middleware for authentication flow, refresh, and unauthenticated pages
   if (
     request.nextUrl.searchParams.has("privy_oauth_code") ||
     request.nextUrl.searchParams.has("privy_oauth_state") ||
     request.nextUrl.searchParams.has("privy_oauth_provider") ||
     pathname === "/refresh" ||
-    UNAUTHENTICATED_PAGES.includes(pathname)
+    UNAUTHENTICATED_PAGES.includes(pathname) ||
+    isJustLoggedIn
   ) {
     console.log("Bypassing middleware checks");
     return NextResponse.next();
@@ -70,6 +83,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/register|api/trigger|api/llm|api/test|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/register|api/trigger|api/cast-processing|api/feed-llm|_next/static|_next/image|favicon.ico).*)",
   ],
 };

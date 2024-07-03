@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
-import dynamic from 'next/dynamic';
 import Link from "next/link";
 import { Story as IStory } from "@/types/type";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const StoryCard = dynamic(() => import("@/components/shared/story-card"), { ssr: false });
-const InfiniteScroll = dynamic(() => import("react-infinite-scroll-component"), { ssr: false });
+import { useSearchParams } from 'next/navigation';
+import StoryCard from "@/components/shared/story-card";
+import InfiniteScroll from "react-infinite-scroll-component";
+import ConnectWalletDialog from '@/components/wallet';
 
 interface InfiniteScrollStoryListProps {
   initialStories: IStory[];
@@ -38,10 +38,19 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
   initialCursor,
 }) => {
   const [isClient, setIsClient] = useState<boolean>(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const searchParamsHook = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (searchParamsHook.get('showDialog') === 'true') {
+      setShowDialog(true);
+    }
+  }, [searchParamsHook]);
+
+  const handleDialogClose = () => {
+    setShowDialog(false);
+  };
 
   const filterParam = searchParams.filters as string | undefined;
   const tags = filterParam ? filterParam.split(",") : [];
@@ -50,7 +59,7 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
     api.story.getStories.useInfiniteQuery(
       {
         limit: 10,
-     
+        // Add any other query parameters here
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
@@ -86,30 +95,36 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
   }
 
   return (
-    <InfiniteScroll
-      dataLength={allStories.length}
-      next={loadMore}
-      hasMore={!!hasNextPage}
-      loader={<SkeletonStoryCard />}
-      endMessage={<div className="flex justify-center text-sm p-2 text-primary/60">No more stories to load.</div>}
-    >
-      {allStories.map((story) => (
-        <Link href={`/story/${story.id}`} key={story.id}>
-          <StoryCard
-            id={story.id}
-            type={story.type}
-            author={story.author}
-            cast={story.cast}
-            entities={story.entities}
-            mentionedStories={story.mentionedStories}
-            isBookmarked={story.isBookmarked}
-            title={story.title}
-            tags={story.tags}
-            numberofPosts={story.numberofPosts}
-            categories={story.categories}
-          />
-        </Link>
-      ))}
-    </InfiniteScroll>
+    <>
+      <InfiniteScroll
+        dataLength={allStories.length}
+        next={loadMore}
+        hasMore={!!hasNextPage}
+        loader={<SkeletonStoryCard />}
+        endMessage={<div className="flex justify-center text-sm p-2 text-primary/60">No more stories to load.</div>}
+      >
+        {allStories.map((story) => (
+          <Link href={`/story/${story.id}`} key={story.id}>
+            <StoryCard
+              id={story.id}
+              type={story.type}
+              author={story.author}
+              cast={story.cast}
+              entities={story.entities}
+              mentionedStories={story.mentionedStories}
+              isBookmarked={story.isBookmarked}
+              title={story.title}
+              tags={story.tags}
+              numberofPosts={story.numberofPosts}
+              categories={story.categories}
+            />
+          </Link>
+        ))}
+      </InfiniteScroll>
+      <ConnectWalletDialog 
+        open={showDialog} 
+        onOpenChange={handleDialogClose} 
+      />
+    </>
   );
 };

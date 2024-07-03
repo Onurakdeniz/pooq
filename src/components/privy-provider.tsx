@@ -1,8 +1,10 @@
-'use client';
+"use client";
 
 import { PrivyProvider } from "@privy-io/react-auth";
 import { useRouter } from "next/navigation";
-import {base, baseGoerli, mainnet, sepolia, polygon, polygonMumbai} from 'viem/chains';
+import { useState } from "react";
+import { base } from "viem/chains";
+import ConnectWalletDialog from "./wallet";
 
 export default function PrivyProviderWrapper({
   children,
@@ -10,32 +12,29 @@ export default function PrivyProviderWrapper({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [showDialog, setShowDialog] = useState(false);
   return (
     <PrivyProvider
       appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID ?? ""}
       config={{
-        embeddedWallets: { 
-            createOnLogin: 'all-users'
-        } ,
-        defaultChain: base ,
-        supportedChains: [base] ,
-        externalWallets: { 
-          coinbaseWallet: { 
-   
-            connectionOptions: 'smartWalletOnly', 
-          }, 
-          
-        }, 
+        defaultChain: base,
+        supportedChains: [base],
+
+        loginMethods: ["farcaster"],
         appearance: {
-          // Defaults ['detected_wallets', 'metamask', 'coinbase_wallet', 'rainbow', 'wallet_connect']
-          walletList: ['coinbase_wallet'], 
- 
+          walletList: ["coinbase_wallet"],
+          
         },
-        
-    }}
-      onSuccess={() => router.push("/")}
+        externalWallets: {
+          coinbaseWallet: {
+            connectionOptions: "smartWalletOnly",
+          },
+        },
+      }}
+
     >
       {children}
+
     </PrivyProvider>
   );
 }
