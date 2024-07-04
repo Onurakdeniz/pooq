@@ -104,10 +104,11 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
         endMessage={<div className="flex justify-center text-sm p-2 text-primary/60">No more stories to load.</div>}
       >
         {allStories.map((story) => (
-          <Link href={`/story/${story.id}`} key={story.id}>
+ 
             <StoryCard
+            key={story.id}
               id={story.id}
-              type={story.type}
+              type={"FEED"}
               author={story.author}
               cast={story.cast}
               entities={story.entities}
@@ -117,8 +118,9 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
               tags={story.tags}
               numberofPosts={story.numberofPosts}
               categories={story.categories}
+         
             />
-          </Link>
+  
         ))}
       </InfiniteScroll>
       <ConnectWalletDialog 

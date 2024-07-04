@@ -18,17 +18,21 @@ const StoryCard: React.FC<IStory> = ({
   cast,
   numberofPosts,
   type,
+  
 }) => {
   return (
-    <div className="flex w-full  flex-col border-b p-8 hover:cursor-pointer hover:bg-accent">
+    <div className="flex w-full  flex-col border-b p-8   hover:bg-accent">
 
       <div className="flex w-full  flex-col  gap-2">
         <StoryHeader
-        id={id}
+          id={id}
           title={title}
           numberOfLikes={cast.reactions.likes_count}
           author={author}
           date={cast.timestamp}
+          isBookmarked={isBookmarked}
+          type={type}
+          viewer_context={cast.viewer_context}
         />
 
         <div className="flex w-full text-sm text-primary/60">

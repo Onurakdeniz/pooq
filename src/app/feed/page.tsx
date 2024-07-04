@@ -19,7 +19,7 @@ export default async function FeedPage({
   const limit = 10;
   const cursor = searchParams.cursor as string | undefined;
   const userId = searchParams.userId
-    ? searchParams.userId as string
+    ? (searchParams.userId as string)
     : undefined;
   const fid = searchParams.fid
     ? parseInt(searchParams.fid as string)

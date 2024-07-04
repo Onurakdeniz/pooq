@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect } from 'react'
-import { useLogin } from '@privy-io/react-auth'
+import { useLogin, useModalStatus } from '@privy-io/react-auth'
 import { loginUser } from "@/actions/login"
 import ConnectWalletDialog from '../wallet'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -22,6 +22,7 @@ export default function LoginButton({ variant, className = '' }: LoginButtonProp
   const [shouldShowDialog, setShouldShowDialog] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const   privyModal   = useModalStatus()
 
   useEffect(() => {
     if (searchParams.get('showDialog') === 'true') {
@@ -56,30 +57,23 @@ export default function LoginButton({ variant, className = '' }: LoginButtonProp
   const handleLoginError = useCallback((error: unknown) => {
     console.error('Login error:', error)
     setIsLoading(false)
-    toast.error(`Login error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    // Only show error toast if it's a real error, not just a cancellation
+    if (error instanceof Error && error.message !== 'Login canceled') {
+      toast.error(`Login error: ${error.message}`)
+    }
   }, [])
+    /* eslint-disable */
 
-  /* eslint-disable */
   const { login } = useLogin({
     onComplete: handleLoginComplete,
     onError: handleLoginError,
   })
-  
+    /* eslint-disable */
   const handleLogin = useCallback(() => {
     console.log('Login button clicked')
     setIsLoading(true)
-    void (async () => {
-      try {
-        await login()
-      } catch (error) {
-        console.error('Login failed:', error)
-        toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      } finally {
-        setIsLoading(false)
-      }
-    })()
+    login()
   }, [login])
-/* eslint-disable */
 
   const handleDialogClose = useCallback(() => {
     console.log('Dialog closed')
@@ -88,6 +82,12 @@ export default function LoginButton({ variant, className = '' }: LoginButtonProp
     newUrl.searchParams.delete('showDialog')
     window.history.replaceState({}, '', newUrl)
   }, [])
+
+  useEffect(() => {
+    if (privyModal && !privyModal.isOpen) {
+      setIsLoading(false)
+    }
+  }, [privyModal])
 
   const baseStyles = "font-bold text-secondary transition duration-300 disabled:opacity-50"
   const variantStyles = {

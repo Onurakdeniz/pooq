@@ -12,9 +12,14 @@ import { AppRouter } from "@/server/api/root";
 import { Post } from "@/types/type";
 import StoryCard from "@/components/shared/story-card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { usePrivy } from "@privy-io/react-auth";
+
 
 export default function Story() {
-  const { id: storyId } = useParams();
+  const { id } = useParams();
+  const storyId = Number(id);
+
+  const {user} = usePrivy();
 
   const {
     data,
@@ -25,9 +30,9 @@ export default function Story() {
     isFetchingNextPage,
   } = api.story.getStoryWithPosts.useInfiniteQuery(
     {
-      storyId: storyId as string,
-      userId: "1",
-      fid: 367559,
+      storyId: storyId ,
+      userId: user?.id ,
+      fid: user?.farcaster?.fid ,
       limit: 10,
     },
     {
@@ -54,7 +59,7 @@ export default function Story() {
             <StoryCard
               key={story.id}
               id={story.id}
-              type={story.type}
+              type={"STORY"}
               author={story.author}
               cast={story.cast}
               entities={story.entities}

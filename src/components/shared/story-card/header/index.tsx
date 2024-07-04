@@ -12,17 +12,20 @@ import {
 
 import React from "react";
 import Tag from "@/components/shared/tag";
-import { Author as Profile } from "@/types/type";
+import { Author as Profile ,  CastViewerContext} from "@/types/type";
 import BookmarkStory from "./bookmark";
 import Link from "next/link";
 import LikeButton from "./like";
 
 interface IStoryHeader {
-  id:string;
+  id: string;
   title: string;
   author: Profile;
   date: string;
   numberOfLikes: number;
+  isBookmarked: boolean;
+  type: string;
+  viewer_context : CastViewerContext
 }
 
 const StoryHeader: React.FC<IStoryHeader> = ({
@@ -31,15 +34,25 @@ const StoryHeader: React.FC<IStoryHeader> = ({
   author,
   date,
   numberOfLikes,
+  isBookmarked,
+  type,
+  viewer_context
 }) => {
   return (
-    <div className="mb-4 flex  w-full  flex-col gap-4   ">
+    <div className="mb-4 flex w-full flex-col gap-4">
       <div className="flex flex-col gap-4">
-      <Link href={`/story/${id}`}   passHref>
         <div className="flex w-full items-center justify-between text-primary/80">
-          <div className=" line-clamp-2  flex  w-11/12 text-xl font-semibold    ">
-            {title}
-          </div>
+          {type === "FEED" ? (
+            <Link href={`/story/${id}`} passHref>
+              <div className="line-clamp-2 flex w-11/12 text-xl font-semibold">
+                {title}
+              </div>
+            </Link>
+          ) : (
+            <div className="line-clamp-2 flex w-11/12 text-xl font-semibold">
+              {title}
+            </div>
+          )}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -51,7 +64,6 @@ const StoryHeader: React.FC<IStoryHeader> = ({
             </Tooltip>
           </TooltipProvider>
         </div>
-        </Link>
         <div className="flex h-8 items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <ProfileAvatar
@@ -61,10 +73,10 @@ const StoryHeader: React.FC<IStoryHeader> = ({
               date={date}
             />
           </div>
-          <div className="flex items-center gap-2 ">
-            <div className=" items-cetner flex gap-2 text-xs text-primary/60">
-           <BookmarkStory id={id}/>
-            <LikeButton numberOfLikes={numberOfLikes} />
+          <div className="flex items-center gap-2">
+            <div className="flex gap-2 text-xs text-primary/60">
+              <BookmarkStory id={id} isBookmarkedProp={isBookmarked} />
+              <LikeButton numberOfLikes={numberOfLikes} isLiked={viewer_context.liked} />
             </div>
           </div>
         </div>

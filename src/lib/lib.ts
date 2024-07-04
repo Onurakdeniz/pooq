@@ -1,15 +1,14 @@
-// api/neynar.ts
-
 import axios from 'axios';
-import type { Author, Cast } from '@/types/type';
+import { Author, Cast, Reactions, Story, ReactionUser, CastViewerContext } from '@/types/type';
 
 export interface NeynarResponse {
   author: Omit<Author, 'numberOfStories' | 'numberOfPosts'>;
   cast: Omit<Cast, 'reactions'> & {
     reactions: {
-      likes: { fid: number; fname: string }[];
-      recasts: { fid: number; fname: string }[];
+      likes: ReactionUser[];
+      recasts: ReactionUser[];
     };
+    viewer_context: CastViewerContext;
   };
 }
 
@@ -17,8 +16,8 @@ interface NeynarCast extends Omit<Cast, 'reactions'> {
   hash: string;
   author: Omit<Author, 'numberOfStories' | 'numberOfPosts'>;
   reactions: {
-    likes: { fid: number; fname: string }[];
-    recasts: { fid: number; fname: string }[];
+    likes: ReactionUser[];
+    recasts: ReactionUser[];
   };
 }
 
@@ -47,7 +46,7 @@ export async function fetchFromNeynarAPI(hashes: string[], userFid?: number): Pr
     return hashes.map(hash => {
       const cast = response.data.result.casts.find(c => c.hash === hash);
       if (!cast) return undefined;
-      
+
       const { author, ...castWithoutAuthor } = cast;
       return {
         author,
