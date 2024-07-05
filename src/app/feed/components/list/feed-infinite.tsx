@@ -67,6 +67,8 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
           pages: [{ items: initialStories, nextCursor: initialCursor }],
           pageParams: [undefined],
         },
+        refetchOnWindowFocus: false,
+        staleTime: 1000 * 60 * 5
       }
     );
 

@@ -33,6 +33,8 @@ export default async function FeedPage({
       fid,
     });
 
+    console.log("apires",apiResponse)
+
     const initialStories: Story[] = apiResponse.items;
 
     return (

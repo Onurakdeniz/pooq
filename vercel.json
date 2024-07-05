@@ -1,0 +1,6 @@
+{
+  "crons": [{
+  "path": "/api/cron/trending-stories",
+  "schedule": "*/5 * * * *"
+  }]
+  }

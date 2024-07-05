@@ -143,7 +143,7 @@ export const storyRouter = createTRPCRouter({
           const thirdPartyData = neynarData[index];
           const storyCount = authorStoryCountMap.get(story.authorId) ?? 0;
           const postsCount = storyPostsCountMap.get(story.id) ?? 0;
-        
+
           return formatStory(
             story,
             thirdPartyData,
@@ -152,7 +152,7 @@ export const storyRouter = createTRPCRouter({
             userId,
           );
         });
-        
+
         const nextCursor =
           hasNextPage && stories.length > 0
             ? stories[stories.length - 1]?.id?.toString() ?? null
@@ -235,8 +235,10 @@ export const storyRouter = createTRPCRouter({
         }
 
         const allHashes = [story.hash, ...posts.map((post) => post.hash)];
-        const neynarData = await fetchFromNeynarAPI(allHashes, fid ?? undefined);
-
+        const neynarData = await fetchFromNeynarAPI(
+          allHashes,
+          fid ?? undefined,
+        );
 
         if (!neynarData || neynarData.length === 0) {
           throw new TRPCError({
@@ -311,7 +313,7 @@ export const storyRouter = createTRPCRouter({
         });
       }
     }),
-    getStoriesByTags: publicProcedure
+  getStoriesByTags: publicProcedure
     .input(
       z.object({
         tags: z.array(z.string()),
@@ -415,8 +417,8 @@ export const storyRouter = createTRPCRouter({
     .output(hoverStorySchema)
     .query(async ({ input }) => {
       const { storyId } = input;
-   /* eslint-disable */
+      /* eslint-disable */
       return {} as any; // Replace with actual implementation
-        /* eslint-disable */
+      /* eslint-disable */
     }),
 });

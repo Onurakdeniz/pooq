@@ -28,7 +28,7 @@ export const RightSide = ({className} : {className?:string}) => {
             },
             body: JSON.stringify({ storyId }),
           });
-
+          console.log("similarstories",response)
           if (response.ok) {
             const data = await response.json() as SimilarStoriesResponse;
             console.log("datara",data)
@@ -51,7 +51,7 @@ export const RightSide = ({className} : {className?:string}) => {
         // Story right side content
         <>
           <Profile/>
-          <AiBox />
+    
           {similarStories.length > 0 && (
             <SuggestionBox type="STORY" items={similarStories} />
           )}

@@ -38,6 +38,7 @@ export default function Story() {
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!storyId,
+      staleTime: 1000 * 60 * 5
     },
   );
 

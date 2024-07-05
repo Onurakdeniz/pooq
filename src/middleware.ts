@@ -83,6 +83,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/register|api/trigger|api/cast-processing|api/feed-llm|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/register|api/trigger|api/cast-processing|api/cron/trending-stories|api/similar-stories|api/feed-llm|_next/static|_next/image|favicon.ico).*)",
   ],
 };
