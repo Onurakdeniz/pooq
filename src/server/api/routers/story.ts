@@ -39,6 +39,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { formatStory, formatCast, formatAuthor, formatReactions } from "../lib";
 import { kv } from "@vercel/kv";
+import { GetStoryWithPostsInput, GetStoryWithPostsOutput , PostSchema} from '@/schemas/schema';
 
 const prisma = new PrismaClient();
 
@@ -76,12 +77,12 @@ export const storyRouter = createTRPCRouter({
       z.object({
         limit: z.number().min(1).max(100).optional().default(10),
         cursor: z.string().optional(),
-        userId: z.string().optional(),
-        fid: z.number().optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { limit, cursor, userId, fid } = input;
+      const { limit, cursor } = input;
+      const userId = ctx.privyId; // Using privyId from context as userId
+      const fid = ctx.userFid ? parseInt(ctx.userFid) : undefined; // Using userFid from context, parsing to number
 
       try {
         // Fetch stories from database
@@ -100,9 +101,7 @@ export const storyRouter = createTRPCRouter({
                 categories: { include: { category: true } },
               },
             },
-            bookmarks: userId
-              ? { where: { userId }, select: { id: true } }
-              : false,
+            bookmarks: userId ? { where: { userId } } : false,
           },
         });
 
@@ -175,19 +174,13 @@ export const storyRouter = createTRPCRouter({
         await prisma.$disconnect();
       }
     }),
-
-  getStoryWithPosts: publicProcedure
-    .input(
-      z.object({
-        storyId: z.number(),
-        userId: z.string().optional(),
-        fid: z.number().optional().nullable(),
-        cursor: z.number().optional(),
-        limit: z.number().default(10),
-      }),
-    )
-    .query(async ({ input }) => {
-      const { storyId, userId, fid, cursor, limit } = input;
+    getStoryWithPosts: publicProcedure
+    .input(GetStoryWithPostsInput)
+    .output(GetStoryWithPostsOutput)
+    .query(async ({ input, ctx }) => {
+      const { storyId, cursor, limit } = input;
+      const userId = ctx.privyId;
+      const fid = ctx.userFid ? parseInt(ctx.userFid) : undefined;
 
       try {
         const story = await prisma.story.findUnique({
@@ -208,14 +201,14 @@ export const storyRouter = createTRPCRouter({
 
         if (!story) {
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Story not found",
+            code: 'NOT_FOUND',
+            message: 'Story not found',
           });
         }
 
         const posts = await prisma.post.findMany({
           where: { storyId: storyId },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           take: limit + 1,
           cursor: cursor ? { id: cursor } : undefined,
           include: {
@@ -230,22 +223,20 @@ export const storyRouter = createTRPCRouter({
           },
         });
 
-        let nextCursor: typeof cursor | undefined = undefined;
+        let nextCursor: number | null = null;
         if (posts.length > limit) {
           const nextItem = posts.pop();
-          nextCursor = nextItem!.id;
+          nextCursor = nextItem ? nextItem.id : null;
         }
+        
 
         const allHashes = [story.hash, ...posts.map((post) => post.hash)];
-        const neynarData = await fetchFromNeynarAPI(
-          allHashes,
-          fid ?? undefined,
-        );
+        const neynarData = await fetchFromNeynarAPI(allHashes, fid);
 
         if (!neynarData || neynarData.length === 0) {
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to fetch data from Neynar API",
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to fetch data from Neynar API',
           });
         }
 
@@ -255,6 +246,7 @@ export const storyRouter = createTRPCRouter({
         const postsCount = await prisma.post.count({
           where: { storyId: storyId },
         });
+
         const formattedStory = formatStory(
           story,
           neynarData[0],
@@ -262,6 +254,7 @@ export const storyRouter = createTRPCRouter({
           postsCount,
           userId,
         );
+
         const formattedPosts = posts
           .map((post, index) => {
             const neynarIndex = index + 1;
@@ -274,7 +267,7 @@ export const storyRouter = createTRPCRouter({
               return null;
             }
 
-            return {
+            return PostSchema.parse({
               id: post.id.toString(),
               hash: post.hash,
               tags: post.tags.map((t) => ({ id: t.tag.id, name: t.tag.name })),
@@ -296,25 +289,39 @@ export const storyRouter = createTRPCRouter({
               }),
               isLikedByUser: postNeynarData.cast.viewer_context.liked,
               text: post.text,
-            };
+            });
           })
-          .filter((post): post is NonNullable<typeof post> => post !== null);
+          .filter((post): post is z.infer<typeof PostSchema> => post !== null);
 
-        return {
-          story: formattedStory,
-          posts: formattedPosts.slice(0, limit),
-          nextCursor,
-        };
+          try {
+            return GetStoryWithPostsOutput.parse({
+              story: formattedStory,
+              posts: formattedPosts.slice(0, limit),
+              nextCursor: nextCursor,
+            });
+          } catch (error) {
+            if (error instanceof z.ZodError) {
+              console.error('Zod validation error:', JSON.stringify(error.errors, null, 2));
+            }
+            throw error;
+          }
       } catch (error) {
-        console.error("Error in getStoryWithPosts:", error);
+        console.error('Error in getStoryWithPosts:', error);
+        if (error instanceof Error) {
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+        }
+        if (error instanceof TRPCError) {
+          throw error; // Re-throw TRPCErrors
+        }
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message:
-            "An unexpected error occurred while fetching story and posts",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred while fetching story and posts',
           cause: error,
         });
       }
     }),
+
   getTrendingStories: publicProcedure.query(async () => {
     const trendingStoriesData = await kv.get("trendingStories");
     if (!trendingStoriesData) {

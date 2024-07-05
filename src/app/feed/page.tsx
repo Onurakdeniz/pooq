@@ -29,8 +29,6 @@ export default async function FeedPage({
     const apiResponse = await api.story.getStories({
       limit,
       cursor,
-      userId,
-      fid,
     });
 
     console.log("apires",apiResponse)

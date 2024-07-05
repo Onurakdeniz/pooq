@@ -1,18 +1,18 @@
 // types.ts
 
-export type Tag = {
-  id: string;
+export interface Tag {
   name: string;
+  id: string;
   followers?: number;
-  isFollowed: boolean;
-  description: string;
-};
+  isFollowed?: boolean;
+  description?: string;
+}
 
 export type Entity = {
   id: string;
   name: string;
-  description: string;
-  type: string;
+  description?: string;
+  type?: string;
 };
 
 export interface Bio {
@@ -103,6 +103,7 @@ export interface CategoryStory {
 
 export interface Story {
   id: string;
+  hash?:string
   title: string;
   type: "FEED" | "STORY";
   tags: TagStory[];

@@ -1,8 +1,8 @@
 import React from "react";
+import Link from "next/link";
 import SuggestionBoxHeader from "./header";
 import SuggestionBoxFooter from "./footer";
 import { SUGGESTION_BOX_TYPES } from "@/lib/constants";
-import Link from "next/link";
 
 interface SuggestedItemProps {
   id: string;
@@ -10,6 +10,7 @@ interface SuggestedItemProps {
   username?: string;
   image?: string;
   title?: string;
+  tag?: string;
 }
 
 interface ISuggestionBox {
@@ -17,46 +18,84 @@ interface ISuggestionBox {
   suggestions: SuggestedItemProps[];
 }
 
-const StoryItem: React.FC<SuggestedItemProps> = ({ id, title }) => {
-  return (
-    <Link href={`/story/${id}`} className="rounded-xl p-2 flex w-full hover:bg-accent">
-      <div className="text-sm text-primary/70 font-semibold p-2">{title}</div>
-    </Link>
-  );
-};
+const StoryItem: React.FC<SuggestedItemProps> = ({ id, title }) => (
+  <Link
+    href={`/story/${id}`}
+    className="flex w-full rounded-xl p-2 hover:bg-accent"
+  >
+    <div className="p-2 text-sm font-semibold text-primary/70">{title}</div>
+  </Link>
+);
 
-const UserItem: React.FC<SuggestedItemProps> = ({ id, name, username, image }) => {
-  return (
-    <Link href={`/profile/${id}`} className="rounded-xl p-2 flex w-full hover:bg-accent">
-      <img src={image} alt={name} className="w-8 h-8 rounded-full mr-2" />
-      <div>
-        <div className="text-sm font-semibold">{name}</div>
-        <div className="text-xs text-primary/60">@{username}</div>
-      </div>
-    </Link>
-  );
-};
+const UserItem: React.FC<SuggestedItemProps> = ({
+  id,
+  name,
+  username,
+  image,
+}) => (
+  <Link
+    href={`/profile/${id}`}
+    className="flex w-full items-center rounded-xl p-2 hover:bg-accent"
+  >
+    <img
+      src={image}
+      alt={name}
+      className="mr-2 h-8 w-8 rounded-full object-cover"
+    />
+    <div>
+      <div className="text-sm font-semibold">{name}</div>
+      <div className="text-xs text-primary/60">@{username}</div>
+    </div>
+  </Link>
+);
+
+const TagItem: React.FC<SuggestedItemProps> = ({ tag }) => (
+  <Link
+    href={`/tag/${tag}`}
+    className="flex w-full rounded-xl p-2 hover:bg-accent"
+  >
+    <div className="p-2 text-sm font-semibold text-primary/70">#{tag}</div>
+  </Link>
+);
+
+const EmptyState: React.FC<{ message: string }> = ({ message }) => (
+  <div className="flex w-full rounded-xl p-2 hover:bg-accent">
+    <div className="p-2 text-sm font-semibold text-primary/70">{message}</div>
+  </div>
+);
 
 const SuggestionBox: React.FC<ISuggestionBox> = ({ type, suggestions }) => {
   const { title, Icon, info } = SUGGESTION_BOX_TYPES[type];
+
+  const renderItem = (item: SuggestedItemProps) => {
+    switch (type) {
+      case "STORY":
+        return <StoryItem key={item.id} {...item} />;
+      case "USER":
+        return <UserItem key={item.id} {...item} />;
+      case "TAG":
+        return <TagItem key={item.id} {...item} />;
+      default:
+        return null;
+    }
+  };
+
+  const emptyStateMessage = {
+    USER: "We need more registered users to suggest users.",
+    TAG: "No tags available at the moment.",
+    STORY: "No stories available at the moment.",
+  }[type];
+
   return (
     <div className="flex flex-col gap-4 rounded-lg border p-2">
       <SuggestionBoxHeader title={title} Icon={Icon} info={info} />
-      {suggestions && suggestions.length > 0 ? (
-        <div className="flex flex-col gap-2 w-full">
-          {suggestions.map((item) => (
-            type === "STORY" ? (
-              <StoryItem key={item.id} {...item} />
-            ) : (
-              <UserItem key={item.id} {...item} />
-            )
-          ))}
-        </div>
-      ) : (
-        <div className="flex items-center py-4 text-sm text-primary/60">
-          We need more registered users to suggest you users.
-        </div>
-      )}
+      <div className="flex w-full flex-col gap-2">
+        {suggestions && suggestions.length > 0 ? (
+          suggestions.map(renderItem)
+        ) : (
+          <EmptyState message={emptyStateMessage} />
+        )}
+      </div>
       <SuggestionBoxFooter />
     </div>
   );

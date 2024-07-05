@@ -15,7 +15,6 @@ interface RightSideProps {
 interface SimilarStory {
   id: number;
   title: string;
- 
 }
 
 interface UserSuggestion {
@@ -49,36 +48,43 @@ export const RightSide: React.FC<RightSideProps> = ({ className }) => {
       const isStory = pathname.startsWith("/story/");
       setIsStoryPage(isStory);
       const storyId = isStory ? pathname.split("/")[2] : null;
-        /*eslint-disable*/
+      /*eslint-disable*/
       try {
         if (isStory && storyId) {
-          const similarStories: SimilarStory[] = await getSimilarStories(storyId);
-          setSuggestions(similarStories.map(story => ({
-            id: story.id.toString(),
-            title: story.title
-          })));
+          const similarStories: SimilarStory[] =
+            await getSimilarStories(storyId);
+          setSuggestions(
+            similarStories.map((story) => ({
+              id: story.id.toString(),
+              title: story.title,
+            })),
+          );
         } else {
           const userSuggestions: UserSuggestion[] = await getUserSuggestions();
-          setSuggestions(userSuggestions.map(user => ({
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            image: 'default-image-url' // You might want to provide a default image or handle this differently
-          })));
+          setSuggestions(
+            userSuggestions.map((user) => ({
+              id: user.id,
+              name: user.name,
+              username: user.username,
+              image: "default-image-url", // You might want to provide a default image or handle this differently
+            })),
+          );
         }
       } catch (error) {
         console.error("Error fetching suggestions:", error);
         setSuggestions([]);
       }
     };
-        /*eslint-disable*/
+    /*eslint-disable*/
     fetchSuggestions().catch((error) => {
       console.error("Error in fetchSuggestions:", error);
     });
   }, [pathname]);
 
   return (
-    <div className={cn("text-white-500 flex flex-col gap-4 p-4", className)}>
+    <div
+      className={cn("text-white-500 flex w-full flex-col gap-4 p-4", className)}
+    >
       <Profile />
       <SuggestionBox
         type={isStoryPage ? "STORY" : "USER"}

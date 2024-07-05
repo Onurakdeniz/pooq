@@ -10,6 +10,7 @@ import { Story as IStory } from "@/types/type";
 const StoryCard: React.FC<IStory> = ({
   id,
   title,
+  hash,
   tags,
   entities,
   isBookmarked,
@@ -20,6 +21,7 @@ const StoryCard: React.FC<IStory> = ({
   type,
   
 }) => {
+  console.log("isnerede",isBookmarked)
   return (
     <div className="flex w-full  flex-col border-b p-8   hover:bg-accent">
 

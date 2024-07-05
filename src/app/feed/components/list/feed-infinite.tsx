@@ -6,10 +6,10 @@ import { api } from "@/trpc/react";
 import Link from "next/link";
 import { Story as IStory } from "@/types/type";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from "next/navigation";
 import StoryCard from "@/components/shared/story-card";
 import InfiniteScroll from "react-infinite-scroll-component";
-import ConnectWalletDialog from '@/components/wallet';
+import ConnectWalletDialog from "@/components/wallet";
 
 interface InfiniteScrollStoryListProps {
   initialStories: IStory[];
@@ -18,9 +18,9 @@ interface InfiniteScrollStoryListProps {
 }
 
 const SkeletonStoryCard: React.FC = () => (
-  <div className="p-6 space-y-4 rounded-lg shadow-sm">
+  <div className="space-y-4 rounded-lg p-6 shadow-sm">
     <div className="flex items-center space-x-2">
-      <Skeleton className="w-10 h-10 rounded-full" />
+      <Skeleton className="h-10 w-10 rounded-full" />
       <Skeleton className="h-4 w-1/4" />
     </div>
     <Skeleton className="h-4 w-3/4" />
@@ -32,18 +32,16 @@ const SkeletonStoryCard: React.FC = () => (
   </div>
 );
 
-export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = ({
-  initialStories,
-  searchParams,
-  initialCursor,
-}) => {
+export const InfiniteScrollStoryList: React.FC<
+  InfiniteScrollStoryListProps
+> = ({ initialStories, searchParams, initialCursor }) => {
   const [isClient, setIsClient] = useState<boolean>(false);
   const [showDialog, setShowDialog] = useState(false);
   const searchParamsHook = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
-    if (searchParamsHook.get('showDialog') === 'true') {
+    if (searchParamsHook.get("showDialog") === "true") {
       setShowDialog(true);
     }
   }, [searchParamsHook]);
@@ -68,8 +66,8 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
           pageParams: [undefined],
         },
         refetchOnWindowFocus: false,
-        staleTime: 1000 * 60 * 5
-      }
+        staleTime: 1000 * 60 * 5,
+      },
     );
 
   const allStories = React.useMemo(() => {
@@ -103,32 +101,30 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
         next={loadMore}
         hasMore={!!hasNextPage}
         loader={<SkeletonStoryCard />}
-        endMessage={<div className="flex justify-center text-sm p-2 text-primary/60">No more stories to load.</div>}
+        endMessage={
+          <div className="flex justify-center p-2 text-sm text-primary/60">
+            No more stories to load.
+          </div>
+        }
       >
         {allStories.map((story) => (
- 
-            <StoryCard
+          <StoryCard
             key={story.id}
-              id={story.id}
-              type={"FEED"}
-              author={story.author}
-              cast={story.cast}
-              entities={story.entities}
-              mentionedStories={story.mentionedStories}
-              isBookmarked={story.isBookmarked}
-              title={story.title}
-              tags={story.tags}
-              numberofPosts={story.numberofPosts}
-              categories={story.categories}
-         
-            />
-  
+            id={story.id}
+            type={"FEED"}
+            author={story.author}
+            cast={story.cast}
+            entities={story.entities}
+            mentionedStories={story.mentionedStories}
+            isBookmarked={story.isBookmarked}
+            title={story.title}
+            tags={story.tags}
+            numberofPosts={story.numberofPosts}
+            categories={story.categories}
+          />
         ))}
       </InfiniteScroll>
-      <ConnectWalletDialog 
-        open={showDialog} 
-        onOpenChange={handleDialogClose} 
-      />
+      <ConnectWalletDialog open={showDialog} onOpenChange={handleDialogClose} />
     </>
   );
 };
