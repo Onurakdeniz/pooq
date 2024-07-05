@@ -6,7 +6,7 @@ import { api } from "@/trpc/server";
 
 
 export const TrendingItemsList = async () => {
-  const ITEMS = await api.trending.getTrendingStories();
+  const ITEMS = await api.story.getTrendingStories();
  
   return (
     <ScrollArea
@@ -19,9 +19,8 @@ export const TrendingItemsList = async () => {
           key={index}
             title={item.title}
             storyId={item.storyId}
-            likes={item.likes}
-            text={item.text}
-            author={item.author}
+            numberofPosts={item.numberofPosts}
+            authorFid={item.authorFid}
    
           />
         ))}

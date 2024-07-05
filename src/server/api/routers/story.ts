@@ -34,9 +34,11 @@ import {
   Story as FStory,
   Reactions,
   ReactionUser,
+  TrendingItem,
 } from "@/types/type";
 import { TRPCError } from "@trpc/server";
 import { formatStory, formatCast, formatAuthor, formatReactions } from "../lib";
+import { kv } from "@vercel/kv";
 
 const prisma = new PrismaClient();
 
@@ -313,6 +315,15 @@ export const storyRouter = createTRPCRouter({
         });
       }
     }),
+
+    getTrendingStories: publicProcedure.query(async () => {
+      const trendingStoriesJson = await kv.get('trendingStories');
+      if (!trendingStoriesJson) {
+        return [];
+      }
+      return JSON.parse(trendingStoriesJson as string) as TrendingItem[];
+    }),
+  
   getStoriesByTags: publicProcedure
     .input(
       z.object({
@@ -386,13 +397,7 @@ export const storyRouter = createTRPCRouter({
         nextCursor: null,
       };
     }),
-
-  getTrendingStories: publicProcedure
-    .output(z.array(StorySchema))
-    .query(async () => {
-      // Implement actual logic here
-      return [];
-    }),
+ 
 
   getSuggestedStoriesByUser: publicProcedure
     .input(z.object({ userId: z.string() }))

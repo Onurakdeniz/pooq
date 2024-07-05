@@ -133,3 +133,12 @@ export interface Post {
   isLikedByUser: boolean;
   text: string;
 }
+
+
+
+export interface TrendingItem {
+  storyId : number
+  title : string
+  authorFid : number
+  numberofPosts : number 
+}

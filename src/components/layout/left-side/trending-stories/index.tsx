@@ -1,19 +1,27 @@
-import { TrendingUp } from "lucide-react";
 import React from "react";
-import TrendingItemsList from "./list";
+import { TrendingItem } from "@/types/type";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { api } from "@/trpc/server";
+import { TrendingStoryItem } from "./item";
 
-const TrendingStories = () => {
+export const TrendingItemsList = async () => {
+  const trendingStories = await api.story.getTrendingStories();
+ 
   return (
-    <div className="flex flex-col gap-2   ">
-      <div className="flex gap-2 pb-2 text-primary/80 items-center text-lg ">
-      <TrendingUp className="h-5 w-5" />
-        <span className="">Trending </span>
-        
+    <ScrollArea className="flex h-[600px]">
+      <div className="flex flex-col gap-3 pr-4">
+        {trendingStories.map((story, index) => (
+          <TrendingStoryItem
+            key={story.storyId}
+            title={story.title.substring(0, 50)} // Assuming the first 50 characters as title
+            storyId={story.storyId}
+            numberofPosts={story.numberofPosts}
+            authorFid={story.authorFid}
+          />
+        ))}
       </div>
-
-      <TrendingItemsList />
-    </div>
+    </ScrollArea>
   );
 };
 
-export default TrendingStories;
+export default TrendingItemsList;

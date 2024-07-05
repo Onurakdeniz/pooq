@@ -4,7 +4,14 @@ import { kv } from '@vercel/kv';
 
 const prisma = new PrismaClient();
 
-async function getTrendingStories() {
+export interface TrendingItem {
+  storyId: number;
+  title: string;
+  authorFid: number;
+  numberOfPosts: number;
+}
+
+async function getTrendingStories(): Promise<TrendingItem[]> {
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const trendingStories = await prisma.story.findMany({
@@ -24,42 +31,30 @@ async function getTrendingStories() {
             gte: twentyFourHoursAgo
           }
         },
-        select: { id: true } // Only select the id to reduce data transfer
+        select: { id: true }
       },
       author: {
-        select: { userName: true, fid: true } // Select only necessary fields
+        select: { fid: true }
+      },
+      extraction: {
+        select: { title: true }
       }
     }
   });
 
-  const storiesWithPostCount = trendingStories.map(story => ({
-    id: story.id,
-    hash: story.hash,
-    text: story.text,
-    authorName: story.author.userName,
-    authorId: story.author.fid,
-    postCount: story.posts.length,
-    createdAt: story.createdAt,
-    updatedAt: story.updatedAt
+  const trendingItems: TrendingItem[] = trendingStories.map(story => ({
+    storyId: story.id,
+    title: story.extraction?.title ?? story.text.substring(0, 50) + '...', // Use extraction title if available, otherwise use truncated story text
+    authorFid: story.author.fid,
+    numberOfPosts: story.posts.length
   }));
 
-  storiesWithPostCount.sort((a, b) => b.postCount - a.postCount);
+  trendingItems.sort((a, b) => b.numberOfPosts - a.numberOfPosts);
 
-  return storiesWithPostCount;
-
-
+  return trendingItems;
 }
-interface Story {
-  id: number;  // Changed from string to number
-  hash: string;
-  text: string;
-  authorName: string;
-  authorId: number;
-  postCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-async function storeTrendingStories(stories: Story[]): Promise<void> {
+
+async function storeTrendingStories(stories: TrendingItem[]): Promise<void> {
   await kv.set('trendingStories', JSON.stringify(stories));
   await kv.set('lastUpdated', new Date().toISOString());
 }

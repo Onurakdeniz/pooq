@@ -1,4 +1,3 @@
- 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -10,18 +9,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
- import {TrendingItem} from "@/types/index"
+import { TrendingItem } from "@/types/type";
 
 export const TrendingStoryItem: React.FC<TrendingItem> = ({
- storyId,text,title,author,likes
+  storyId,
+  title,
+  authorFid,
+  numberofPosts,
 }) => {
-
-  const firstLetter = author?.display_name?.[0]
+ 
   return (
-    <div className=" flex flex-col items-center gap-4 rounded-lg  border  py-2 px-4 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
+    <div className=" flex flex-col items-center gap-4 rounded-lg  border  px-4 py-2 text-sm  hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
       <div className="flex w-full items-center justify-between">
         <div className="flex w-9/12 flex-col gap-1">
-        <Link href={`/story/${storyId}`}>
+          <Link href={`/story/${storyId}`}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -42,12 +43,8 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
         </div>
 
         <div className="flex w-3/12  justify-end gap-4">
-          <div className="flex  items-center self-end    ">
-    
-        
-           
-          </div>
-          <span className=" w-6 text-end text-primary/70">{likes} </span>
+          <div className="flex  items-center self-end    "></div>
+          <span className=" w-6 text-end text-primary/70">{numberofPosts} </span>
         </div>
       </div>
     </div>

@@ -229,14 +229,6 @@ export type Stories = {
   }
 
 
-  export interface TrendingItem {
-    storyId : string
-    title : string
-    text : string
-    author : UserWithStories
-    likes : number 
-  }
-
 
   export interface HoverStory {
     id : string

@@ -1,6 +1,5 @@
  
 import { userRouter} from "@/server/api/routers/user"
-import {trendingRouter} from "@/server/api/routers/trending"
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { storyRouter } from "./routers/story";
 
@@ -12,7 +11,6 @@ import { storyRouter } from "./routers/story";
 export const appRouter = createTRPCRouter({
  
   user : userRouter,
-  trending : trendingRouter,
   story : storyRouter
 });
 
