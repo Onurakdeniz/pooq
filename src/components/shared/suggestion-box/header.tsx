@@ -18,10 +18,10 @@ const SuggestionBoxHeader: React.FC<ISuggestionBoxHeader> = ({
   info,
 }) => {
   return (
-    <div className="flex items-center justify-between  ">
+    <div className="flex items-center justify-between p-2 ">
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5  text-primary/60" />
-        <span className="text-base  font-light text-primary/60">{title}</span>
+        <span className="text-base  text-primary/60 font-semibold">{title}</span>
       </div>
       <HoverCard>
         <HoverCardTrigger>

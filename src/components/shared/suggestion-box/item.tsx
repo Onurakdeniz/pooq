@@ -62,7 +62,7 @@ export type SuggestedItemProps =
         return (
           <div className="flex items-center justify-between">
             <div className="flex gap-2 items-center">
-              <div className="text-xs text-primary/60">{item.title}</div>
+              <div className="text-xs text-primary/70">{item.title}</div>
             </div>
             <Button className="flex w-20 h-6 shadow-none justify-between font-light text-xs px-3 text-primary/60" variant="outline">
               <span>Details</span>

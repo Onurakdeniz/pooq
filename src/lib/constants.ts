@@ -6,7 +6,7 @@ import {
   SquareChevronUp,
   MessageCircleMore,
   Coins,
-  Newspaper,
+ 
   Home,
   CircleUser,
   Check,
@@ -16,7 +16,7 @@ import {
   Users,
   SquareArrowUpRight,
   BookmarkCheck,
-  Hash,
+  Newspaper,
 } from "lucide-react";
 
 export const UNAUTHENTICATED_PAGES = [
@@ -54,8 +54,8 @@ export const SUGGESTION_BOX_TYPES = {
 
   STORY: {
     title: "Suggested Stories",
-    Icon: Hash, // Use the component directly
-    info: "Popular tags in your area",
+    Icon: Newspaper, // Use the component directly
+    info: "Similar stories ",
   },
 };
 

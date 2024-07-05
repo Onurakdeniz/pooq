@@ -140,5 +140,5 @@ export interface TrendingItem {
   storyId : number
   title : string
   authorFid : number
-  numberofPosts : number 
+  numberOfPosts : number 
 }

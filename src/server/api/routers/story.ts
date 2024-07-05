@@ -315,15 +315,16 @@ export const storyRouter = createTRPCRouter({
         });
       }
     }),
-
-    getTrendingStories: publicProcedure.query(async () => {
-      const trendingStoriesJson = await kv.get('trendingStories');
-      if (!trendingStoriesJson) {
-        return [];
-      }
-      return JSON.parse(trendingStoriesJson as string) as TrendingItem[];
-    }),
-  
+  getTrendingStories: publicProcedure.query(async () => {
+    const trendingStoriesData = await kv.get("trendingStories");
+    if (!trendingStoriesData) {
+      return [];
+    }
+    if (typeof trendingStoriesData === "string") {
+      return JSON.parse(trendingStoriesData) as TrendingItem[];
+    }
+    return trendingStoriesData as TrendingItem[];
+  }),
   getStoriesByTags: publicProcedure
     .input(
       z.object({
@@ -397,7 +398,6 @@ export const storyRouter = createTRPCRouter({
         nextCursor: null,
       };
     }),
- 
 
   getSuggestedStoriesByUser: publicProcedure
     .input(z.object({ userId: z.string() }))

@@ -14,12 +14,11 @@ import StoryCard from "@/components/shared/story-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePrivy } from "@privy-io/react-auth";
 
-
 export default function Story() {
   const { id } = useParams();
   const storyId = Number(id);
 
-  const {user} = usePrivy();
+  const { user } = usePrivy();
 
   const {
     data,
@@ -30,15 +29,15 @@ export default function Story() {
     isFetchingNextPage,
   } = api.story.getStoryWithPosts.useInfiniteQuery(
     {
-      storyId: storyId ,
-      userId: user?.id ,
-      fid: user?.farcaster?.fid ,
+      storyId: storyId,
+      userId: user?.id,
+      fid: user?.farcaster?.fid,
       limit: 10,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       enabled: !!storyId,
-      staleTime: 1000 * 60 * 5
+      staleTime: 1000 * 60 * 5,
     },
   );
 
@@ -95,7 +94,7 @@ export default function Story() {
 
 function StoryCardSkeleton() {
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4 p-4">
       <Skeleton className="h-8 w-3/4" />
       <Skeleton className="h-4 w-1/2" />
       <Skeleton className="h-4 w-1/4" />
@@ -106,13 +105,13 @@ function StoryCardSkeleton() {
 function PostListSkeleton() {
   return (
     <div className="space-y-4 p-4">
-    {Array.from({ length: 5 }, (_, i) => (
-  <div key={i} className="space-y-2">
-    <Skeleton className="h-4 w-3/4" />
-    <Skeleton className="h-4 w-1/2" />
-    <Skeleton className="h-20 w-full" />
-  </div>
-))}
+      {Array.from({ length: 5 }, (_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      ))}
     </div>
   );
 }

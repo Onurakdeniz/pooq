@@ -1,24 +1,55 @@
 import React from "react";
 import SuggestionBoxHeader from "./header";
-import SuggestionList from "./body";
 import SuggestionBoxFooter from "./footer";
 import { SUGGESTION_BOX_TYPES } from "@/lib/constants";
-import { SuggestedItemProps } from "./item";
+import Link from "next/link";
+
+interface SuggestedItemProps {
+  id: string;
+  name?: string;
+  username?: string;
+  image?: string;
+  title?: string;
+}
 
 interface ISuggestionBox {
   type: "USER" | "TAG" | "STORY";
-  items?: SuggestedItemProps[] | StoryItemProps[];
+  suggestions: SuggestedItemProps[];
 }
 
-const SuggestionBox = ({ type, items }: ISuggestionBox) => {
+const StoryItem: React.FC<SuggestedItemProps> = ({ id, title }) => {
+  return (
+    <Link href={`/story/${id}`} className="rounded-xl p-2 flex w-full hover:bg-accent">
+      <div className="text-sm text-primary/70 font-semibold p-2">{title}</div>
+    </Link>
+  );
+};
+
+const UserItem: React.FC<SuggestedItemProps> = ({ id, name, username, image }) => {
+  return (
+    <Link href={`/profile/${id}`} className="rounded-xl p-2 flex w-full hover:bg-accent">
+      <img src={image} alt={name} className="w-8 h-8 rounded-full mr-2" />
+      <div>
+        <div className="text-sm font-semibold">{name}</div>
+        <div className="text-xs text-primary/60">@{username}</div>
+      </div>
+    </Link>
+  );
+};
+
+const SuggestionBox: React.FC<ISuggestionBox> = ({ type, suggestions }) => {
   const { title, Icon, info } = SUGGESTION_BOX_TYPES[type];
   return (
-    <div className="flex flex-col gap-4 rounded-lg border p-4">
+    <div className="flex flex-col gap-4 rounded-lg border p-2">
       <SuggestionBoxHeader title={title} Icon={Icon} info={info} />
-      {type === "STORY" ? (
-        <div className="flex flex-col gap-2">
-          {(items as StoryItemProps[]).map((item) => (
-            <StoryItem key={item.id} {...item} />
+      {suggestions && suggestions.length > 0 ? (
+        <div className="flex flex-col gap-2 w-full">
+          {suggestions.map((item) => (
+            type === "STORY" ? (
+              <StoryItem key={item.id} {...item} />
+            ) : (
+              <UserItem key={item.id} {...item} />
+            )
           ))}
         </div>
       ) : (
@@ -32,19 +63,3 @@ const SuggestionBox = ({ type, items }: ISuggestionBox) => {
 };
 
 export default SuggestionBox;
-
-import Link from "next/link";
-import { UserPlus } from "lucide-react";
-
-export interface StoryItemProps {
-  id: string;
-  title: string;
-}
-
-const StoryItem: React.FC<StoryItemProps> = ({ id, title }) => {
-  return (
-    <Link href={`/story/${id}`} className=" rounded-xl p-2 hover:bg-accent">
-      <div className="text-sm   ">{title}</div>
-    </Link>
-  );
-};

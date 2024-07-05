@@ -1,76 +1,91 @@
-'use client'
-import SuggestionBox from '@/components/shared/suggestion-box'
-import { cn } from '@/lib/utils'
-import React, { useEffect, useState } from 'react'
-import Profile from '../header/profile'
-import AiBox from './ai-box'
-import { usePathname, useParams } from 'next/navigation'
-import { StoryItemProps } from "@/components/shared/suggestion-box/"
+"use client";
 
-interface SimilarStoriesResponse {
-  similarStories: StoryItemProps[];
+import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import SuggestionBox from "@/components/shared/suggestion-box";
+import { cn } from "@/lib/utils";
+import Profile from "../header/profile";
+import { getSimilarStories } from "@/lib/getSimilarStories";
+import { getUserSuggestions } from "@/lib/getUserSuggestions";
+
+interface RightSideProps {
+  className?: string;
 }
 
-export const RightSide = ({className} : {className?:string}) => {
-  const pathname = usePathname()
-  const { id: storyId } = useParams();
-  console.log("cons",storyId)
-  const [similarStories, setSimilarStories] = useState<StoryItemProps[]>([]);
+interface SimilarStory {
+  id: number;
+  title: string;
+ 
+}
+
+interface UserSuggestion {
+  id: string;
+  name: string;
+  username: string;
+  // Add other properties as needed
+}
+
+interface SuggestedItemProps {
+  id: string;
+  name: string;
+  username: string;
+  image: string;
+}
+
+interface StoryItemProps {
+  id: string;
+  title: string;
+}
+
+type SuggestionType = SuggestedItemProps | StoryItemProps;
+
+export const RightSide: React.FC<RightSideProps> = ({ className }) => {
+  const [suggestions, setSuggestions] = useState<SuggestionType[]>([]);
+  const [isStoryPage, setIsStoryPage] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const fetchSimilarStories = async () => {
-      if (storyId) {
-        try {
-          const response = await fetch('/api/similar-stories', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ storyId }),
-          });
-          console.log("similarstories",response)
-          if (response.ok) {
-            const data = await response.json() as SimilarStoriesResponse;
-            console.log("datara",data)
-            setSimilarStories(data.similarStories);
-          } else {
-            console.error('Failed to fetch similar stories');
-          }
-        } catch (error) {
-          console.error('Error fetching similar stories:', error);
+    const fetchSuggestions = async () => {
+      const isStory = pathname.startsWith("/story/");
+      setIsStoryPage(isStory);
+      const storyId = isStory ? pathname.split("/")[2] : null;
+        /*eslint-disable*/
+      try {
+        if (isStory && storyId) {
+          const similarStories: SimilarStory[] = await getSimilarStories(storyId);
+          setSuggestions(similarStories.map(story => ({
+            id: story.id.toString(),
+            title: story.title
+          })));
+        } else {
+          const userSuggestions: UserSuggestion[] = await getUserSuggestions();
+          setSuggestions(userSuggestions.map(user => ({
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            image: 'default-image-url' // You might want to provide a default image or handle this differently
+          })));
         }
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        setSuggestions([]);
       }
     };
-
-    void fetchSimilarStories();
-  }, [storyId]);
+        /*eslint-disable*/
+    fetchSuggestions().catch((error) => {
+      console.error("Error in fetchSuggestions:", error);
+    });
+  }, [pathname]);
 
   return (
-    <div className={cn("text-white-500 flex-col flex gap-4 p-4 ", className)}>
-      {pathname.startsWith('/story/') ? (
-        // Story right side content
-        <>
-          <Profile/>
-    
-          {similarStories.length > 0 && (
-            <SuggestionBox type="STORY" items={similarStories} />
-          )}
-        </>
-      ) : pathname === '/' ? (
-        // Home page right side content
-        <>
-          <Profile/>
-          <SuggestionBox type="USER"/>
-  
-        </>
-      ) : (
-        // Default content for other pages
-        <>
-          <Profile/>
-          <SuggestionBox type="USER"/>
-     
-        </>
-      )}
+    <div className={cn("text-white-500 flex flex-col gap-4 p-4", className)}>
+      <Profile />
+      <SuggestionBox
+        type={isStoryPage ? "STORY" : "USER"}
+        suggestions={suggestions}
+      />
     </div>
-  )
-}
+  );
+};
+
+export default RightSide;
