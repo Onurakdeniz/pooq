@@ -7,29 +7,32 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback } from "react";
 import { PROFILE_TABS } from "@/lib/constants";
 
-const DEFAULT_TAB = 'Stories';
+const DEFAULT_TAB = "Stories";
 
 const ProfileHeader = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const getActiveTab = useCallback(() => {
-    return searchParams.get('tab') ?? DEFAULT_TAB;
+    return searchParams.get("tab") ?? DEFAULT_TAB;
   }, [searchParams]);
 
-  const handleActiveTab = useCallback((title: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (title === DEFAULT_TAB) {
-      params.delete('tab');
-    } else {
-      params.set('tab', title);
-    }
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  const handleActiveTab = useCallback(
+    (title: string) => {
+      const params = new URLSearchParams(searchParams);
+      if (title === DEFAULT_TAB) {
+        params.delete("tab");
+      } else {
+        params.set("tab", title);
+      }
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const activeTab = getActiveTab();
 

@@ -3,6 +3,7 @@ import { Author, Cast, Reactions, Story, ReactionUser, CastViewerContext } from 
 
 export interface NeynarResponse {
   author: Omit<Author, 'numberOfStories' | 'numberOfPosts'>;
+  hash?: string;
   cast: Omit<Cast, 'reactions'> & {
     reactions: {
       likes: ReactionUser[];

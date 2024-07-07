@@ -9,7 +9,7 @@ export const TrendingItemsList = async () => {
   const trendingStories = await api.story.getTrendingStories();
   console.log("trending", trendingStories);
   return (
-    <div className="flex flex-col gap-2 border-t pt-4 px-2">
+    <div className="flex flex-col gap-2  pt-4 px-2">
       <div className="font-semibold text-base flex gap-4 items-center">
         <TrendingUp size={"20"}/>
         <span> Trending</span> </div>

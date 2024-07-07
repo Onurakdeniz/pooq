@@ -12,14 +12,30 @@ export interface TrendingItem {
 }
 
 async function getTrendingStories(): Promise<TrendingItem[]> {
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const now = new Date();
+  const fortyEightHoursAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const trendingStories = await prisma.story.findMany({
+  // First, get stories with posts from the last 48 hours
+  let trendingStories = await fetchStoriesWithPosts(fortyEightHoursAgo);
+
+  // If we don't have 10 stories, fetch more from the last 7 days
+  if (trendingStories.length < 10) {
+    const additionalStories = await fetchStoriesWithPosts(sevenDaysAgo, fortyEightHoursAgo);
+    trendingStories = [...trendingStories, ...additionalStories].slice(0, 10);
+  }
+
+  return trendingStories;
+}
+
+async function fetchStoriesWithPosts(startDate: Date, endDate?: Date): Promise<TrendingItem[]> {
+  const stories = await prisma.story.findMany({
     where: {
       posts: {
         some: {
           createdAt: {
-            gte: twentyFourHoursAgo
+            gte: startDate,
+            ...(endDate && { lt: endDate }),
           }
         }
       }
@@ -28,7 +44,8 @@ async function getTrendingStories(): Promise<TrendingItem[]> {
       posts: {
         where: {
           createdAt: {
-            gte: twentyFourHoursAgo
+            gte: startDate,
+            ...(endDate && { lt: endDate }),
           }
         },
         select: { id: true }
@@ -42,9 +59,9 @@ async function getTrendingStories(): Promise<TrendingItem[]> {
     }
   });
 
-  const trendingItems: TrendingItem[] = trendingStories.map(story => ({
+  const trendingItems: TrendingItem[] = stories.map(story => ({
     storyId: story.id,
-    title: story.extraction?.title ?? story.text.substring(0, 50) + '...', // Use extraction title if available, otherwise use truncated story text
+    title: story.extraction?.title ?? story.text.substring(0, 50) + '...',
     authorFid: story.author.fid,
     numberOfPosts: story.posts.length
   }));

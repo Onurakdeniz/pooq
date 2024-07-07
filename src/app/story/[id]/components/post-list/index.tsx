@@ -1,5 +1,5 @@
 'use client'
-import Post from "@/components/shared/post-card";
+import{ StoryPost} from "@/components/shared/post-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
 import { Post as IPost } from "@/types/type";
@@ -16,7 +16,6 @@ interface PostListProps {
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
 }
-
 export const PostList: React.FC<PostListProps> = ({
   posts,
   isLoading,
@@ -34,7 +33,7 @@ export const PostList: React.FC<PostListProps> = ({
   }
 
   return (
-    <ScrollArea className="h-screen">
+    <div className="h-screen overflow-auto" id="scrollableDiv">
       <InfiniteScroll
         dataLength={posts.length}
         next={fetchNextPage}
@@ -49,11 +48,11 @@ export const PostList: React.FC<PostListProps> = ({
       >
         <div className="flex flex-col">
           {posts.map((post) => (
-            <Post key={post.id} {...post} />
+            <StoryPost {...post} key={post.id} /> 
           ))}
         </div>
       </InfiniteScroll>
-    </ScrollArea>
+    </div>
   );
 };
 

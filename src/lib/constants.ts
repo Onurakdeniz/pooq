@@ -62,6 +62,5 @@ export const SUGGESTION_BOX_TYPES = {
 export const PROFILE_TABS = [
   { title: "Stories", icon: BookA, tooltip: "text" },
   { title: "Posts", icon: MessageCircleMore, tooltip: "text" },
-  { title: "Votes", icon: SquareChevronUp, tooltip: "text" },
   { title: "Tags", icon: FileText, tooltip: "text" },
 ];

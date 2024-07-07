@@ -12,7 +12,7 @@ model User {
   fid        Int?       @unique
   userName   String?    @unique
   bookmarks  Bookmark[]
-  tags       Tag[]
+  parentTags ParentTag[] // User follows ParentTags, not Tags
   categories Category[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -134,13 +134,14 @@ model Tag {
   id          String            @id @default(uuid())
   name        String            @unique
   description String?
+  parentTagId String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   extractions TagOnExtraction[]
-  users       User[]
   stories     TagOnStory[]
   posts       TagOnPost[]
-  llmFeeds    LLMFeed[] // Add this line to create the opposite relation
+  llmFeeds    LLMFeed[]
+  parentTag   ParentTag?        @relation(fields: [parentTagId], references: [id])
 }
 
 model TagOnStory {
@@ -169,6 +170,17 @@ model TagOnExtraction {
 
   @@id([tagId, extractionId])
 }
+
+model ParentTag {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  childTags   Tag[]
+  followers   User[]   // ParentTags are followed by Users
+}
+
 
 model Entity {
   id          String               @id @default(uuid())

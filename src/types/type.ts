@@ -1,12 +1,13 @@
 // types.ts
 
-export interface Tag {
-  name: string;
+export type Tag = {
   id: string;
+  name: string;
   followers?: number;
   isFollowed?: boolean;
   description?: string;
-}
+  parentTagId?: string | null;
+};
 
 export type Entity = {
   id: string;
@@ -54,15 +55,26 @@ export interface Reactions {
   recasts: ReactionUser[];
 }
 
+
+export type ParentTags = {
+  id: string;
+  name: string;
+  followers?: number;
+  isFollowed?: boolean;
+  description?: string;
+  parentTagId?: string | null;
+};
+
+
 export interface Author {
-  numberOfStories: number;
-  numberOfPosts: number;
+  numberOfStories?: number;
+  numberOfPosts?: number;
   object: "user";
   username: string;
   fid: number;
-  tags?: Tag[];
+  parentTags?: ParentTags[];  
   custody_address: string;
-  display_name: string;
+  display_name?: string;
   pfp_url: string;
   profile: Profile;
   follower_count: number;
@@ -73,18 +85,26 @@ export interface Author {
   power_badge: boolean;
   viewer_context: AuthorViewerContext;
 }
+type MentionedProfile = string | { fid: number; username: string };
 
-export interface Cast {
+
+export interface Cast  {
   parent_author: ParentAuthor;
   hash: string;
   thread_hash: string;
   parent_hash: string | null;
   text: string;
+  replies: { count: number };
   timestamp: string;
-  reactions: Reactions;
-  mentioned_profiles: string[];
+  reactions: {
+    likes_count: number;
+    recasts_count: number;
+    likes: ReactionUser[];
+    recasts: ReactionUser[];
+  };
+  mentioned_profiles?: MentionedProfile[]
   viewer_context: CastViewerContext;
-}
+};
 
 export interface TagStory {
   id: string;
@@ -103,7 +123,7 @@ export interface CategoryStory {
 
 export interface Story {
   id: string;
-  hash?:string
+  hash?: string;
   title: string;
   type: "FEED" | "STORY";
   tags: TagStory[];
@@ -135,11 +155,14 @@ export interface Post {
   text: string;
 }
 
-
+export interface PostWithStory extends Post {
+  storyTitle: string;
+  storyId: string;
+}
 
 export interface TrendingItem {
-  storyId : number
-  title : string
-  authorFid : number
-  numberOfPosts : number 
+  storyId: number;
+  title: string;
+  authorFid: number;
+  numberOfPosts: number;
 }

@@ -8,10 +8,18 @@ export const GetStoryWithPostsInput = z.object({
   limit: z.number().default(10),
 });
 
+export const GetStoryWithPostsByUser = z.object({
+  userFid: z.number(),
+  cursor: z.string().optional(),
+  limit: z.number().default(10),
+});
+
+
+
 export type GetStoryWithPostsInputType = z.infer<typeof GetStoryWithPostsInput>;
 
 // Updated Output types
-const TagSchema = z.object({
+export const TagSchema = z.object({
     id: z.string(),
     name: z.string(),
     followers: z.number().optional(),
@@ -19,7 +27,7 @@ const TagSchema = z.object({
     description: z.string().optional(),  
   });
 
-  const EntitySchema = z.object({
+  export  const EntitySchema = z.object({
     id: z.string(),
     name: z.string(),
     description: z.string().optional(),  
@@ -39,7 +47,7 @@ const VerifiedAddressesSchema = z.object({
   sol_addresses: z.array(z.string()),
 });
 
-const AuthorViewerContextSchema = z.object({
+export const AuthorViewerContextSchema = z.object({
   following: z.boolean(),
   followed_by: z.boolean(),
 });
@@ -58,20 +66,29 @@ const ReactionUserSchema = z.object({
   fname: z.string(),
 });
 
-const ReactionsSchema = z.object({
+export const ReactionsSchema = z.object({
   likes_count: z.number(),
   recasts_count: z.number(),
   likes: z.array(ReactionUserSchema),
   recasts: z.array(ReactionUserSchema),
 });
 
-const AuthorSchema = z.object({
+
+// Updated Output types
+export const ParentTagSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  followers: z.number().optional(),
+  isFollowed: z.boolean().optional(),  
+  description: z.string().optional(),  
+});
+export const AuthorSchema = z.object({
   numberOfStories: z.number(),
   numberOfPosts: z.number(),
   object: z.literal('user'),
   username: z.string(),
   fid: z.number(),
-  tags: z.array(TagSchema).optional(),
+  parentTags: z.array(ParentTagSchema).optional(),
   custody_address: z.string(),
   display_name: z.string(),
   pfp_url: z.string(),
@@ -85,7 +102,7 @@ const AuthorSchema = z.object({
   viewer_context: AuthorViewerContextSchema,
 });
 
-const CastSchema = z.object({
+export const CastSchema = z.object({
   parent_author: ParentAuthorSchema,
   hash: z.string(),
   thread_hash: z.string(),
@@ -93,26 +110,38 @@ const CastSchema = z.object({
   text: z.string(),
   timestamp: z.string(),
   reactions: ReactionsSchema,
-  mentioned_profiles: z.array(z.string()),
+  mentioned_profiles: z.array(z.object({
+    fid: z.number(),
+    username: z.string(),
+  }).or(z.string())).optional(),
   viewer_context: CastViewerContextSchema,
+  replies: z.object({
+    count: z.number(),
+  }),
 });
 
-const TagStorySchema = z.object({
+export const TagStorySchema = z.object({
   id: z.string(),
   name: z.string(),
 });
 
-const EntityStorySchema = z.object({
+export const EntityStorySchema = z.object({
   id: z.string(),
   name: z.string(),
 });
 
-const CategoryStorySchema = z.object({
+export const CategoryStorySchema = z.object({
   id: z.string(),
   name: z.string(),
 });
 
-const StorySchema = z.object({
+const MentionedProfileSchema = z.object({
+  fid: z.number(),
+  username: z.string(),
+});
+
+
+export const StorySchema = z.object({
   id: z.string(),
   hash: z.string().optional(),
   title: z.string(),
@@ -121,7 +150,8 @@ const StorySchema = z.object({
   entities: z.array(EntityStorySchema),
   categories: z.array(CategoryStorySchema),
   isBookmarked: z.boolean(),
-  mentionedStories: z.array(z.string()),
+  mentioned_profiles: z.array(z.union([z.string(), MentionedProfileSchema])).optional(),
+  mentionedStories: z.array(z.string()), // Add this line
   numberofPosts: z.number(),
   author: AuthorSchema,
   cast: CastSchema,
@@ -137,6 +167,7 @@ export const PostSchema = z.object({
   cast: CastSchema,
   isLikedByUser: z.boolean(),
   text: z.string(),
+ 
 });
 
 export const GetStoryWithPostsOutput = z.object({

@@ -89,7 +89,7 @@ const SuggestionBox: React.FC<ISuggestionBox> = ({ type, suggestions }) => {
   return (
     <div className="flex flex-col gap-4 rounded-lg border p-2">
       <SuggestionBoxHeader title={title} Icon={Icon} info={info} />
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col ">
         {suggestions && suggestions.length > 0 ? (
           suggestions.map(renderItem)
         ) : (

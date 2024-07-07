@@ -12,20 +12,18 @@ import { api } from "@/trpc/react";
 interface TextCardProps {
   storyId?: string[];
   text: string;
-  tags: TagStory[];
-  numberofPosts: number;
+ 
 }
 
 const TextCard: React.FC<TextCardProps> = ({
   text,
   storyId,
-  tags,
-  numberofPosts,
+ 
 }) => {
   const parts = text.split(/(@[\w.-]+|<[\w.-]+>)/gi);
 
   return (
-    <div className="flex w-full  flex-col font-light text-primary/70">
+    <div className="flex w-full  flex-col font-light  text-sm  text-primary/70">
       {parts.map((part, index) => {
         if (part.startsWith("@")) {
           const userName = part.substring(1); // Remove @
@@ -52,21 +50,12 @@ const TextCard: React.FC<TextCardProps> = ({
           );
         }
         return (
-          <span className="mb-4 flex w-full" key={index}>
+          <span className="  flex w-full  " key={index}>
             {part}
           </span>
         );
       })}
-      <div className="flex w-full items-center justify-between">
-        {tags.length > 0 && (
-          <div className="mt-2 flex items-center gap-2">
-            {tags.map((item) => (
-              <Tag {...item} key={item.id} />
-            ))}
-          </div>
-        )}
-        <StoryFooter numberofPosts={numberofPosts} />
-      </div>
+   
     </div>
   );
 };

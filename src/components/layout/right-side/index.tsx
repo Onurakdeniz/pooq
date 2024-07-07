@@ -6,7 +6,7 @@ import SuggestionBox from "@/components/shared/suggestion-box";
 import { cn } from "@/lib/utils";
 import Profile from "../header/profile";
 import { getSimilarStories } from "@/lib/getSimilarStories";
-import { getUserSuggestions } from "@/lib/getUserSuggestions";
+import { api } from "@/trpc/react";
 
 interface RightSideProps {
   className?: string;
@@ -42,40 +42,41 @@ export const RightSide: React.FC<RightSideProps> = ({ className }) => {
   const [suggestions, setSuggestions] = useState<SuggestionType[]>([]);
   const [isStoryPage, setIsStoryPage] = useState(false);
   const pathname = usePathname();
-
   useEffect(() => {
     const fetchSuggestions = async () => {
       const isStory = pathname.startsWith("/story/");
       setIsStoryPage(isStory);
       const storyId = isStory ? pathname.split("/")[2] : null;
-      /*eslint-disable*/
+  
       try {
         if (isStory && storyId) {
-          const similarStories: SimilarStory[] =
-            await getSimilarStories(storyId);
+          const similarStories: SimilarStory[] = await getSimilarStories(storyId);
           setSuggestions(
             similarStories.map((story) => ({
               id: story.id.toString(),
               title: story.title,
-            })),
+            }))
           );
         } else {
-          const userSuggestions: UserSuggestion[] = await getUserSuggestions();
-          setSuggestions(
-            userSuggestions.map((user) => ({
-              id: user.id,
-              name: user.name,
-              username: user.username,
-              image: "default-image-url", // You might want to provide a default image or handle this differently
-            })),
-          );
+          // Use the useQuery hook to fetch user suggestions
+          const { data: userSuggestions } = api.user.getUserSuggestions.useQuery();
+          if (userSuggestions) {
+            setSuggestions(
+              userSuggestions.map((user) => ({
+                id: user.fid.toString(),
+                name: user.display_name || user.username,
+                username: user.username,
+                image: user.pfp_url || "default-image-url",
+              }))
+            );
+          }
         }
       } catch (error) {
         console.error("Error fetching suggestions:", error);
         setSuggestions([]);
       }
     };
-    /*eslint-disable*/
+  
     fetchSuggestions().catch((error) => {
       console.error("Error in fetchSuggestions:", error);
     });

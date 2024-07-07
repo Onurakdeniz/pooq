@@ -1,8 +1,70 @@
 import type { NeynarResponse } from "@/lib/lib";
 import type { Author, Cast, CastViewerContext, ReactionUser, Reactions, Story, Tag, Entity, CategoryStory } from "@/types/type";
 
- 
-  
+type FormattedPost = {
+  id: number;
+  hash: string;
+  authorId: number;
+  text: string;
+  storyId: number;
+  isProcessed: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  extraction: {
+    title?: string;
+    tags?: {
+      tag: {
+        id: string;
+        name: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      tagId: string;
+      extractionId: number;
+    }[];
+    entities?: {
+      entity: {
+        id: string;
+        name: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      entityId: string;
+      extractionId: number;
+    }[];
+    categories?: {
+      category: {
+        id: string;
+        name: string;
+        description: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      categoryId: string;
+      extractionId: number;
+    }[];
+  } | null;
+  bookmarks: {
+    id: string;
+    userId: string;
+    storyId: number | null;
+    postId: number | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
+  story: {
+    id: number;
+    authorId: number;
+    extraction: {
+      title: string;
+    } | null;
+  };
+  author: Author;
+  cast: Cast;
+  postsCount: number;
+};
  
 
   export const formatReactions = (reactions: Partial<Reactions> | undefined): Reactions => ({
@@ -32,6 +94,7 @@ import type { Author, Cast, CastViewerContext, ReactionUser, Reactions, Story, T
     active_status: authorData?.active_status ?? "",
     power_badge: authorData?.power_badge ?? false,
     viewer_context: authorData?.viewer_context ?? { following: false, followed_by: false },
+    
   });
   
   export const formatCast = (
@@ -50,6 +113,7 @@ import type { Author, Cast, CastViewerContext, ReactionUser, Reactions, Story, T
     thread_hash: castData?.thread_hash ?? "",
     parent_hash: castData?.parent_hash ?? null,
     text: castData?.text ?? "",
+    replies: castData?.replies ?? { count: 0 },  // Provide a default value
     timestamp: castData?.timestamp ?? "",
     reactions: {
       likes_count: castData?.reactions.likes_count ?? castData?.reactions.likes.length ?? 0,
@@ -57,9 +121,12 @@ import type { Author, Cast, CastViewerContext, ReactionUser, Reactions, Story, T
       likes: castData?.reactions.likes ?? [],
       recasts: castData?.reactions.recasts ?? [],
     },
-    mentioned_profiles: castData?.mentioned_profiles ?? [],
+    mentioned_profiles: (castData?.mentioned_profiles as Author[]) ?? [],
     viewer_context: castData?.viewer_context ?? { liked: false, recasted: false },
   });
+
+
+  
   export const formatStory = (
     story: {
       id: number;
@@ -113,3 +180,68 @@ import type { Author, Cast, CastViewerContext, ReactionUser, Reactions, Story, T
     author: formatAuthor(neynarData?.author, storyCount),
     cast: formatCast(neynarData?.cast),
   });
+
+
+  export const formatPost = (
+      post: {
+        id: number;
+        hash: string;
+        authorId: number;
+        text: string;
+        storyId: number;
+        isProcessed: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        extraction: {
+          title?: string;
+          tags?: { tag: { id: string; name: string; description: string | null; createdAt: Date; updatedAt: Date; }; tagId: string; extractionId: number; }[];
+          entities?: { entity: { id: string; name: string; description: string | null; createdAt: Date; updatedAt: Date; }; entityId: string; extractionId: number; }[];
+          categories?: { category: { id: string; name: string; description: string | null; createdAt: Date; updatedAt: Date; }; categoryId: string; extractionId: number; }[];
+        } | null;
+        bookmarks: {
+          id: string;
+          userId: string;
+          storyId: number | null;
+          postId: number | null;
+          createdAt: Date;
+          updatedAt: Date;
+        }[];
+        story: {
+          id: number;
+          authorId: number;
+          extraction: {
+            title: string;
+          } | null;
+        };
+      },
+      neynarData: NeynarResponse | undefined,
+      postsCount: number,
+      storyCount: number,
+      viewerPrivyId?: string
+    ): FormattedPost => ({
+      id: post.id,
+      hash: post.hash,
+      authorId: post.authorId,
+      text: post.text,
+      storyId: post.storyId,
+      isProcessed: post.isProcessed,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      extraction: post.extraction ? {
+        title: post.extraction.title,
+        tags: post.extraction.tags ?? [],
+        entities: post.extraction.entities ?? [],
+        categories: post.extraction.categories ?? []
+      } : null,
+      bookmarks: post.bookmarks,
+      story: {
+        id: post.story.id,
+        authorId: post.story.authorId,
+        extraction: {
+          title: post.story.extraction?.title ?? ''
+        }
+      },
+      author: formatAuthor(neynarData?.author, storyCount),
+      cast: formatCast(neynarData?.cast),
+      postsCount: postsCount,
+    })

@@ -39,32 +39,23 @@ const StoryHeader: React.FC<IStoryHeader> = ({
   viewer_context
 }) => {
   return (
-    <div className="mb-4 flex w-full flex-col gap-4">
+    <div className=" flex w-full flex-col  ">
       <div className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between text-primary/80">
           {type === "FEED" ? (
             <Link href={`/story/${id}`} passHref>
-              <div className="line-clamp-2 flex w-11/12 text-xl font-semibold">
+              <div className="line-clamp-2 flex w-full  text-lg font-semibold">
                 {title}
               </div>
             </Link>
           ) : (
-            <div className="line-clamp-2 flex w-11/12 text-xl font-semibold">
+            <div className="line-clamp-2 flex w-full text-lg font-semibold">
               {title}
             </div>
           )}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>AI Generated</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        
         </div>
-        <div className="flex h-8 items-center justify-between gap-3">
+        <div className="flex  items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <ProfileAvatar
               profile={author}

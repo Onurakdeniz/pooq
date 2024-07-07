@@ -102,7 +102,7 @@ const ProfileHoverContent: React.FC<Author> = ({
   following_count,
   follower_count,
   profile,
-  tags,
+  parentTags,
 }) => {
   return (
     <div className="flex w-96 flex-col gap-3 border-none p-4">
@@ -137,7 +137,7 @@ const ProfileHoverContent: React.FC<Author> = ({
       </div>
       <span className="text-xs text-primary/60">{profile.bio.text}</span>
       <div className="flex flex-wrap gap-2">
-        {tags?.map((tag) => (
+        {parentTags?.map((tag) => (
           <Tag key={tag.id} {...tag} />
         ))}
       </div>

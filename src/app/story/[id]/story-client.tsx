@@ -10,11 +10,14 @@ import { AppRouter } from "@/server/api/root";
 import { Post } from "@/types/type";
 import StoryCard from "@/components/shared/story-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GetStoryWithPostsOutputType} from "@/schemas/schema"
+import { GetStoryWithPostsOutputType } from "@/schemas/schema";
 
-export default function StoryClient({ initialData, storyId } : {
-    initialData : GetStoryWithPostsOutputType ,
-    storyId : number
+export default function StoryClient({
+  initialData,
+  storyId,
+}: {
+  initialData: GetStoryWithPostsOutputType;
+  storyId: number;
 }) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.story.getStoryWithPosts.useInfiniteQuery(
@@ -36,7 +39,7 @@ export default function StoryClient({ initialData, storyId } : {
   const story = data?.pages[0]?.story;
 
   return (
-    <div className="z-0 flex min-h-screen flex-col">
+    <div className=" flex min-h-screen flex-col">
       <div className="flex flex-1 flex-col">
         <StoryTop />
         <div className="flex flex-col">
@@ -60,16 +63,15 @@ export default function StoryClient({ initialData, storyId } : {
           <div className="border-b"></div>
         </div>
       </div>
-      <ScrollArea className="flex-1">
-        <PostList
-          posts={posts}
-          isLoading={false}
-          error={null}
-          hasNextPage={hasNextPage ?? false}
-          isFetchingNextPage={isFetchingNextPage}
-          fetchNextPage={fetchNextPage}
-        />
-      </ScrollArea>
+
+      <PostList
+        posts={posts}
+        isLoading={false}
+        error={null}
+        hasNextPage={hasNextPage ?? false}
+        isFetchingNextPage={isFetchingNextPage}
+        fetchNextPage={() => fetchNextPage()}
+      />
     </div>
   );
 }
