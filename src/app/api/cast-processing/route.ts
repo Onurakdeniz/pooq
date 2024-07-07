@@ -242,6 +242,7 @@ async function processEmbedding(params: {
   try {
     const { data, castType, llmResult } = params;
     const fleekembedding = "https://refined-laptop-late.functions.on-fleek.app";
+    const relevanceCheckUrl = "https://whining-planet-early.functions.on-fleek.app";
 
     interface EmbeddingPayload {
       type: string;
@@ -250,7 +251,7 @@ async function processEmbedding(params: {
       tags: string[];
       entities: string[];
       category: string[];
-      storyId?: string;  // Make storyId optional
+      storyId?: string;
     }
     
     const embeddingPayload: EmbeddingPayload = {
@@ -273,13 +274,46 @@ async function processEmbedding(params: {
       },
       body: JSON.stringify(embeddingPayload),
     });
- 
 
     if (!embedding.ok) {
       throw new Error(`Failed to process ${castType} with LLM`);
     }
 
-    return embedding.json();
+    const embeddingResult = await embedding.json();
+
+    // If the cast type is 'post', check for relevance
+    if (castType.toLowerCase() === 'post' && data.parentHash) {
+      const relevanceCheck = await fetch(relevanceCheckUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          storyHash: data.parentHash,
+          postHash: data.hash
+        }),
+      });
+
+      if (!relevanceCheck.ok) {
+        throw new Error('Failed to check post relevance');
+      }
+
+      const relevanceResult = await relevanceCheck.json();
+      console.log('Relevance check result:', relevanceResult);
+
+      if (relevanceResult.body) {
+        const parsedBody = JSON.parse(relevanceResult.body);
+        if (parsedBody.result && parsedBody.result.isPostRelevant) {
+          // Update the post in the database to set isStoryRelated to true
+          await prisma.post.update({
+            where: { hash: data.hash },
+            data: { isStoryRelated: true },
+          });
+        }
+      }
+    }
+
+    return embeddingResult;
 
   } catch (error) {
     console.error("Error processing embedding:", error);
