@@ -28,7 +28,7 @@ const StoryCard: React.FC<IStory> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full border-b p-8 hover:bg-accent">
+    <div className="w-full border-b p-8  ">
  
         <div className="flex w-full flex-col gap-4">
           <StoryHeader
@@ -51,7 +51,7 @@ const StoryCard: React.FC<IStory> = ({
             )}
             <StoryFooter numberofPosts={numberofPosts} />
           </div>
-          <div className="  shadow-sm bg-primary/5 rounded-xl p-4">
+          <div className="  shadow-sm bg-accent rounded-2xl p-6">
             <TextCard text={cast.text} storyId={mentionedStories} />
           </div>
         </div>

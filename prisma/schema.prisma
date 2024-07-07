@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id         String     @id @unique
-  fid        Int?       @unique
-  userName   String?    @unique
+  id         String      @id @unique
+  fid        Int?        @unique
+  userName   String?     @unique
   bookmarks  Bookmark[]
   parentTags ParentTag[] // User follows ParentTags, not Tags
   categories Category[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
   llmFeeds   LLMFeed[]
 }
 
@@ -45,19 +45,21 @@ model Story {
 }
 
 model Post {
-  id          Int         @id @default(autoincrement())
-  hash        String      @unique
-  authorId    Int
-  text        String
-  storyId     Int
-  isProcessed Boolean     @default(false)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  extraction  Extraction?
-  bookmarks   Bookmark[]
-  author      Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  story       Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags        TagOnPost[]
+  id             Int         @id @default(autoincrement())
+  hash           String      @unique
+  authorId       Int
+  text           String
+  storyId        Int
+  isSpamSuspected Boolean?   
+  isStoryRelated Boolean?       
+  isProcessed    Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  extraction     Extraction?
+  bookmarks      Bookmark[]
+  author         Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  story          Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tags           TagOnPost[]
 }
 
 model Extraction {
@@ -178,9 +180,8 @@ model ParentTag {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   childTags   Tag[]
-  followers   User[]   // ParentTags are followed by Users
+  followers   User[] // ParentTags are followed by Users
 }
-
 
 model Entity {
   id          String               @id @default(uuid())

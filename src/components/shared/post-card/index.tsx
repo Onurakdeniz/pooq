@@ -64,8 +64,8 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
 
 const StoryPost: React.FC<PostType> = ({ id, text, author, cast }) => {
   return (
-    <div className="flex flex-col gap-4 border-b p-8">
-      <div className="flex h-8 items-center justify-between gap-3">
+    <div className="flex flex-col gap-3 py-4  px-8 ">
+      <div className="flex h-8 items-center justify-between gap-3 ">
         <div className="flex items-center gap-3">
           <ProfileAvatar
             profile={author}
@@ -78,21 +78,21 @@ const StoryPost: React.FC<PostType> = ({ id, text, author, cast }) => {
         <div className="flex items-center gap-2 text-xs text-primary/60">
           <Button
             variant={"ghost"}
-            className="flex h-8 items-center gap-1 px-2 text-xs"
+            className="flex h-8 items-center  bg-accent rounded-lg gap-1 px-2 text-xs"
           >
             <Bookmark size={16} strokeWidth={1} />
-            <div>Bookmark</div>
+ 
           </Button>
           <Button
             variant={"ghost"}
-            className="flex h-8 items-center gap-1 px-2 text-xs"
+            className="flex h-8 items-center bg-accent rounded-lg gap-1 px-2   text-xs"
           >
-            <Reply size={16} strokeWidth={1} />
-            <div>Reply</div>
+            <Reply size={16} strokeWidth={1.5} />
+ 
           </Button>
           <Button
             variant={"outline"}
-            className="flex h-8 w-14 items-center justify-between gap-1 border-none bg-accent px-2 text-xs font-bold hover:text-emerald-400"
+            className="flex h-8 w-14 items-center  justify-between gap-1 border-none bg-accent px-2 text-xs font-bold hover:text-emerald-400"
           >
             <ChevronUp size={16} strokeWidth={1} />
             <div>{cast.reactions.likes_count}</div>
@@ -100,7 +100,7 @@ const StoryPost: React.FC<PostType> = ({ id, text, author, cast }) => {
         </div>
       </div>
 
-      <div className="flex w-full justify-between">
+      <div className="flex w-full justify-between rounded-2xl ">
         <div className="flex w-full text-pretty pt-2 text-sm font-light text-primary/60">
           {cast.text}
         </div>

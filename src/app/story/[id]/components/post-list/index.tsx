@@ -46,7 +46,7 @@ export const PostList: React.FC<PostListProps> = ({
           </p>
         }
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col py-4">
           {posts.map((post) => (
             <StoryPost {...post} key={post.id} /> 
           ))}
@@ -57,19 +57,15 @@ export const PostList: React.FC<PostListProps> = ({
 };
 
 const PostSkeleton: React.FC = () => (
-  <div className="p-4 space-y-4 border-b">
+  <div className="p-8 space-y-4 border-b">
     <div className="flex items-center space-x-2">
       <Skeleton className="w-10 h-10 rounded-full" />
       <Skeleton className="h-4 w-1/4" />
     </div>
     <Skeleton className="h-4 w-3/4" />
     <Skeleton className="h-4 w-1/2" />
-    <Skeleton className="h-40 w-full rounded" />
-    <div className="flex justify-between">
-      <Skeleton className="h-8 w-20" />
-      <Skeleton className="h-8 w-20" />
-      <Skeleton className="h-8 w-20" />
-    </div>
+    <Skeleton className="h-40 w-full rounded-2xl" />
+   
   </div>
 );
 

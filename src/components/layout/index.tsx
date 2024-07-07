@@ -19,7 +19,7 @@ export default function LayoutWrapper({
       <div className="relative flex min-h-screen justify-center">
         {/* Left Sidebar */}
         <aside
-          className="sticky top-0 hidden h-screen shrink-0 sm:block lg:w-[300px] xl:w-[380px]"
+          className="sticky top-0 hidden h-screen shrink-0 sm:block lg:w-[300px] xl:w-[340px]"
           style={{ zIndex: 2 }}
         >
           <LeftSide />
@@ -27,7 +27,7 @@ export default function LayoutWrapper({
 
         {/* Center Feed */}
         <main
-          className="relative h-full w-full shrink-0 justify-center sm:w-[500px] xl:w-[620px]"
+          className="relative h-full w-full shrink-0 justify-center sm:w-[500px] xl:w-[660px]"
           style={{ zIndex: 3 }}
         >
           {children}
