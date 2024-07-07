@@ -4,8 +4,9 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
 import { PrismaClient } from '@prisma/client';
-import { CastFull } from '@/types/';
-import { CreateExtractionPayload, createExtractionById } from "@/data/story";
+import type { CastFull } from '@/types/';
+import type { CreateExtractionPayload } from "@/data/story";
+import { createExtractionById } from "@/data/story";
 
 const prisma = new PrismaClient();
 
@@ -19,6 +20,27 @@ interface WebhookData {
   created_at: number;
   type: string;
   data: CastFull;
+}
+
+interface EmbeddingPayload {
+  type: string;
+  hash: string;
+  text: string;
+  tags: string[];
+  entities: string[];
+  category: string[];
+  storyId?: string;
+}
+
+interface EmbeddingResult {
+  success: boolean;
+  message: string;
+  // Add more specific fields as needed
+}
+
+interface RelevanceCheckResult {
+  success: boolean;
+  body: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -99,75 +121,75 @@ export async function POST(req: NextRequest) {
 
     let savedItem;
 
-switch (castType) {
-  case 'story':
-    // Check if the story already exists
-    savedItem = await prisma.story.findUnique({
-      where: { hash: data.hash },
-    });
+    switch (castType) {
+      case 'story':
+        // Check if the story already exists
+        savedItem = await prisma.story.findUnique({
+          where: { hash: data.hash },
+        });
 
-    if (savedItem) {
-      // If it exists, update it
-      savedItem = await prisma.story.update({
-        where: { hash: data.hash },
-        data: {
-          text: data.text,
-          authorId: author.fid,
-          isProcessed: false,
-        },
-      });
-    } else {
-      // If it doesn't exist, create a new one
-      savedItem = await prisma.story.create({
-        data: {
-          hash: data.hash,
-          text: data.text,
-          authorId: author.fid,
-          isProcessed: false,
-        },
-      });
+        if (savedItem) {
+          // If it exists, update it
+          savedItem = await prisma.story.update({
+            where: { hash: data.hash },
+            data: {
+              text: data.text,
+              authorId: author.fid,
+              isProcessed: false,
+            },
+          });
+        } else {
+          // If it doesn't exist, create a new one
+          savedItem = await prisma.story.create({
+            data: {
+              hash: data.hash,
+              text: data.text,
+              authorId: author.fid,
+              isProcessed: false,
+            },
+          });
+        }
+        break;
+
+      case 'post':
+        const parentStory = await prisma.story.findUnique({
+          where: { hash: data.thread_hash }
+        });
+
+        if (!parentStory) {
+          throw new Error('Parent story not found');
+        }
+
+        // Check if the post already exists
+        savedItem = await prisma.post.findUnique({
+          where: { hash: data.hash },
+        });
+
+        if (savedItem) {
+          // If it exists, update it
+          savedItem = await prisma.post.update({
+            where: { hash: data.hash },
+            data: {
+              text: data.text,
+              authorId: author.fid,
+              isProcessed: false,
+              storyId: parentStory.id,
+            },
+          });
+        } else {
+          // If it doesn't exist, create a new one
+          savedItem = await prisma.post.create({
+            data: {
+              hash: data.hash,
+              text: data.text,
+              authorId: author.fid,
+              isProcessed: false,
+              storyId: parentStory.id,
+            },
+          });
+        }
+        break;
     }
-    break;
-
-  case 'post':
-    const parentStory = await prisma.story.findUnique({
-      where: { hash: data.thread_hash }
-    });
-
-    if (!parentStory) {
-      throw new Error('Parent story not found');
-    }
-
-    // Check if the post already exists
-    savedItem = await prisma.post.findUnique({
-      where: { hash: data.hash },
-    });
-
-    if (savedItem) {
-      // If it exists, update it
-      savedItem = await prisma.post.update({
-        where: { hash: data.hash },
-        data: {
-          text: data.text,
-          authorId: author.fid,
-          isProcessed: false,
-          storyId: parentStory.id,
-        },
-      });
-    } else {
-      // If it doesn't exist, create a new one
-      savedItem = await prisma.post.create({
-        data: {
-          hash: data.hash,
-          text: data.text,
-          authorId: author.fid,
-          isProcessed: false,
-          storyId: parentStory.id,
-        },
-      });
-    }
-    break;
-}
 
     console.log(`Saved ${castType}:`, savedItem);
 
@@ -208,7 +230,7 @@ switch (castType) {
       llmResult
     });
 
-    console.log("embeddingResult",embeddingResult)
+    console.log("embeddingResult", embeddingResult);
     
     return NextResponse.json({
       success: true,
@@ -228,7 +250,6 @@ switch (castType) {
   }
 }
 
-
 async function processEmbedding(params: {
   data: {
     id: string;
@@ -238,21 +259,11 @@ async function processEmbedding(params: {
   };
   castType: string;
   llmResult: LLMResponse;
-}): Promise<unknown> {
+}): Promise<EmbeddingResult> {
   try {
     const { data, castType, llmResult } = params;
     const fleekembedding = "https://refined-laptop-late.functions.on-fleek.app";
     const relevanceCheckUrl = "https://whining-planet-early.functions.on-fleek.app";
-
-    interface EmbeddingPayload {
-      type: string;
-      hash: string;
-      text: string;
-      tags: string[];
-      entities: string[];
-      category: string[];
-      storyId?: string;
-    }
     
     const embeddingPayload: EmbeddingPayload = {
       type: castType.toUpperCase(),
@@ -279,7 +290,7 @@ async function processEmbedding(params: {
       throw new Error(`Failed to process ${castType} with LLM`);
     }
 
-    const embeddingResult = await embedding.json();
+    const embeddingResult = await embedding.json() as EmbeddingResult;
 
     // If the cast type is 'post', check for relevance
     if (castType.toLowerCase() === 'post' && data.parentHash) {
@@ -298,12 +309,12 @@ async function processEmbedding(params: {
         throw new Error('Failed to check post relevance');
       }
 
-      const relevanceResult = await relevanceCheck.json();
+      const relevanceResult = await relevanceCheck.json() as RelevanceCheckResult;
       console.log('Relevance check result:', relevanceResult);
-
+         /* eslint-disable */
       if (relevanceResult.body) {
         const parsedBody = JSON.parse(relevanceResult.body);
-        if (parsedBody.result && parsedBody.result.isPostRelevant) {
+        if (parsedBody.result?.isPostRelevant) {
           // Update the post in the database to set isStoryRelated to true
           await prisma.post.update({
             where: { hash: data.hash },
@@ -311,6 +322,7 @@ async function processEmbedding(params: {
           });
         }
       }
+         /* eslint-disable */
     }
 
     return embeddingResult;
