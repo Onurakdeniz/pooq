@@ -32,7 +32,6 @@ const FeedFilter = () => {
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [categories, setCategories] = React.useState<Category[]>([]);
-  const [isSearching, setIsSearching] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -61,12 +60,9 @@ const FeedFilter = () => {
     let debounceTimer: NodeJS.Timeout;
 
     if (searchTerm) {
-      setIsSearching(true);
       debounceTimer = setTimeout(() => {
-        void refetchSearch().then(() => setIsSearching(false));
+        void refetchSearch();
       }, 300);
-    } else {
-      setIsSearching(false);
     }
 
     return () => {
@@ -108,6 +104,7 @@ const FeedFilter = () => {
 
     updateURL(newFilters);
     setOpen(false);
+    setSearchTerm("");
   };
 
   const handleSearchInput = (value: string) => {
@@ -118,10 +115,18 @@ const FeedFilter = () => {
     (searchResults?.pages.flatMap(page => page.categories) ?? []) : 
     categories;
 
-  const showSkeleton = isLoading || (searchTerm && isSearching);
+  const showSkeleton = isLoading || (searchTerm && isSearchLoading);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover 
+      open={open} 
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          setSearchTerm("");
+        }
+      }}
+    >
       <div className="flex w-full items-center gap-2">
         <div className="hidden items-center gap-1 lg:flex">
           {selectedFilters.map((filterName) => (
@@ -163,6 +168,7 @@ const FeedFilter = () => {
             placeholder="Search categories" 
             className="h-9"
             onValueChange={handleSearchInput}
+            value={searchTerm}
           />
           <CommandList>
             <CommandEmpty>No categories found.</CommandEmpty>

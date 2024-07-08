@@ -48,6 +48,23 @@ import {
 
 const prisma = new PrismaClient();
 
+interface WhereClause {
+  isProcessed: boolean;
+  id?: { lt: number };
+  categories?: {
+    some: {
+      category: {
+        name: { in: string[] };
+      };
+    };
+  };
+  tags?: {
+    some: {
+      tagId: { in: string[] };
+    };
+  };
+}
+
 export interface PostWithStory {
   id: string;
   hash: string;
@@ -95,110 +112,146 @@ type StoryWithRelations = Prisma.StoryGetPayload<{
 }>;
 
 export const storyRouter = createTRPCRouter({
-  getStories: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).optional().default(10),
-        cursor: z.string().optional(),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const { limit, cursor } = input;
-      const userId = ctx.privyId; // Using privyId from context as userId
-      const fid = ctx.userFid ? ctx.userFid : undefined; // Using userFid from context, parsing to number
-      const cursorNumber = cursor ? parseInt(cursor, 10) : undefined;
-
-
-      try {
-        // Fetch stories from database
-        const dbStories = await prisma.story.findMany({
-          where: {
-            isProcessed: true,
-            id: cursorNumber ? { lt: cursorNumber } : undefined, // Use cursorNumber here
-          },
-          orderBy: { id: "desc" }, // Changed from 'asc' to 'desc'
-          take: limit + 1,
-          include: {
-            extraction: {
-              include: {
-                tags: { include: { tag: true } },
-                entities: { include: { entity: true } },
-                categories: { include: { category: true } },
-              },
-            },
-            bookmarks: userId ? { where: { userId } } : false,
-          },
-        });
-
-        if (!dbStories || dbStories.length === 0) {
-          return { items: [], nextCursor: null };
-        }
-
-        const hasNextPage = dbStories.length > limit;
-        const stories = hasNextPage ? dbStories.slice(0, -1) : dbStories;
-
-        // Fetch author story counts
-        const authorIds = [...new Set(stories.map((story) => story.authorId))];
-        const authorStoryCounts = await prisma.story.groupBy({
-          by: ["authorId"],
-          where: { authorId: { in: authorIds } },
-          _count: true,
-        });
-
-        const authorStoryCountMap = new Map(
-          authorStoryCounts.map((count) => [count.authorId, count._count]),
-        );
-
-        // Fetch story posts counts
-        const storyIds = stories.map((story) => story.id);
-        const storyPostsCounts = await prisma.post.groupBy({
-          by: ["storyId"],
-          where: { storyId: { in: storyIds } },
-          _count: true,
-        });
-
-        const storyPostsCountMap = new Map(
-          storyPostsCounts.map((count) => [count.storyId, count._count]),
-        );
-
-        // Fetch Neynar data
-        const hashes = stories.map((story) => story.hash);
-        const neynarData = await fetchFromNeynarAPI(hashes, fid);
-
-        const formattedStories: FStory[] = stories.map((story, index) => {
-          const thirdPartyData = neynarData[index];
-          const storyCount = authorStoryCountMap.get(story.authorId) ?? 0;
-          const postsCount = storyPostsCountMap.get(story.id) ?? 0;
-
-          return formatStory(
-            story,
-            thirdPartyData,
-            storyCount,
-            postsCount,
-            userId,
-          );
-        });
-
-        const nextCursor =
-          hasNextPage && stories.length > 0
-            ? stories[stories.length - 1]?.id?.toString() ?? null
-            : null;
-
-        return {
-          items: formattedStories,
-          nextCursor,
-        };
-      } catch (error) {
-        console.error("Error in getStories:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred while fetching stories",
-          cause: error,
-        });
-      } finally {
-        await prisma.$disconnect();
-      }
+    getStories : publicProcedure
+  .input(
+    z.object({
+      limit: z.number().min(1).max(100).optional().default(10),
+      cursor: z.string().optional(),
+      categoryFilters: z.array(z.string()).optional(),
+      llmMode: z.boolean().optional(),
     }),
+  )
+  .query(async ({ input, ctx }) => {
+    const { limit, cursor, categoryFilters, llmMode } = input;
+    const userId = ctx.privyId;
+    const fid = ctx.userFid ? ctx.userFid : undefined;
+    const cursorNumber = cursor ? parseInt(cursor, 10) : undefined;
+
+    try {
+      // Fetch user's LLM agent tags if in LLM mode
+      let userLlmTags: string[] = [];
+      if (llmMode && userId) {
+        const userLlmFeed = await prisma.lLMFeed.findFirst({
+          where: { userId },
+          include: { tags: true },
+        });
+        userLlmTags = userLlmFeed?.tags.map(tag => tag.id) ?? [];
+      }
+
+      // Construct the where clause
+      const whereClause: WhereClause = {
+        isProcessed: true,
+        id: cursorNumber ? { lt: cursorNumber } : undefined,
+      };
+
+      // Add category filter
+      if (categoryFilters && categoryFilters.length > 0) {
+        whereClause.categories = {
+          some: {
+            category: {
+              name: { in: categoryFilters },
+            },
+          },
+        };
+      }
+
+      // Add LLM mode filter
+      if (llmMode && userLlmTags.length > 0) {
+        whereClause.tags = {
+          some: {
+            tagId: { in: userLlmTags },
+          },
+        };
+      }
+
+      // Fetch stories from database
+      const dbStories = await prisma.story.findMany({
+        where: whereClause,
+        orderBy: { id: "desc" },
+        take: limit + 1,
+        include: {
+          extraction: {
+            include: {
+              tags: { include: { tag: true } },
+              entities: { include: { entity: true } },
+              categories: { include: { category: true } },
+            },
+          },
+          bookmarks: userId ? { where: { userId } } : false,
+          categories: { include: { category: true } },
+          tags: { include: { tag: true } },
+        },
+      });
+
+      if (!dbStories || dbStories.length === 0) {
+        return { items: [], nextCursor: null };
+      }
+
+      const hasNextPage = dbStories.length > limit;
+      const stories = hasNextPage ? dbStories.slice(0, -1) : dbStories;
+
+      // Fetch author story counts
+      const authorIds = [...new Set(stories.map((story) => story.authorId))];
+      const authorStoryCounts = await prisma.story.groupBy({
+        by: ["authorId"],
+        where: { authorId: { in: authorIds } },
+        _count: true,
+      });
+
+      const authorStoryCountMap = new Map(
+        authorStoryCounts.map((count) => [count.authorId, count._count]),
+      );
+
+      // Fetch story posts counts
+      const storyIds = stories.map((story) => story.id);
+      const storyPostsCounts = await prisma.post.groupBy({
+        by: ["storyId"],
+        where: { storyId: { in: storyIds } },
+        _count: true,
+      });
+
+      const storyPostsCountMap = new Map(
+        storyPostsCounts.map((count) => [count.storyId, count._count]),
+      );
+
+      // Fetch Neynar data
+      const hashes = stories.map((story) => story.hash);
+      const neynarData = await fetchFromNeynarAPI(hashes, fid);
+
+      const formattedStories: FStory[] = stories.map((story, index) => {
+        const thirdPartyData = neynarData[index];
+        const storyCount = authorStoryCountMap.get(story.authorId) ?? 0;
+        const postsCount = storyPostsCountMap.get(story.id) ?? 0;
+
+        return formatStory(
+          story,
+          thirdPartyData,
+          storyCount,
+          postsCount,
+          userId,
+        );
+      });
+
+      const nextCursor =
+        hasNextPage && stories.length > 0
+          ? stories[stories.length - 1]?.id?.toString() ?? null
+          : null;
+
+      return {
+        items: formattedStories,
+        nextCursor,
+      };
+    } catch (error) {
+      console.error("Error in getStories:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "An unexpected error occurred while fetching stories",
+        cause: error,
+      });
+    } finally {
+      await prisma.$disconnect();
+    }
+  }),
 
   getStoryWithPosts: publicProcedure
     .input(GetStoryWithPostsInput)

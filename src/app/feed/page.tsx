@@ -1,5 +1,3 @@
-// app/feed/page.tsx
-
 import { Suspense } from "react";
 import { api } from "@/trpc/server";
 import StoryList from "./components/list";
@@ -18,20 +16,24 @@ export default async function FeedPage({
 }) {
   const limit = 10;
   const cursor = searchParams.cursor as string | undefined;
-  const userId = searchParams.userId
-    ? (searchParams.userId as string)
+
+  // Extract category filters
+  const categoryFilters = searchParams.filters
+    ? (searchParams.filters as string).split(",")
     : undefined;
-  const fid = searchParams.fid
-    ? parseInt(searchParams.fid as string)
-    : undefined;
+
+  // Extract LLM mode
+  const llmMode = searchParams.llmMode === "true";
 
   try {
     const apiResponse = await api.story.getStories({
       limit,
       cursor,
+      categoryFilters,
+      llmMode,
     });
 
-    console.log("apires",apiResponse)
+    console.log("apiResponse", apiResponse);
 
     const initialStories: Story[] = apiResponse.items;
 

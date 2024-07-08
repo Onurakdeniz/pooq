@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
-import Link from "next/link";
 import { Story as IStory } from "@/types/type";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
@@ -32,9 +31,11 @@ const SkeletonStoryCard: React.FC = () => (
   </div>
 );
 
-export const InfiniteScrollStoryList: React.FC<
-  InfiniteScrollStoryListProps
-> = ({ initialStories, searchParams, initialCursor }) => {
+export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = ({
+  initialStories,
+  searchParams,
+  initialCursor,
+}) => {
   const [isClient, setIsClient] = useState<boolean>(false);
   const [showDialog, setShowDialog] = useState(false);
   const searchParamsHook = useSearchParams();
@@ -50,14 +51,17 @@ export const InfiniteScrollStoryList: React.FC<
     setShowDialog(false);
   };
 
-  const filterParam = searchParams.filters as string | undefined;
-  const tags = filterParam ? filterParam.split(",") : [];
+  const categoryFilters = searchParams.filters
+    ? (searchParams.filters as string).split(",")
+    : undefined;
+  const llmMode = searchParams.llmMode === "true";
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     api.story.getStories.useInfiniteQuery(
       {
         limit: 10,
-        // Add any other query parameters here
+        categoryFilters,
+        llmMode,
       },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
