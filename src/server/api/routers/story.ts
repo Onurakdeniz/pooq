@@ -112,17 +112,19 @@ type StoryWithRelations = Prisma.StoryGetPayload<{
 }>;
 
 export const storyRouter = createTRPCRouter({
-    getStories : publicProcedure
+ 
+  getStories :publicProcedure
   .input(
     z.object({
       limit: z.number().min(1).max(100).optional().default(10),
       cursor: z.string().optional(),
       categoryFilters: z.array(z.string()).optional(),
       llmMode: z.boolean().optional(),
-    }),
+      tagName: z.string().optional(),
+    })
   )
   .query(async ({ input, ctx }) => {
-    const { limit, cursor, categoryFilters, llmMode } = input;
+    const { limit, cursor, categoryFilters, llmMode, tagName } = input;
     const userId = ctx.privyId;
     const fid = ctx.userFid ? ctx.userFid : undefined;
     const cursorNumber = cursor ? parseInt(cursor, 10) : undefined;
@@ -139,7 +141,12 @@ export const storyRouter = createTRPCRouter({
       }
 
       // Construct the where clause
-      const whereClause: WhereClause = {
+      const whereClause: {
+        isProcessed: boolean;
+        id?: { lt: number };
+        categories?: { some: { category: { name: { in: string[] } } } };
+        tags?: { some: { tagId: { in: string[] } } } | { some: { tag: { name: string } } };
+      } = {
         isProcessed: true,
         id: cursorNumber ? { lt: cursorNumber } : undefined,
       };
@@ -160,6 +167,17 @@ export const storyRouter = createTRPCRouter({
         whereClause.tags = {
           some: {
             tagId: { in: userLlmTags },
+          },
+        };
+      }
+
+      // Add tag filter
+      if (tagName) {
+        whereClause.tags = {
+          some: {
+            tag: {
+              name: tagName,
+            },
           },
         };
       }
@@ -199,7 +217,7 @@ export const storyRouter = createTRPCRouter({
       });
 
       const authorStoryCountMap = new Map(
-        authorStoryCounts.map((count) => [count.authorId, count._count]),
+        authorStoryCounts.map((count) => [count.authorId, count._count])
       );
 
       // Fetch story posts counts
@@ -211,7 +229,7 @@ export const storyRouter = createTRPCRouter({
       });
 
       const storyPostsCountMap = new Map(
-        storyPostsCounts.map((count) => [count.storyId, count._count]),
+        storyPostsCounts.map((count) => [count.storyId, count._count])
       );
 
       // Fetch Neynar data
@@ -228,14 +246,13 @@ export const storyRouter = createTRPCRouter({
           thirdPartyData,
           storyCount,
           postsCount,
-          userId,
+          userId
         );
       });
 
-      const nextCursor =
-        hasNextPage && stories.length > 0
-          ? stories[stories.length - 1]?.id?.toString() ?? null
-          : null;
+      const nextCursor = hasNextPage && stories.length > 0
+        ? stories[stories.length - 1]?.id?.toString() ?? null
+        : null;
 
       return {
         items: formattedStories,
@@ -252,6 +269,9 @@ export const storyRouter = createTRPCRouter({
       await prisma.$disconnect();
     }
   }),
+
+
+
 
   getStoryWithPosts: publicProcedure
     .input(GetStoryWithPostsInput)

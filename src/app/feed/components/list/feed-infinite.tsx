@@ -55,14 +55,16 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
     ? (searchParams.filters as string).split(",")
     : undefined;
   const llmMode = searchParams.llmMode === "true";
+  const tagName = searchParams.tag as string | undefined;
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    api.story.getStories.useInfiniteQuery(
-      {
-        limit: 10,
-        categoryFilters,
-        llmMode,
-      },
+  api.story.getStories.useInfiniteQuery(
+    {
+      limit: 10,
+      categoryFilters,
+      llmMode,
+      tagName,  
+    },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
         initialData: {
@@ -105,11 +107,7 @@ export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = (
         next={loadMore}
         hasMore={!!hasNextPage}
         loader={<SkeletonStoryCard />}
-        endMessage={
-          <div className="flex justify-center p-2 text-sm text-primary/60">
-            No more stories to load.
-          </div>
-        }
+        
       >
         {allStories.map((story) => (
           <StoryCard

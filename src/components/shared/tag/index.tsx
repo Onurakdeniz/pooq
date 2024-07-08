@@ -1,10 +1,10 @@
 import React from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Plus, User } from "lucide-react";
 
-// Define the Tag type
 interface TagProps {
   id: string;
   name: string;
@@ -14,13 +14,16 @@ interface TagProps {
 }
 
 const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) => {
+  const encodedTagName = encodeURIComponent(name);
 
   return (
     <HoverCard>
       <HoverCardTrigger>
-        <Badge className="rounded-sm border border-stone-200 bg-inherit px-2 py-1 text-xs font-normal text-primary/50 shadow-none hover:cursor-pointer hover:bg-stone-200 dark:border-stone-800 dark:text-primary/50 hover:dark:bg-primary/10">
-          {name}
-        </Badge>
+        <Link href={`/tag?tag=${encodedTagName}`}>
+          <Badge className="rounded-sm border border-stone-200 bg-inherit px-2 py-1 text-xs font-normal text-primary/50 shadow-none hover:cursor-pointer hover:bg-stone-200 dark:border-stone-800 dark:text-primary/50 hover:dark:bg-primary/10">
+            {name}
+          </Badge>
+        </Link>
       </HoverCardTrigger>
       <HoverCardContent
         align="start"

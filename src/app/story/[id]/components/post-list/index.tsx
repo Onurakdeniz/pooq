@@ -40,11 +40,7 @@ export const PostList: React.FC<PostListProps> = ({
         hasMore={hasNextPage}
         loader={<PostSkeleton />}
         scrollableTarget="scrollableDiv"
-        endMessage={
-          <p className="text-center text-gray-500 my-4">
-            No more posts to load.
-          </p>
-        }
+       
       >
         <div className="flex flex-col py-4">
           {posts.map((post) => (

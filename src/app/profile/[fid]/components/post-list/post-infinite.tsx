@@ -112,11 +112,7 @@ export const InfiniteScrollPostList: React.FC<InfiniteScrollPostListProps> = ({
         next={loadMore}
         hasMore={!!hasNextPage}
         loader={<SkeletonPostCard />}
-        endMessage={
-          <div className="flex justify-center p-2 text-sm text-primary/60">
-            No more posts to load.
-          </div>
-        }
+      
       >
         {allPosts.map((post) => (
           <ProfilePost
