@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import type { CastFull } from '@/types/';
 import type { CreateExtractionPayload } from "@/data/story";
 import { createExtractionById } from "@/data/story";
+import { setTimeout } from 'timers/promises';
 
 const prisma = new PrismaClient();
 
@@ -248,8 +249,7 @@ export async function POST(req: NextRequest) {
   } finally {
     await prisma.$disconnect();
   }
-}
-
+} 
 async function processEmbedding(params: {
   data: {
     id: string;
@@ -291,6 +291,10 @@ async function processEmbedding(params: {
     }
 
     const embeddingResult = await embedding.json() as EmbeddingResult;
+    console.log('Embedding processed successfully');
+
+    // Wait for 3 seconds
+    await setTimeout(3000);
 
     // If the cast type is 'post', check for relevance
     if (castType.toLowerCase() === 'post' && data.parentHash) {
@@ -311,7 +315,8 @@ async function processEmbedding(params: {
 
       const relevanceResult = await relevanceCheck.json() as RelevanceCheckResult;
       console.log('Relevance check result:', relevanceResult);
-         /* eslint-disable */
+      
+      /* eslint-disable */
       if (relevanceResult.body) {
         const parsedBody = JSON.parse(relevanceResult.body);
         if (parsedBody.result?.isPostRelevant) {
@@ -322,7 +327,7 @@ async function processEmbedding(params: {
           });
         }
       }
-         /* eslint-disable */
+      /* eslint-enable */
     }
 
     return embeddingResult;
