@@ -1,4 +1,4 @@
-export const maxDuration = 45;
+export const maxDuration = 60;
 
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
@@ -293,8 +293,8 @@ async function processEmbedding(params: {
     const embeddingResult = await embedding.json() as EmbeddingResult;
     console.log('Embedding processed successfully');
 
-    // Wait for 3 seconds
-    await setTimeout(3000);
+ 
+    await setTimeout(5000);
 
     // If the cast type is 'post', check for relevance
     if (castType.toLowerCase() === 'post' && data.parentHash) {

@@ -42,7 +42,7 @@ const Profile = () => {
         <div className="flex w-full items-center justify-between gap-2 rounded-lg border px-4 py-2">
           <div className="flex flex-col">
             <div className="text-lg font-bold text-primary">pooq</div>
-            <div className="text-xs text-primary/60">Idea Exchange</div>
+            <div className="text-xs text-primary/60">knowledge exchange</div>
           </div>
           <div className="flex items-center justify-end gap-2 ">
             <ModeToggle />
@@ -82,7 +82,7 @@ const Profile = () => {
         <div className="flex w-full items-center justify-between gap-2">
           <div className="flex flex-col">
             <div className="text-lg font-bold text-primary">pooq</div>
-            <div className="text-xs text-primary/60">Idea Exchange</div>
+            <div className="text-xs text-primary/60">knowledge exchange</div>
           </div>
           <div className="flex items-center gap-2">
             <ModeToggle />

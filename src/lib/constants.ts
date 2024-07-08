@@ -36,7 +36,7 @@ export const HEADER_ITEMS = [
 export const SIDE_MENU_ITEMS = [
   { title: "Home", icon: Home, href: "/" },
   { title: "Discover", icon: SearchCheck, href: "discover" },
-  { title: "Invite", icon: SquareArrowUpRight, href: "invite" },
+  { title: "Invite", icon: SquareArrowUpRight, href: "#" },
   { title: "Profile", icon: CircleUser, href: "profile" },
 ];
 

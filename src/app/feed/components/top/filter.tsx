@@ -19,19 +19,60 @@ import {
 import { Filter, X } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from 'next/navigation';
+import { api } from "@/trpc/react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const filters = [
-  { value: "next.js", label: "Next.js" },
-  { value: "sveltekit", label: "SvelteKit" },
-  { value: "nuxt.js", label: "Artificial Intelligence" },
-  { value: "remix", label: "Remix" },
-  { value: "astro", label: "Astro" },
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 const FeedFilter = () => {
   const [open, setOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [categories, setCategories] = React.useState<Category[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const { data, isLoading } = api.category.getAll.useInfiniteQuery(
+    { limit: 20 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  const { data: searchResults, refetch: refetchSearch, isLoading: isSearchLoading } = api.category.search.useInfiniteQuery(
+    { term: searchTerm, limit: 20 },
+    {
+      enabled: false,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+
+  React.useEffect(() => {
+    if (data) {
+      setCategories(data.pages.flatMap(page => page.categories));
+    }
+  }, [data]);
+
+  React.useEffect(() => {
+    let debounceTimer: NodeJS.Timeout;
+
+    if (searchTerm) {
+      setIsSearching(true);
+      debounceTimer = setTimeout(() => {
+        void refetchSearch().then(() => setIsSearching(false));
+      }, 300);
+    } else {
+      setIsSearching(false);
+    }
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [searchTerm, refetchSearch]);
 
   const getSelectedFilters = React.useCallback(() => {
     const filterParam = searchParams.get('filters');
@@ -50,43 +91,50 @@ const FeedFilter = () => {
     router.push(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
-  const handleFilterToggle = (filterValue: string) => {
-    const isSelected = selectedFilters.includes(filterValue);
+  const handleFilterToggle = (filterName: string) => {
+    const isSelected = selectedFilters.includes(filterName);
     let newFilters: string[];
 
     if (isSelected) {
-      newFilters = selectedFilters.filter(f => f !== filterValue);
+      newFilters = selectedFilters.filter(f => f !== filterName);
     } else if (selectedFilters.length >= 3) {
       toast("You can select up to 3 filters", {
         description: "Deselect an existing filter to add a new one.",
       });
       return;
     } else {
-      newFilters = [...selectedFilters, filterValue];
+      newFilters = [...selectedFilters, filterName];
     }
 
     updateURL(newFilters);
     setOpen(false);
   };
 
+  const handleSearchInput = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const filtersToDisplay = searchTerm ? 
+    (searchResults?.pages.flatMap(page => page.categories) ?? []) : 
+    categories;
+
+  const showSkeleton = isLoading || (searchTerm && isSearching);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex w-full items-center gap-2">
         <div className="hidden items-center gap-1 lg:flex">
-          {selectedFilters.map((filterValue) => {
-            const filter = filters.find(f => f.value === filterValue);
-            return (
-              <Button
-                className="flex h-7 items-center justify-between gap-2 px-2 text-[10px] text-primary/70"
-                variant="outline"
-                key={filterValue}
-                onClick={() => handleFilterToggle(filterValue)}
-              >
-                <span>{filter?.label}</span>
-                <X className="h-3 w-3" />
-              </Button>
-            );
-          })}
+          {selectedFilters.map((filterName) => (
+            <Button
+              className="flex h-7 items-center justify-between gap-2 px-2 text-[10px] text-primary/70"
+              variant="outline"
+              key={filterName}
+              onClick={() => handleFilterToggle(filterName)}
+            >
+              <span>{filterName}</span>
+              <X className="h-3 w-3" />
+            </Button>
+          ))}
         </div>
         <PopoverTrigger asChild>
           <Button
@@ -111,23 +159,37 @@ const FeedFilter = () => {
         align="start"
       >
         <Command>
-          <CommandInput placeholder="Filter" className="h-9" />
+          <CommandInput 
+            placeholder="Search categories" 
+            className="h-9"
+            onValueChange={handleSearchInput}
+          />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No categories found.</CommandEmpty>
             <CommandGroup>
-              {filters.map((filter) => (
-                <CommandItem
-                  className="flex items-center justify-between"
-                  key={filter.value}
-                  value={filter.value}
-                  onSelect={() => handleFilterToggle(filter.value)}
-                >
-                  <span>{filter.label}</span>
-                  {selectedFilters.includes(filter.value) && (
-                    <CheckIcon className="h-4 w-4" />
-                  )}
-                </CommandItem>
-              ))}
+              <ScrollArea className="h-72">
+                {showSkeleton ? (
+                  Array(5).fill(0).map((_, index) => (
+                    <CommandItem key={index}>
+                      <Skeleton className="h-4 w-full" />
+                    </CommandItem>
+                  ))
+                ) : (
+                  filtersToDisplay.map((category) => (
+                    <CommandItem
+                      className="flex items-center justify-between"
+                      key={category.id}
+                      value={category.name}
+                      onSelect={() => handleFilterToggle(category.name)}
+                    >
+                      <span>{category.name}</span>
+                      {selectedFilters.includes(category.name) && (
+                        <CheckIcon className="h-4 w-4" />
+                      )}
+                    </CommandItem>
+                  ))
+                )}
+              </ScrollArea>
             </CommandGroup>
           </CommandList>
         </Command>

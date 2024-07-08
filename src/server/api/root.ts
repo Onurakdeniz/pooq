@@ -3,7 +3,7 @@ import { userRouter} from "@/server/api/routers/user"
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { storyRouter } from "./routers/story";
 import { tagRouter } from "./routers/tag";
-
+import { categoryRouter } from "./routers/category";
 /**
  * This is the primary router for your server.
  *
@@ -13,7 +13,8 @@ export const appRouter = createTRPCRouter({
  
   user : userRouter,
   story : storyRouter,
-  tag : tagRouter
+  tag : tagRouter,
+  category : categoryRouter
 });
 
 // export type definition of API
