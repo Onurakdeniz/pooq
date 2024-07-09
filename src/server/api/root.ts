@@ -4,6 +4,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { storyRouter } from "./routers/story";
 import { tagRouter } from "./routers/tag";
 import { categoryRouter } from "./routers/category";
+import { llmFeedRouter } from "./routers/llmFeed";
 /**
  * This is the primary router for your server.
  *
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   user : userRouter,
   story : storyRouter,
   tag : tagRouter,
+  llmFeed : llmFeedRouter,
   category : categoryRouter
 });
 

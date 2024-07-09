@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { Filter, X } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,20 +39,24 @@ const FeedFilter = () => {
     { limit: 20 },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
+    },
   );
 
-  const { data: searchResults, refetch: refetchSearch, isLoading: isSearchLoading } = api.category.search.useInfiniteQuery(
+  const {
+    data: searchResults,
+    refetch: refetchSearch,
+    isLoading: isSearchLoading,
+  } = api.category.search.useInfiniteQuery(
     { term: searchTerm, limit: 20 },
     {
       enabled: false,
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }
+    },
   );
 
   React.useEffect(() => {
     if (data) {
-      setCategories(data.pages.flatMap(page => page.categories));
+      setCategories(data.pages.flatMap((page) => page.categories));
     }
   }, [data]);
 
@@ -71,28 +75,31 @@ const FeedFilter = () => {
   }, [searchTerm, refetchSearch]);
 
   const getSelectedFilters = React.useCallback(() => {
-    const filterParam = searchParams.get('filters');
-    return filterParam ? filterParam.split(',') : [];
+    const filterParam = searchParams.get("filters");
+    return filterParam ? filterParam.split(",") : [];
   }, [searchParams]);
 
   const selectedFilters = getSelectedFilters();
 
-  const updateURL = React.useCallback((newFilters: string[]) => {
-    const params = new URLSearchParams(searchParams);
-    if (newFilters.length > 0) {
-      params.set('filters', newFilters.join(','));
-    } else {
-      params.delete('filters');
-    }
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  const updateURL = React.useCallback(
+    (newFilters: string[]) => {
+      const params = new URLSearchParams(searchParams);
+      if (newFilters.length > 0) {
+        params.set("filters", newFilters.join(","));
+      } else {
+        params.delete("filters");
+      }
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const handleFilterToggle = (filterName: string) => {
     const isSelected = selectedFilters.includes(filterName);
     let newFilters: string[];
 
     if (isSelected) {
-      newFilters = selectedFilters.filter(f => f !== filterName);
+      newFilters = selectedFilters.filter((f) => f !== filterName);
     } else if (selectedFilters.length >= 3) {
       toast("You can select up to 3 filters", {
         description: "Deselect an existing filter to add a new one.",
@@ -111,15 +118,15 @@ const FeedFilter = () => {
     setSearchTerm(value);
   };
 
-  const filtersToDisplay = searchTerm ? 
-    (searchResults?.pages.flatMap(page => page.categories) ?? []) : 
-    categories;
+  const filtersToDisplay = searchTerm
+    ? searchResults?.pages.flatMap((page) => page.categories) ?? []
+    : categories;
 
   const showSkeleton = isLoading || (searchTerm && isSearchLoading);
 
   return (
-    <Popover 
-      open={open} 
+    <Popover
+      open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
@@ -146,12 +153,16 @@ const FeedFilter = () => {
             variant="outline"
             aria-expanded={open}
             className={`flex h-8 justify-between gap-2 border px-3 shadow-none ${
-              selectedFilters.length > 0 ? "bg-primary/10 text-primary/60 dark:text-primary/70" : ""
+              selectedFilters.length > 0
+                ? "bg-primary/10 text-primary/60 dark:text-primary/70"
+                : ""
             }`}
           >
             <div className="flex max-w-28 items-center justify-between gap-2">
               <span className="text-start">
-                {selectedFilters.length > 0 ? `${selectedFilters.length} Selected` : "Filter"}
+                {selectedFilters.length > 0
+                  ? `${selectedFilters.length} Selected`
+                  : "Filter"}
               </span>
               <Filter size="14" />
             </div>
@@ -164,8 +175,8 @@ const FeedFilter = () => {
         align="start"
       >
         <Command>
-          <CommandInput 
-            placeholder="Search categories" 
+          <CommandInput
+            placeholder="Search categories"
             className="h-9"
             onValueChange={handleSearchInput}
             value={searchTerm}
@@ -174,27 +185,27 @@ const FeedFilter = () => {
             <CommandEmpty>No categories found.</CommandEmpty>
             <CommandGroup>
               <ScrollArea className="h-72">
-                {showSkeleton ? (
-                  Array(5).fill(0).map((_, index) => (
-                    <CommandItem key={index}>
-                      <Skeleton className="h-4 w-full" />
-                    </CommandItem>
-                  ))
-                ) : (
-                  filtersToDisplay.map((category) => (
-                    <CommandItem
-                      className="flex items-center justify-between"
-                      key={category.id}
-                      value={category.name}
-                      onSelect={() => handleFilterToggle(category.name)}
-                    >
-                      <span>{category.name}</span>
-                      {selectedFilters.includes(category.name) && (
-                        <CheckIcon className="h-4 w-4" />
-                      )}
-                    </CommandItem>
-                  ))
-                )}
+                {showSkeleton
+                  ? Array(5)
+                      .fill(0)
+                      .map((_, index) => (
+                        <CommandItem key={index}>
+                          <Skeleton className="h-4 w-full" />
+                        </CommandItem>
+                      ))
+                  : filtersToDisplay.map((category) => (
+                      <CommandItem
+                        className="flex items-center justify-between"
+                        key={category.id}
+                        value={category.name}
+                        onSelect={() => handleFilterToggle(category.name)}
+                      >
+                        <span>{category.name}</span>
+                        {selectedFilters.includes(category.name) && (
+                          <CheckIcon className="h-4 w-4" />
+                        )}
+                      </CommandItem>
+                    ))}
               </ScrollArea>
             </CommandGroup>
           </CommandList>

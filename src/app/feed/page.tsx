@@ -41,16 +41,26 @@ export default async function FeedPage({
       <div className="z-0 flex min-h-screen flex-col">
         <FeedTop />
         <Suspense fallback={<div>Loading stories...</div>}>
-          <StoryList
-            initialStories={initialStories}
-            searchParams={searchParams}
-            initialCursor={apiResponse.nextCursor}
-          />
+          {initialStories.length > 0 ? (
+            <StoryList
+              initialStories={initialStories}
+              searchParams={searchParams}
+              initialCursor={apiResponse.nextCursor}
+            />
+          ) : (
+            <div className="flex flex-grow items-center justify-center">
+              <p className="text-center text-xl text-primary/50">No stories available</p>
+            </div>
+          )}
         </Suspense>
       </div>
     );
   } catch (error) {
     console.error("Error fetching stories:", error);
-    return <div>Error loading stories. Please try again later.</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-center text-lg text-red-500">Error loading stories. Please try again later.</p>
+      </div>
+    );
   }
 }

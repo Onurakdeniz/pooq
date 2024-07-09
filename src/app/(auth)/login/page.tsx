@@ -24,7 +24,7 @@ export default function Login() {
             Welcome to <span className="font-bold"> pooq </span>{" "}
           </h1>
           <p className="mb-6 text-primary/70">
-            Join the conversation and see what people are talking about!
+          pooq is a topic-centric Farcaster client that allows users to easily explore and contribute to a variety of topics using the Farcaster protocol.
           </p>
 
           <div className="mb-8 space-y-4">

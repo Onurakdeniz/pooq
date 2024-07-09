@@ -70,7 +70,7 @@ export async function middleware(request: NextRequest) {
 
     if (isAuthenticated && accessToken) {
       // Verify the token and get Privy ID
-      const verifiedClaims = await verifyTokenWithTimeout(accessToken, 3000);
+      const verifiedClaims = await verifyTokenWithTimeout(accessToken, 1000);
       const privyId = verifiedClaims.userId;
 
       // Get user details to fetch FID

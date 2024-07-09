@@ -112,8 +112,7 @@ type StoryWithRelations = Prisma.StoryGetPayload<{
 }>;
 
 export const storyRouter = createTRPCRouter({
- 
-  getStories :publicProcedure
+  getStories: publicProcedure
   .input(
     z.object({
       limit: z.number().min(1).max(100).optional().default(10),
@@ -130,15 +129,16 @@ export const storyRouter = createTRPCRouter({
     const cursorNumber = cursor ? parseInt(cursor, 10) : undefined;
 
     try {
-      // Fetch user's LLM agent tags if in LLM mode
-      let userLlmTags: string[] = [];
-      if (llmMode && userId) {
-        const userLlmFeed = await prisma.lLMFeed.findFirst({
-          where: { userId },
+      // Fetch all LLM agent tags if in LLM mode
+      let allLlmTags: string[] = [];
+      if (llmMode) {
+        const allLlmFeeds = await prisma.lLMFeed.findMany({
           include: { tags: true },
         });
-        userLlmTags = userLlmFeed?.tags.map(tag => tag.id) ?? [];
+        allLlmTags = Array.from(new Set(allLlmFeeds.flatMap(feed => feed.tags.map(tag => tag.id))));
       }
+
+      console.log("allLlmTags", allLlmTags);
 
       // Construct the where clause
       const whereClause: {
@@ -163,10 +163,10 @@ export const storyRouter = createTRPCRouter({
       }
 
       // Add LLM mode filter
-      if (llmMode && userLlmTags.length > 0) {
+      if (llmMode && allLlmTags.length > 0) {
         whereClause.tags = {
           some: {
-            tagId: { in: userLlmTags },
+            tagId: { in: allLlmTags },
           },
         };
       }
@@ -269,9 +269,7 @@ export const storyRouter = createTRPCRouter({
       await prisma.$disconnect();
     }
   }),
-
-
-
+   
 
   getStoryWithPosts: publicProcedure
     .input(GetStoryWithPostsInput)

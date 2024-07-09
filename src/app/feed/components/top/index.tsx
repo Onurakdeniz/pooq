@@ -1,6 +1,7 @@
 import React from "react";
 import FeedActions from "./actions";
-import { LLMForm } from "./llm";
+import LLMForm from "./llm";
+ 
 
 const FeedTop = () => {
   return (
@@ -8,8 +9,10 @@ const FeedTop = () => {
       <div className="flex h-16 w-full items-center justify-between border-b px-8">
         <div className="text-2xl font-light">Latest Stories</div>
         <FeedActions />
+
       </div>
-      <LLMForm />
+      <LLMForm/>
+
     </div>
   );
 };

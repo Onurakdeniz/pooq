@@ -48,34 +48,42 @@ const ProfileContent = async ({
 
   const feedData = await fetchFeedData();
 
+  const renderEmptyState = () => (
+    <div className="flex items-center justify-center h-64">
+      <p className="text-primary/50 text-lg mt-20">No {tab} available</p>
+    </div>
+  );
+
   const renderFeed = () => {
-    if (!feedData) return null;
+    if (!feedData) return renderEmptyState();
 
     if (feedType === "STORY" && "items" in feedData && "nextCursor" in feedData) {
-      return (
+      return feedData.items.length > 0 ? (
         <StoryList
           initialStories={feedData.items as Story[]}
           searchParams={searchParams}
           initialCursor={feedData.nextCursor ? String(feedData.nextCursor) : null}
         />
-      );
+      ) : renderEmptyState();
     }
 
     if (feedType === "POST" && "items" in feedData && "nextCursor" in feedData) {
-      return (
+      return feedData.items.length > 0 ? (
         <ProfilePostList
           initialPosts={feedData.items as PostWithStory[]}
           searchParams={searchParams}
           initialCursor={feedData.nextCursor ? String(feedData.nextCursor) : null}
         />
-      );
+      ) : renderEmptyState();
     }
 
     if (feedType === "TAG" && Array.isArray(feedData)) {
-      return <div> </div>;
+      return feedData.length > 0 ? (
+        <ProfileTagList tags={feedData as Tag[]} />
+      ) : renderEmptyState();
     }
-
-    return null;
+    
+    return renderEmptyState();
   };
 
   return (
