@@ -28,6 +28,20 @@ model Author {
   updatedAt DateTime @updatedAt
 }
 
+enum StoryType {
+  DEFINITION
+  FACTOID
+  DEEP_DIVE
+  QUERY
+  OPINION
+  EVENT
+  REVIEW
+  CHALLENGE
+  OBSERVATION
+  CONFLICT
+  GUIDANCE
+}
+
 model Story {
   id          Int               @id @default(autoincrement())
   hash        String            @unique
@@ -42,24 +56,25 @@ model Story {
   author      Author            @relation(fields: [authorId], references: [fid], onDelete: Cascade)
   categories  CategoryOnStory[]
   tags        TagOnStory[]
+
 }
 
 model Post {
-  id             Int         @id @default(autoincrement())
-  hash           String      @unique
-  authorId       Int
-  text           String
-  storyId        Int
-  isSpamSuspected Boolean?   
-  isStoryRelated Boolean?       
-  isProcessed    Boolean     @default(false)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  extraction     Extraction?
-  bookmarks      Bookmark[]
-  author         Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  story          Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags           TagOnPost[]
+  id              Int         @id @default(autoincrement())
+  hash            String      @unique
+  authorId        Int
+  text            String
+  storyId         Int
+  isSpamSuspected Boolean?
+  isStoryRelated  Boolean?
+  isProcessed     Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  extraction      Extraction?
+  bookmarks       Bookmark[]
+  author          Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
+  story           Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tags            TagOnPost[]
 }
 
 model Extraction {
@@ -67,7 +82,10 @@ model Extraction {
   storyId          Int?                   @unique
   postId           Int?                   @unique
   title            String
-  type             CastType
+  titleExplanation String?
+  view      String?
+  castType          CastType
+  type        StoryType?
   mentionedStories String[]
   post             Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
   story            Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)

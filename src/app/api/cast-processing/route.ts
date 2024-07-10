@@ -1,13 +1,13 @@
 export const maxDuration = 60;
 
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { createHmac } from 'crypto';
-import { PrismaClient } from '@prisma/client';
-import type { CastFull } from '@/types/';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { createHmac } from "crypto";
+import { PrismaClient, StoryType } from "@prisma/client";
+import type { CastFull } from "@/types/";
 import type { CreateExtractionPayload } from "@/data/story";
 import { createExtractionById } from "@/data/story";
-import { setTimeout } from 'timers/promises';
+import { setTimeout } from "timers/promises";
 
 const prisma = new PrismaClient();
 
@@ -36,7 +36,6 @@ interface EmbeddingPayload {
 interface EmbeddingResult {
   success: boolean;
   message: string;
-  // Add more specific fields as needed
 }
 
 interface RelevanceCheckResult {
@@ -44,27 +43,35 @@ interface RelevanceCheckResult {
   body: string;
 }
 
+interface RelevanceCheckBody {
+  result?: {
+    isPostRelevant?: boolean;
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.text();
 
-    const sig = req.headers.get('X-Neynar-Signature');
+    const sig = req.headers.get("X-Neynar-Signature");
     if (!sig) {
-      throw new Error('Neynar signature missing from request headers');
+      throw new Error("Neynar signature missing from request headers");
     }
 
     const webhookSecret = process.env.NEYNAR_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      throw new Error('Make sure you set NEYNAR_WEBHOOK_SECRET in your .env file');
+      throw new Error(
+        "Make sure you set NEYNAR_WEBHOOK_SECRET in your .env file",
+      );
     }
 
-    const hmac = createHmac('sha512', webhookSecret);
+    const hmac = createHmac("sha512", webhookSecret);
     hmac.update(body);
 
-    const generatedSignature = hmac.digest('hex');
+    const generatedSignature = hmac.digest("hex");
     const isValid = generatedSignature === sig;
     if (!isValid) {
-      throw new Error('Invalid webhook signature');
+      throw new Error("Invalid webhook signature");
     }
 
     let hookData: WebhookData;
@@ -74,39 +81,43 @@ export async function POST(req: NextRequest) {
       console.log("Received webhook data:", JSON.stringify(hookData, null, 2));
     } catch (error) {
       console.error("Error parsing JSON:", error);
-      throw new Error('Invalid JSON in request body');
+      throw new Error("Invalid JSON in request body");
     }
 
-    // Validate the structure
     if (!hookData.type || !hookData.data?.hash || !hookData.data?.text) {
-      console.error("Invalid data structure. Received:", JSON.stringify(hookData, null, 2));
-      throw new Error('Invalid structure for WebhookData: missing required fields');
+      console.error(
+        "Invalid data structure. Received:",
+        JSON.stringify(hookData, null, 2),
+      );
+      throw new Error(
+        "Invalid structure for WebhookData: missing required fields",
+      );
     }
 
     const { data } = hookData;
 
-    // Determine the cast type
-    let castType: 'story' | 'post' | 'ignore' = 'ignore';
+    let castType: "story" | "post" | "ignore" = "ignore";
 
     if (data.hash === data.thread_hash) {
-      castType = 'story';
+      castType = "story";
     } else {
-      // Check if parent_hash is in the story database
       const storyExists = await prisma.story.findUnique({
-        where: { hash: data.parent_hash! }
+        where: { hash: data.parent_hash! },
       });
-    
+
       if (storyExists) {
-        castType = 'post';
+        castType = "post";
       }
     }
 
-    if (castType === 'ignore') {
-      console.log('Ignoring cast:', data.hash);
-      return NextResponse.json({ success: true, message: 'Cast processing ignored' });
+    if (castType === "ignore") {
+      console.log("Ignoring cast:", data.hash);
+      return NextResponse.json({
+        success: true,
+        message: "Cast processing ignored",
+      });
     }
 
-    // Check if the author exists, if not create a new author
     let author = await prisma.author.findUnique({
       where: { fid: data.author.fid },
     });
@@ -123,133 +134,142 @@ export async function POST(req: NextRequest) {
     let savedItem;
 
     switch (castType) {
-      case 'story':
-        // Check if the story already exists
-        savedItem = await prisma.story.findUnique({
+      case "story":
+        savedItem = await prisma.story.upsert({
           where: { hash: data.hash },
+          update: {
+            text: data.text,
+            authorId: author.fid,
+            isProcessed: false,
+          },
+          create: {
+            hash: data.hash,
+            text: data.text,
+            authorId: author.fid,
+            isProcessed: false,
+          },
         });
-
-        if (savedItem) {
-          // If it exists, update it
-          savedItem = await prisma.story.update({
-            where: { hash: data.hash },
-            data: {
-              text: data.text,
-              authorId: author.fid,
-              isProcessed: false,
-            },
-          });
-        } else {
-          // If it doesn't exist, create a new one
-          savedItem = await prisma.story.create({
-            data: {
-              hash: data.hash,
-              text: data.text,
-              authorId: author.fid,
-              isProcessed: false,
-            },
-          });
-        }
         break;
 
-      case 'post':
+      case "post":
         const parentStory = await prisma.story.findUnique({
-          where: { hash: data.thread_hash }
+          where: { hash: data.thread_hash },
         });
 
         if (!parentStory) {
-          throw new Error('Parent story not found');
+          throw new Error("Parent story not found");
         }
 
-        // Check if the post already exists
-        savedItem = await prisma.post.findUnique({
+        savedItem = await prisma.post.upsert({
           where: { hash: data.hash },
+          update: {
+            text: data.text,
+            authorId: author.fid,
+            isProcessed: false,
+            storyId: parentStory.id,
+          },
+          create: {
+            hash: data.hash,
+            text: data.text,
+            authorId: author.fid,
+            isProcessed: false,
+            storyId: parentStory.id,
+          },
         });
-
-        if (savedItem) {
-          // If it exists, update it
-          savedItem = await prisma.post.update({
-            where: { hash: data.hash },
-            data: {
-              text: data.text,
-              authorId: author.fid,
-              isProcessed: false,
-              storyId: parentStory.id,
-            },
-          });
-        } else {
-          // If it doesn't exist, create a new one
-          savedItem = await prisma.post.create({
-            data: {
-              hash: data.hash,
-              text: data.text,
-              authorId: author.fid,
-              isProcessed: false,
-              storyId: parentStory.id,
-            },
-          });
-        }
         break;
     }
 
     console.log(`Saved ${castType}:`, savedItem);
 
-    const fleekprocessing = 'https://full-napkin-square.functions.on-fleek.app';
+    const fleekprocessing = "https://full-napkin-square.functions.on-fleek.app";
 
-    // Perform the LLM request
     const llmResponse = await fetch(fleekprocessing, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         id: savedItem.id,
         text: savedItem.text,
-        type: castType.toUpperCase(),
-        hash: savedItem.hash
+        castType: castType.toUpperCase(),
+        hash: savedItem.hash,
       }),
     });
-    
+
     if (!llmResponse.ok) {
       throw new Error(`Failed to process ${castType} with LLM`);
     }
-    
+
     const llmResult = (await llmResponse.json()) as LLMResponse;
-    
-    console.log('LLM Result:', llmResult);
-    
-    await createExtractionById(llmResult.body);
+
+    console.log("LLM Result:", llmResult);
+
+    // Prepare the extraction payload
+    const extractionPayload: CreateExtractionPayload = {
+      id: savedItem.id,
+      hash: savedItem.hash,
+      castType: castType,
+      title: llmResult.body.title,
+      storyType: llmResult.body.storyType,
+      tags: llmResult.body.tags || [],
+      entities: llmResult.body.entities || [],
+    };
+
+    // Add optional fields if they exist in the LLM result
+    if (llmResult.body.titleExplanation) {
+      extractionPayload.titleExplanation = llmResult.body.titleExplanation;
+    }
+
+    if (llmResult.body.view) {
+      extractionPayload.view = llmResult.body.view;
+    }
+
+    if (llmResult.body.mentionedStories) {
+      extractionPayload.mentionedStories = llmResult.body.mentionedStories;
+    }
+
+    if (llmResult.body.category) {
+      extractionPayload.category = llmResult.body.category;
+    }
+
+    // Create the extraction
+    await createExtractionById(extractionPayload);
 
     const embeddingResult = await processEmbedding({
       data: {
         id: savedItem.hash,
         text: savedItem.text,
         hash: savedItem.hash,
-        parentHash: castType === 'post' && data.parent_hash ? data.parent_hash : undefined
+        parentHash:
+          castType === "post" && data.parent_hash
+            ? data.parent_hash
+            : undefined,
       },
       castType,
-      llmResult
+      llmResult,
     });
 
     console.log("embeddingResult", embeddingResult);
-    
+
     return NextResponse.json({
       success: true,
       llmResult,
       savedItem,
-      embeddingResult
+      embeddingResult,
     });
-    
   } catch (error: unknown) {
-    console.error('Error processing cast:', error);
-
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+    console.error("Error processing cast:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }
-} 
+}
+
 async function processEmbedding(params: {
   data: {
     id: string;
@@ -263,25 +283,26 @@ async function processEmbedding(params: {
   try {
     const { data, castType, llmResult } = params;
     const fleekembedding = "https://refined-laptop-late.functions.on-fleek.app";
-    const relevanceCheckUrl = "https://whining-planet-early.functions.on-fleek.app";
-    
+    const relevanceCheckUrl =
+      "https://whining-planet-early.functions.on-fleek.app";
+
     const embeddingPayload: EmbeddingPayload = {
       type: castType.toUpperCase(),
       hash: data.hash,
       text: data.text,
       tags: llmResult.body.tags,
       entities: llmResult.body.entities,
-      category: llmResult.body.category
+      category: llmResult.body.category ?? [],
     };
-    
-    if (castType.toLowerCase() === 'post' && data.parentHash) {
+
+    if (castType.toLowerCase() === "post" && data.parentHash) {
       embeddingPayload.storyId = data.parentHash;
     }
-    
+
     const embedding = await fetch(fleekembedding, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(embeddingPayload),
     });
@@ -290,48 +311,43 @@ async function processEmbedding(params: {
       throw new Error(`Failed to process ${castType} with LLM`);
     }
 
-    const embeddingResult = await embedding.json() as EmbeddingResult;
-    console.log('Embedding processed successfully');
+    const embeddingResult = (await embedding.json()) as EmbeddingResult;
+    console.log("Embedding processed successfully");
 
- 
     await setTimeout(5000);
 
-    // If the cast type is 'post', check for relevance
-    if (castType.toLowerCase() === 'post' && data.parentHash) {
+    if (castType.toLowerCase() === "post" && data.parentHash) {
       const relevanceCheck = await fetch(relevanceCheckUrl, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           storyHash: data.parentHash,
-          postHash: data.hash
+          postHash: data.hash,
         }),
       });
 
       if (!relevanceCheck.ok) {
-        throw new Error('Failed to check post relevance');
+        throw new Error("Failed to check post relevance");
       }
 
-      const relevanceResult = await relevanceCheck.json() as RelevanceCheckResult;
-      console.log('Relevance check result:', relevanceResult);
-      
-      /* eslint-disable */
+      const relevanceResult =
+        (await relevanceCheck.json()) as RelevanceCheckResult;
+      console.log("Relevance check result:", relevanceResult);
+
       if (relevanceResult.body) {
-        const parsedBody = JSON.parse(relevanceResult.body);
+        const parsedBody = JSON.parse(relevanceResult.body) as RelevanceCheckBody;
         if (parsedBody.result?.isPostRelevant) {
-          // Update the post in the database to set isStoryRelated to true
           await prisma.post.update({
             where: { hash: data.hash },
             data: { isStoryRelated: true },
           });
         }
       }
-      /* eslint-enable */
     }
 
     return embeddingResult;
-
   } catch (error) {
     console.error("Error processing embedding:", error);
     throw error;

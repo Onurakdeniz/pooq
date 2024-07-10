@@ -1,36 +1,50 @@
-import { Prisma, PrismaClient, CastType } from '@prisma/client';
+import { Prisma, PrismaClient, CastType, StoryType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
+  storyType: StoryType;
   id: number;
-  type: CastType;
+  hash: string;
+  castType: "story" | "post";
   title: string;
-  category: string[];
+  titleExplanation?: string;
+  view?: string;
+  type?: StoryType;
+  mentionedStories?: string[];
+  category?: string[];
   tags: string[];
   entities: string[];
 }
 
-export async function createExtractionById(payload: CreateExtractionPayload): Promise<void> {
-  const { id, title, category, tags, entities, type } = payload;
+export async function createExtractionById(
+  payload: CreateExtractionPayload,
+): Promise<void> {
+  const {
+    id,
+    hash,
+    castType,
+    title,
+    titleExplanation,
+    view,
+    type,
+    mentionedStories,
+    category,
+    tags,
+    entities,
+  } = payload;
 
   try {
-    const extractionData = {
+    const extractionData: Prisma.ExtractionCreateInput = {
+      castType: castType.toUpperCase() as CastType,
       title,
+      titleExplanation,
+      view,
       type,
+      mentionedStories: mentionedStories ?? [],
       entities: {
         create: entities.map((name) => ({
           entity: {
-            connectOrCreate: {
-              where: { name },
-              create: { name },
-            },
-          },
-        })),
-      },
-      categories: {
-        create: category.map((name) => ({
-          category: {
             connectOrCreate: {
               where: { name },
               create: { name },
@@ -48,24 +62,49 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
           },
         })),
       },
+      categories:
+        category && category.length > 0
+          ? {
+              create: category.map((name) => ({
+                category: {
+                  connectOrCreate: {
+                    where: { name },
+                    create: { name },
+                  },
+                },
+              })),
+            }
+          : undefined,
     };
 
-    if (type === 'STORY') {
+    if (castType === "story") {
       await prisma.story.update({
         where: { id },
         data: {
+          hash,
           isProcessed: true,
           extraction: { create: extractionData },
-          categories: {
-            connectOrCreate: category.map((name) => ({
-              where: { categoryId_storyId: { categoryId: name, storyId: id } },
-              create: { category: { connectOrCreate: { where: { name }, create: { name } } } },
-            })),
-          },
+          categories:
+            category && category.length > 0
+              ? {
+                  connectOrCreate: category.map((name) => ({
+                    where: {
+                      categoryId_storyId: { categoryId: name, storyId: id },
+                    },
+                    create: {
+                      category: {
+                        connectOrCreate: { where: { name }, create: { name } },
+                      },
+                    },
+                  })),
+                }
+              : undefined,
           tags: {
             connectOrCreate: tags.map((name) => ({
               where: { tagId_storyId: { tagId: name, storyId: id } },
-              create: { tag: { connectOrCreate: { where: { name }, create: { name } } } },
+              create: {
+                tag: { connectOrCreate: { where: { name }, create: { name } } },
+              },
             })),
           },
         },
@@ -81,16 +120,19 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
           tags: true,
         },
       });
-    } else if (type === 'POST') {
+    } else if (castType === "post") {
       await prisma.post.update({
         where: { id },
         data: {
+          hash,
           isProcessed: true,
           extraction: { create: extractionData },
           tags: {
             connectOrCreate: tags.map((name) => ({
               where: { tagId_postId: { tagId: name, postId: id } },
-              create: { tag: { connectOrCreate: { where: { name }, create: { name } } } },
+              create: {
+                tag: { connectOrCreate: { where: { name }, create: { name } } },
+              },
             })),
           },
         },
@@ -106,15 +148,15 @@ export async function createExtractionById(payload: CreateExtractionPayload): Pr
         },
       });
     } else {
-      throw new Error(`Invalid type: ${type as string}`);
+      throw new Error(`Invalid castType: ${castType as string}`);
     }
 
-    console.log(`Extraction created and ${type.toLowerCase()} updated for id:`, id);
+    console.log(`Extraction created and ${castType} updated for id:`, id);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error('Prisma error:', error.message);
+      console.error("Prisma error:", error.message);
     } else {
-      console.error('Error creating extraction:', error);
+      console.error("Error creating extraction:", error);
     }
     throw error;
   }
