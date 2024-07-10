@@ -29,7 +29,7 @@ interface EmbeddingPayload {
   text: string;
   tags: string[];
   entities: string[];
-  category: string[];
+  category: string;
   storyId?: string;
 }
 
@@ -203,36 +203,37 @@ export async function POST(req: NextRequest) {
     const llmResult = (await llmResponse.json()) as LLMResponse;
 
     console.log("LLM Result:", llmResult);
-
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id,
       hash: savedItem.hash,
-      castType: castType,
+      castType: llmResult.body.castType ,
       title: llmResult.body.title,
-      tags: llmResult.body.tags || [],
-      entities: llmResult.body.entities || [],
+      tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
+      entities: Array.isArray(llmResult.body.entities) ? llmResult.body.entities : [],
     };
-
+    
     if (llmResult.body.type) {
-      extractionPayload.type = llmResult.body.type;
+      extractionPayload.type = llmResult.body.type  
     }
-
-    // Add optional fields if they exist in the LLM result
+    
     if (llmResult.body.description) {
       extractionPayload.description = llmResult.body.description;
     }
-
+    
     if (llmResult.body.view) {
       extractionPayload.view = llmResult.body.view;
     }
-
+    
     if (llmResult.body.mentionedStories) {
-      extractionPayload.mentionedStories = llmResult.body.mentionedStories;
+      extractionPayload.mentionedStories = Array.isArray(llmResult.body.mentionedStories) 
+        ? llmResult.body.mentionedStories 
+        : [];
     }
-
+    
     if (llmResult.body.category) {
-      extractionPayload.category = llmResult.body.category;
+      extractionPayload.category = llmResult.body.category;  
     }
+    
 
     // Create the extraction
     await createExtractionById(extractionPayload);
@@ -293,7 +294,7 @@ async function processEmbedding(params: {
       text: data.text,
       tags: llmResult.body.tags,
       entities: llmResult.body.entities,
-      category: llmResult.body.category ?? [],
+      category: llmResult.body.category ?? ""
     };
 
     if (castType.toLowerCase() === "post" && data.parentHash) {

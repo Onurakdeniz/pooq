@@ -11,7 +11,7 @@ export interface CreateExtractionPayload {
   description?: string;
   view?: string;
   mentionedStories?: string[];
-  category?: string[];
+  category?: string;
   tags: string[];
   entities: string[];
 }
@@ -28,7 +28,7 @@ export async function createExtractionById(
     view,
     type,
     mentionedStories = [],
-    category = [],
+    category,
     tags = [],
     entities = [],
   } = payload;
@@ -67,19 +67,18 @@ export async function createExtractionById(
           },
         })),
       },
-      categories:
-        category && category.length > 0
-          ? {
-              create: category.map((name) => ({
-                category: {
-                  connectOrCreate: {
-                    where: { name },
-                    create: { name },
-                  },
+      categories: category
+        ? {
+            create: {
+              category: {
+                connectOrCreate: {
+                  where: { name: category },
+                  create: { name: category },
                 },
-              })),
-            }
-          : undefined,
+              },
+            },
+          }
+        : undefined,
     };
 
     if (castType === "STORY") {
@@ -89,21 +88,20 @@ export async function createExtractionById(
           hash,
           isProcessed: true,
           extraction: { create: extractionData },
-          categories:
-            category && category.length > 0
-              ? {
-                  connectOrCreate: category.map((name) => ({
-                    where: {
-                      categoryId_storyId: { categoryId: name, storyId: id },
+          categories: category
+            ? {
+                connectOrCreate: {
+                  where: {
+                    categoryId_storyId: { categoryId: category, storyId: id },
+                  },
+                  create: {
+                    category: {
+                      connectOrCreate: { where: { name: category }, create: { name: category } },
                     },
-                    create: {
-                      category: {
-                        connectOrCreate: { where: { name }, create: { name } },
-                      },
-                    },
-                  })),
-                }
-              : undefined,
+                  },
+                },
+              }
+            : undefined,
           tags: {
             connectOrCreate: tags.map((name) => ({
               where: { tagId_storyId: { tagId: name, storyId: id } },
