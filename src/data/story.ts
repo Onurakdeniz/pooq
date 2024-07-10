@@ -8,7 +8,7 @@ export interface CreateExtractionPayload {
   hash: string;
   castType: "story" | "post";
   title: string;
-  titleExplanation?: string;
+  description?: string;
   view?: string;
   type?: StoryType;
   mentionedStories?: string[];
@@ -25,7 +25,7 @@ export async function createExtractionById(
     hash,
     castType,
     title,
-    titleExplanation,
+    description,
     view,
     type,
     mentionedStories,
@@ -38,7 +38,7 @@ export async function createExtractionById(
     const extractionData: Prisma.ExtractionCreateInput = {
       castType: castType.toUpperCase() as CastType,
       title,
-      titleExplanation,
+      description,
       view,
       type,
       mentionedStories: mentionedStories ?? [],

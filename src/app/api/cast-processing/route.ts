@@ -213,11 +213,13 @@ export async function POST(req: NextRequest) {
       storyType: llmResult.body.storyType,
       tags: llmResult.body.tags || [],
       entities: llmResult.body.entities || [],
+
+
     };
 
     // Add optional fields if they exist in the LLM result
-    if (llmResult.body.titleExplanation) {
-      extractionPayload.titleExplanation = llmResult.body.titleExplanation;
+    if (llmResult.body.description) {
+      extractionPayload.description = llmResult.body.description;
     }
 
     if (llmResult.body.view) {

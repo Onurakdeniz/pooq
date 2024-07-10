@@ -82,7 +82,7 @@ model Extraction {
   storyId          Int?                   @unique
   postId           Int?                   @unique
   title            String
-  titleExplanation String?
+  description String?
   view      String?
   castType          CastType
   type        StoryType?
