@@ -3,7 +3,7 @@ export const maxDuration = 60;
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { createHmac } from "crypto";
-import { PrismaClient, StoryType } from "@prisma/client";
+import { Prisma, PrismaClient, CastType, StoryType } from "@prisma/client";
 import type { CastFull } from "@/types/";
 import type { CreateExtractionPayload } from "@/data/story";
 import { createExtractionById } from "@/data/story";
@@ -96,17 +96,17 @@ export async function POST(req: NextRequest) {
 
     const { data } = hookData;
 
-    let castType: "story" | "post" | "ignore" = "ignore";
+    let castType: "STORY" | "POST" | "ignore" = "ignore";
 
     if (data.hash === data.thread_hash) {
-      castType = "story";
+      castType = "STORY";
     } else {
       const storyExists = await prisma.story.findUnique({
         where: { hash: data.parent_hash! },
       });
 
       if (storyExists) {
-        castType = "post";
+        castType = "POST";
       }
     }
 
@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     let savedItem;
 
     switch (castType) {
-      case "story":
+      case "STORY":
         savedItem = await prisma.story.upsert({
           where: { hash: data.hash },
           update: {
@@ -151,7 +151,7 @@ export async function POST(req: NextRequest) {
         });
         break;
 
-      case "post":
+      case "POST":
         const parentStory = await prisma.story.findUnique({
           where: { hash: data.thread_hash },
         });
@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
       hash: savedItem.hash,
       castType: castType,
       title: llmResult.body.title,
-      storyType: llmResult.body.storyType,
+      type: llmResult.body.type ,
       tags: llmResult.body.tags || [],
       entities: llmResult.body.entities || [],
 
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
         text: savedItem.text,
         hash: savedItem.hash,
         parentHash:
-          castType === "post" && data.parent_hash
+          castType === "POST" && data.parent_hash
             ? data.parent_hash
             : undefined,
       },
