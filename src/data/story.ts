@@ -3,8 +3,7 @@ import { Prisma, PrismaClient, CastType, StoryType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
- 
-  type: StoryType;
+  type?: StoryType;
   id: number;
   hash: string;
   castType: "STORY" | "POST";
@@ -16,8 +15,9 @@ export interface CreateExtractionPayload {
   tags: string[];
   entities: string[];
 }
+
 export async function createExtractionById(
-  payload: CreateExtractionPayload
+  payload: CreateExtractionPayload,
 ): Promise<void> {
   const {
     id,
@@ -27,11 +27,18 @@ export async function createExtractionById(
     description,
     view,
     type,
-    mentionedStories,
-    category,
-    tags,
-    entities,
+    mentionedStories = [],
+    category = [],
+    tags = [],
+    entities = [],
   } = payload;
+
+  // Log the types of the variables
+  console.log("mentionedStories type:", typeof mentionedStories);
+  console.log("category type:", typeof category);
+  console.log("tags type:", typeof tags);
+  console.log("entities type:", typeof entities);
+
   try {
     const extractionData: Prisma.ExtractionCreateInput = {
       castType: castType.toUpperCase() as CastType,

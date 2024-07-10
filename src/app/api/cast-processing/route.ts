@@ -204,18 +204,18 @@ export async function POST(req: NextRequest) {
 
     console.log("LLM Result:", llmResult);
 
-    // Prepare the extraction payload
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id,
       hash: savedItem.hash,
       castType: castType,
       title: llmResult.body.title,
-      type: llmResult.body.type ,
       tags: llmResult.body.tags || [],
       entities: llmResult.body.entities || [],
-
-
     };
+
+    if (llmResult.body.type) {
+      extractionPayload.type = llmResult.body.type;
+    }
 
     // Add optional fields if they exist in the LLM result
     if (llmResult.body.description) {
@@ -236,7 +236,6 @@ export async function POST(req: NextRequest) {
 
     // Create the extraction
     await createExtractionById(extractionPayload);
-
     const embeddingResult = await processEmbedding({
       data: {
         id: savedItem.hash,
@@ -339,7 +338,9 @@ async function processEmbedding(params: {
       console.log("Relevance check result:", relevanceResult);
 
       if (relevanceResult.body) {
-        const parsedBody = JSON.parse(relevanceResult.body) as RelevanceCheckBody;
+        const parsedBody = JSON.parse(
+          relevanceResult.body,
+        ) as RelevanceCheckBody;
         if (parsedBody.result?.isPostRelevant) {
           await prisma.post.update({
             where: { hash: data.hash },
