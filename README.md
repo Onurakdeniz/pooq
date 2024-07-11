@@ -2,7 +2,7 @@
 
 ## FLEEK FUNCTIONS for LLM CAST PROCESSING: BOOSTING CONTENT DISCOVERABILITY
 
-## This is ONE EXAMPLE of how we use FLEEK FUNCTIONS for CONTENT DISCOVERABILITY:
+### This is ONE EXAMPLE of how we use FLEEK FUNCTIONS for CONTENT DISCOVERABILITY:
 ## Overview
 
 This project demonstrates an innovative approach to processing and analyzing content from Farcaster using Fleek Functions. The goal is to enhance content discoverability, improve categorization, and enable more sophisticated content analysis.
