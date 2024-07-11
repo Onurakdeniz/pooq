@@ -202,18 +202,23 @@ export async function POST(req: NextRequest) {
 
     const llmResult = (await llmResponse.json()) as LLMResponse;
 
-    console.log("LLM Result:", llmResult);
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id,
       hash: savedItem.hash,
-      castType: llmResult.body.castType ,
-      title: llmResult.body.title,
+      castType: llmResult.body.castType,
       tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
       entities: Array.isArray(llmResult.body.entities) ? llmResult.body.entities : [],
+      referenceWords: Array.isArray(llmResult.body.referenceWords) ? llmResult.body.referenceWords : [],
+      referencePhrases: Array.isArray(llmResult.body.referencePhrases) ? llmResult.body.referencePhrases : [],
     };
     
+    if (llmResult.body.title) {
+      extractionPayload.title = llmResult.body.title;
+    }
+    
+   
     if (llmResult.body.type) {
-      extractionPayload.type = llmResult.body.type  
+      extractionPayload.type = llmResult.body.type;
     }
     
     if (llmResult.body.description) {
@@ -224,19 +229,12 @@ export async function POST(req: NextRequest) {
       extractionPayload.view = llmResult.body.view;
     }
     
-    if (llmResult.body.mentionedStories) {
-      extractionPayload.mentionedStories = Array.isArray(llmResult.body.mentionedStories) 
-        ? llmResult.body.mentionedStories 
-        : [];
-    }
-    
     if (llmResult.body.category) {
-      extractionPayload.category = llmResult.body.category;  
+      extractionPayload.category = llmResult.body.category;
     }
     
-
-    // Create the extraction
     await createExtractionById(extractionPayload);
+
     const embeddingResult = await processEmbedding({
       data: {
         id: savedItem.hash,

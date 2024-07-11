@@ -88,7 +88,35 @@ model Extraction {
   categories  CategoryOnExtraction[]
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
+  referenceWords   ReferenceWord[]
+  referencePhrases ReferencePhrase[]
 }
+model ReferencePhrase {
+  id           String     @id @default(uuid())
+  phrase       String
+  source       String?
+  extractionId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+
+  @@unique([phrase, extractionId])
+}
+
+model ReferenceWord {
+  id           String     @id @default(uuid())
+  word         String
+  source       String?
+  extractionId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+
+  @@unique([word, extractionId])
+}
+
+ 
+
 
 model Bookmark {
   id        String   @id @default(uuid())

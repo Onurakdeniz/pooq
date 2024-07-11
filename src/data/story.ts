@@ -7,13 +7,14 @@ export interface CreateExtractionPayload {
   id: string;
   hash: string;
   castType: "STORY" | "POST";
-  title: string;
+  title?: string;
   description?: string;
   view?: string;
-  mentionedStories?: string[];
   category?: string;
   tags: string[];
   entities: string[];
+  referenceWords: { word: string; source: string }[];
+  referencePhrases: { phrase: string; source: string }[];
 }
 
 export async function createExtractionById(
@@ -27,20 +28,16 @@ export async function createExtractionById(
     description,
     view,
     type,
-    mentionedStories = [],
     category,
     tags = [],
     entities = [],
+    referenceWords = [],
+    referencePhrases = [],
   } = payload;
-
-  console.log("mentionedStories type:", typeof mentionedStories);
-  console.log("category type:", typeof category);
-  console.log("tags type:", typeof tags);
-  console.log("entities type:", typeof entities);
 
   try {
     const extractionData: Prisma.ExtractionCreateInput = {
-      title,
+      title: title ?? '',
       description,
       view,
       type,
@@ -76,6 +73,18 @@ export async function createExtractionById(
             },
           }
         : undefined,
+      referenceWords: {
+        create: referenceWords.map(({ word, source }) => ({
+          word,
+          source,
+        })),
+      },
+      referencePhrases: {
+        create: referencePhrases.map(({ phrase, source }) => ({
+          phrase,
+          source,
+        })),
+      },
     };
 
     if (castType === "STORY") {
@@ -92,6 +101,8 @@ export async function createExtractionById(
               entities: true,
               categories: true,
               tags: true,
+              referenceWords: true,
+              referencePhrases: true,
             },
           },
         },
@@ -110,6 +121,8 @@ export async function createExtractionById(
               entities: true,
               categories: true,
               tags: true,
+              referenceWords: true,
+              referencePhrases: true,
             },
           },
         },
