@@ -1,5 +1,5 @@
 import React from "react";
-import { TrendingItem } from "@/types/type";
+import { TrendingItem } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { api } from "@/trpc/server";
 import { TrendingStoryItem } from "./item";

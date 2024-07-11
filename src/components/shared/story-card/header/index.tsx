@@ -1,7 +1,6 @@
+import React from "react";
+import Link from "next/link";
 import ProfileAvatar from "@/components/shared/avatar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, Info } from "lucide-react";
 import {
   Tooltip,
@@ -9,65 +8,94 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-import React from "react";
-import Tag from "@/components/shared/tag";
-import { Author as Profile ,  CastViewerContext} from "@/types/type";
+import { Author } from "@/types/";
 import BookmarkStory from "./bookmark";
-import Link from "next/link";
 import LikeButton from "./like";
+import { storyTypeIcons, storyTypeTooltips } from "@/lib/constants";
+import { StoryType } from "@prisma/client";
 
 interface IStoryHeader {
   id: string;
-  title: string;
-  author: Profile;
-  date: string;
+  title?: string;
+  author: Author;
+  timestamp: string;
   numberOfLikes: number;
   isBookmarked: boolean;
-  type: string;
-  viewer_context : CastViewerContext
+  cardType: string;
+  isLikedBuUserFid:boolean
+  type: StoryType | null | undefined;
 }
 
 const StoryHeader: React.FC<IStoryHeader> = ({
   id,
   title,
   author,
-  date,
+  timestamp,
   numberOfLikes,
   isBookmarked,
+  cardType,
+  isLikedBuUserFid,
   type,
-  viewer_context
 }) => {
+  const IconComponent = type ? storyTypeIcons[type] : null;
+
+  const renderIcon = () => {
+    if (IconComponent) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 p-1.5 dark:border-emerald-950">
+                <IconComponent
+                  className="text-emerald-600"
+                  strokeWidth={1.5}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{type && storyTypeTooltips[type]}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className=" flex w-full flex-col  ">
+    <div className="flex w-full flex-col">
       <div className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between text-primary/80">
-          {type === "FEED" ? (
+          {cardType === "FEED" ? (
             <Link href={`/story/${id}`} passHref>
-              <div className="line-clamp-2 flex w-full  text-lg font-semibold">
-                {title}
+              <div className="line-clamp-2 flex w-full items-center gap-2 text-lg font-semibold">
+                {renderIcon()}
+                <span> {title} </span>
               </div>
             </Link>
           ) : (
-            <div className="line-clamp-2 flex w-full text-lg font-semibold">
-              {title}
+            <div className="line-clamp-2 flex w-full items-center gap-2 text-lg font-semibold">
+              {renderIcon()}
+              <span> {title} </span>
             </div>
           )}
-        
         </div>
-        <div className="flex  items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <ProfileAvatar
-              profile={author}
+              author={author}
               size="LARGE"
               isMentioned={false}
-              date={date}
+              date={timestamp}
             />
           </div>
           <div className="flex items-center gap-2">
             <div className="flex gap-2 text-xs text-primary/60">
               <BookmarkStory id={id} isBookmarkedProp={isBookmarked} />
-              <LikeButton numberOfLikes={numberOfLikes} isLiked={viewer_context.liked} />
+              <LikeButton
+                numberOfLikes={numberOfLikes}
+                isLiked={isLikedBuUserFid}
+              />
             </div>
           </div>
         </div>

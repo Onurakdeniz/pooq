@@ -1,34 +1,90 @@
 import axios from 'axios';
-import { Author, Cast, Reactions, Story, ReactionUser, CastViewerContext } from '@/types/type';
 
-export interface NeynarResponse {
-  author: Omit<Author, 'numberOfStories' | 'numberOfPosts'>;
-  hash?: string;
-  cast: Omit<Cast, 'reactions'> & {
-    reactions: {
-      likes: ReactionUser[];
-      recasts: ReactionUser[];
-    };
-    viewer_context: CastViewerContext;
+// Types
+type VerifiedAddresses = {
+  eth_addresses: string[];
+  sol_addresses: string[];
+};
+
+type Profile = {
+  bio: {
+    text: string;
+    mentioned_profiles?: User[];
   };
-}
+};
 
-interface NeynarCast extends Omit<Cast, 'reactions'> {
+type ViewerContext = {
+  following: boolean;
+  followed_by: boolean;
+};
+
+type User = {
+  object: 'user';
+  fid: number;
+  custody_address: string;
+  username: string;
+  display_name: string;
+  pfp_url: string;
+  profile: Profile;
+  follower_count: number;
+  following_count: number;
+  verifications: string[];
+  verified_addresses: VerifiedAddresses;
+  active_status: string;
+  power_badge: boolean;
+  viewer_context?: ViewerContext;
+};
+
+type Embed = {
+  url: string;
+};
+
+type Reaction = {
+  fid: number;
+  fname: string;
+};
+
+type Reactions = {
+  likes_count: number;
+  recasts_count: number;
+  likes: Reaction[];
+  recasts: Reaction[];
+};
+
+type Cast = {
+  object: 'cast';
   hash: string;
-  author: Omit<Author, 'numberOfStories' | 'numberOfPosts'>;
-  reactions: {
-    likes: ReactionUser[];
-    recasts: ReactionUser[];
+  thread_hash: string;
+  parent_hash: string | null;
+  parent_url: string | null;
+  root_parent_url: string | null;
+  parent_author: {
+    fid: number | null;
   };
-}
+  author: User;
+  text: string;
+  timestamp: string;
+  embeds: Embed[];
+  reactions: Reactions;
+  replies: {
+    count: number;
+  };
+  channel: null;
+  mentioned_profiles: User[];
+  viewer_context: {
+    liked: boolean;
+    recasted: boolean;
+  };
+};
 
-interface NeynarApiResponse {
+type NeynarApiResponse = {
   result: {
-    casts: NeynarCast[];
+    casts: Cast[];
   };
-}
+};
 
-export async function fetchFromNeynarAPI(hashes: string[], userFid?: number): Promise<(NeynarResponse | undefined)[]> {
+// Function
+export async function fetchCastsFromNeynar(hashes: string[], userFid?: number): Promise<Cast[]> {
   const options = {
     method: 'GET',
     url: 'https://api.neynar.com/v2/farcaster/casts',
@@ -44,18 +100,9 @@ export async function fetchFromNeynarAPI(hashes: string[], userFid?: number): Pr
 
   try {
     const response = await axios.request<NeynarApiResponse>(options);
-    return hashes.map(hash => {
-      const cast = response.data.result.casts.find(c => c.hash === hash);
-      if (!cast) return undefined;
-
-      const { author, ...castWithoutAuthor } = cast;
-      return {
-        author,
-        cast: castWithoutAuthor,
-      };
-    });
+    return response.data.result.casts;
   } catch (error) {
-    console.error('Error fetching data from Neynar API:', error);
+    console.error('Error fetching casts from Neynar API:', error);
     throw error;
   }
 }

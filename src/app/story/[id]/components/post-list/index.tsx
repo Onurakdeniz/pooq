@@ -2,7 +2,7 @@
 import{ StoryPost} from "@/components/shared/post-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
-import { Post as IPost } from "@/types/type";
+import { Post as IPost } from "@/types";
 import { type TRPCClientErrorLike } from "@trpc/client";
 import { AppRouter } from '@/server/api/root';
 import InfiniteScroll from "react-infinite-scroll-component";

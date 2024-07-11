@@ -2,7 +2,7 @@ import { api } from "@/trpc/server";
 import StoryClient from "./story-client";
 
 export default async function StoryPage({ params }: { params: { id: string } }) {
-  const storyId = Number(params.id);
+  const storyId =params.id
   const initialData = await api.story.getStoryWithPosts({
     storyId,
     limit: 10,

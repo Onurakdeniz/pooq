@@ -28,15 +28,7 @@ export const tagRouter = createTRPCRouter({
                 description: true,
                 createdAt: true,
                 updatedAt: true,
-                childTags: {
-                  select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    createdAt: true,
-                    updatedAt: true,
-                  },
-                },
+                
               },
             },
           },

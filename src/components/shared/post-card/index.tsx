@@ -3,7 +3,7 @@ import ProfileAvatar from "@/components/shared/avatar";
 import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, Reply } from "lucide-react";
 import PostFooter from "./footer";
-import { Author, Cast, Post as PostType } from "@/types/type";
+import { Author, Post as PostType } from "@/types";
 
 
  
@@ -17,8 +17,8 @@ interface ProfilePostProps extends Omit<PostType, OptionalProps> {
   hash?: string;
   tags?: string[];
   entities?: string[];  
-  isBookmarkedByUser?: boolean;
-  isLikedByUser?: boolean;
+ 
+ 
 }
 
 const ProfilePost: React.FC<ProfilePostProps> = ({
@@ -27,12 +27,12 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
   storyTitle,
   text,
   author,
-  cast,
   hash,
   tags,
   entities,
-  isBookmarkedByUser,
-  isLikedByUser,
+  isBookmarkedByUserId,
+  isLikedBuUserFid,
+  timestamp
 }) => {
   return (
     <div className="flex flex-col gap-4 border-b p-8">
@@ -45,33 +45,33 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
       <div className="flex h-8 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <ProfileAvatar
-            profile={author}
+            author={author}
             size="LARGE"
             isMentioned={false}
-            date={cast?.timestamp}
+            date={timestamp}
           />
         </div>
       </div>
 
       <div className="flex w-full justify-between">
         <div className="flex w-full text-pretty pt-2 text-sm font-light text-primary/60">
-          {cast.text}
+          {text}
         </div>
       </div>
     </div>
   );
 };
 
-const StoryPost: React.FC<PostType> = ({ id, text, author, cast }) => {
+const StoryPost: React.FC<PostType> = ({ id, text, author, numberOfLikes , timestamp ,numberOfReplies}) => {
   return (
     <div className="flex flex-col gap-3 py-4  px-8 ">
       <div className="flex h-8 items-center justify-between gap-3 ">
         <div className="flex items-center gap-3">
           <ProfileAvatar
-            profile={author}
+            author={author}
             size="LARGE"
             isMentioned={false}
-            date={cast?.timestamp}
+            date={timestamp}
           />
         </div>
 
@@ -95,19 +95,19 @@ const StoryPost: React.FC<PostType> = ({ id, text, author, cast }) => {
             className="flex h-8 w-14 items-center  justify-between gap-1 border-none bg-accent px-2 text-xs font-bold hover:text-emerald-400"
           >
             <ChevronUp size={16} strokeWidth={1} />
-            <div>{cast.reactions.likes_count}</div>
+            <div>{numberOfLikes}</div>
           </Button>
         </div>
       </div>
 
       <div className="flex w-full justify-between rounded-2xl ">
         <div className="flex w-full text-pretty pt-2 text-sm font-light text-primary/60">
-          {cast.text}
+          {text}
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {cast.replies.count > 0 && (
-          <PostFooter replyCount={cast.replies.count} />
+        {numberOfReplies> 0 && (
+          <PostFooter replyCount={numberOfReplies} />
         )}
       </div>
     </div>

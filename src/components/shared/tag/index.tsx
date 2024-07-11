@@ -8,12 +8,11 @@ import { Plus, User } from "lucide-react";
 interface TagProps {
   id: string;
   name: string;
-  followers?: number;
   description?: string;
-  isFollowed?: boolean;
+
 }
 
-const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) => {
+const Tag: React.FC<TagProps> = ({ name,  description, }) => {
   const encodedTagName = encodeURIComponent(name);
 
   return (
@@ -35,7 +34,7 @@ const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) =
             <span>{name}</span>
             <div className="flex items-center gap-1 text-xs text-primary/40">
               <User className="h-4 w-4" />
-              <span>{followers}</span>
+          
             </div>
           </div>
 
@@ -44,7 +43,7 @@ const Tag: React.FC<TagProps> = ({ name, followers, description, isFollowed }) =
             variant="outline"
           >
             <Plus className="h-4 w-4" />
-            <span>{isFollowed ? 'Unfollow' : 'Follow'}</span>
+ 
           </Button>
         </div>
         <span className="text-xs text-primary/60">{description}</span>

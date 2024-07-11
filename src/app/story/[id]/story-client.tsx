@@ -7,17 +7,21 @@ import { PostList } from "./components/post-list";
 import StoryTop from "./components/story-top";
 import { TRPCClientErrorLike } from "@trpc/client";
 import { AppRouter } from "@/server/api/root";
-import { Post } from "@/types/type";
+import { Post, Tag } from "@/types";
 import StoryCard from "@/components/shared/story-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GetStoryWithPostsOutputType } from "@/schemas/schema";
+import { getStoryWithPostsOutputSchema } from "@/schemas";
+import { z } from "zod";
+import { StoryType } from "@prisma/client";
+
+type GetStoryWithPostsOutput = z.infer<typeof getStoryWithPostsOutputSchema>;
 
 export default function StoryClient({
   initialData,
   storyId,
 }: {
-  initialData: GetStoryWithPostsOutputType;
-  storyId: number;
+  initialData: GetStoryWithPostsOutput;
+  storyId: string;
 }) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.story.getStoryWithPosts.useInfiniteQuery(
@@ -46,18 +50,24 @@ export default function StoryClient({
           {story ? (
             <StoryCard
               key={story.id}
-              hash={story.hash}
               id={story.id}
-              type={"STORY"}
+              cardType={"STORY"}
+              hash={story.hash}
               author={story.author}
-              cast={story.cast}
               entities={story.entities}
-              mentionedStories={story.mentionedStories}
-              isBookmarked={story.isBookmarked}
+              isBookmarkedByUserId={story.isBookmarkedByUserId}
               title={story.title}
-              tags={story.tags}
-              numberofPosts={story.numberofPosts}
+              tags={story.tags as Tag[]}
+              numberOfPosts={story.numberOfPosts}
               categories={story.categories}
+              view={story.view}
+              description={story.description}
+              type={story.type }
+              numberOfLikes={story.numberOfLikes ?? 0}
+              text={story.text || ""} // Add this line
+              timestamp={story.timestamp || new Date().toISOString()} 
+              isLikedBuUserFid={story.isLikedBuUserFid || false} 
+ 
             />
           ) : null}
           <div className="border-b"></div>

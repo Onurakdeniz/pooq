@@ -1,10 +1,10 @@
-import { Prisma, PrismaClient, CastType, StoryType } from "@prisma/client";
+import { Prisma, PrismaClient, StoryType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
   type?: StoryType;
-  id: number;
+  id: string;
   hash: string;
   castType: "STORY" | "POST";
   title: string;
@@ -17,7 +17,7 @@ export interface CreateExtractionPayload {
 }
 
 export async function createExtractionById(
-  payload: CreateExtractionPayload,
+  payload: CreateExtractionPayload
 ): Promise<void> {
   const {
     id,
@@ -33,7 +33,6 @@ export async function createExtractionById(
     entities = [],
   } = payload;
 
-  // Log the types of the variables
   console.log("mentionedStories type:", typeof mentionedStories);
   console.log("category type:", typeof category);
   console.log("tags type:", typeof tags);
@@ -41,12 +40,10 @@ export async function createExtractionById(
 
   try {
     const extractionData: Prisma.ExtractionCreateInput = {
-      castType: castType.toUpperCase() as CastType,
       title,
       description,
       view,
       type,
-      mentionedStories: mentionedStories ?? [],
       entities: {
         create: entities.map((name) => ({
           entity: {
@@ -88,28 +85,6 @@ export async function createExtractionById(
           hash,
           isProcessed: true,
           extraction: { create: extractionData },
-          categories: category
-            ? {
-                connectOrCreate: {
-                  where: {
-                    categoryId_storyId: { categoryId: category, storyId: id },
-                  },
-                  create: {
-                    category: {
-                      connectOrCreate: { where: { name: category }, create: { name: category } },
-                    },
-                  },
-                },
-              }
-            : undefined,
-          tags: {
-            connectOrCreate: tags.map((name) => ({
-              where: { tagId_storyId: { tagId: name, storyId: id } },
-              create: {
-                tag: { connectOrCreate: { where: { name }, create: { name } } },
-              },
-            })),
-          },
         },
         include: {
           extraction: {
@@ -119,8 +94,6 @@ export async function createExtractionById(
               tags: true,
             },
           },
-          categories: true,
-          tags: true,
         },
       });
     } else if (castType === "POST") {
@@ -130,14 +103,6 @@ export async function createExtractionById(
           hash,
           isProcessed: true,
           extraction: { create: extractionData },
-          tags: {
-            connectOrCreate: tags.map((name) => ({
-              where: { tagId_postId: { tagId: name, postId: id } },
-              create: {
-                tag: { connectOrCreate: { where: { name }, create: { name } } },
-              },
-            })),
-          },
         },
         include: {
           extraction: {
@@ -147,7 +112,6 @@ export async function createExtractionById(
               tags: true,
             },
           },
-          tags: true,
         },
       });
     } else {

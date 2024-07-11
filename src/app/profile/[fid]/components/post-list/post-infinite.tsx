@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
-import { PostWithStory } from "@/types/type";
+import { PostWithStory } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import { ProfilePost } from "@/components/shared/post-card";
@@ -107,25 +107,29 @@ export const InfiniteScrollPostList: React.FC<InfiniteScrollPostListProps> = ({
 
   return (
     <>
-      <InfiniteScroll
-        dataLength={allPosts.length}
-        next={loadMore}
-        hasMore={!!hasNextPage}
-        loader={<SkeletonPostCard />}
-      
-      >
-        {allPosts.map((post) => (
-          <ProfilePost
-            key={post.id}
-            id={post.id}
-            storyId={post.storyId}
-            storyTitle={post.storyTitle}
-            text={post.text}
-            author={post.author}
-            cast={post.cast}
-          />
-        ))}
-      </InfiniteScroll>
+ <InfiniteScroll
+  dataLength={allPosts.length}
+  next={loadMore}
+  hasMore={!!hasNextPage}
+  loader={<SkeletonPostCard />}
+>
+{allPosts.map((post) => (
+  <ProfilePost
+    key={post.id}
+    id={post.id}
+    storyId={post.storyId}
+    storyTitle={post.storyTitle}
+    text={post.text}
+    author={post.author}
+    hash={post.hash}
+    isBookmarkedByUserId={post.isBookmarkedByUserId}
+    timestamp={post.timestamp}
+    isLikedBuUserFid={post.isLikedBuUserFid}
+    numberOfLikes={post.numberOfLikes}  
+    numberOfReplies={post.numberOfReplies}  
+  />
+))}
+</InfiniteScroll>
       <ConnectWalletDialog open={showDialog} onOpenChange={handleDialogClose} />
     </>
   );

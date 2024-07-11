@@ -1,10 +1,18 @@
 import React from 'react';
 import { cn } from "@/lib/utils";
-import {Tag} from "@/types/type"
+import {Tag} from "@/types"
  
  
+type FeedDataTag = {
+  id: string;
+  name: string;
+  description: string | null;
+ 
+ 
+};
+
 interface ProfileTagListProps {
-  tags: Tag[];
+  tags: FeedDataTag[];
 }
 
 const ProfileTagList: React.FC<ProfileTagListProps> = ({ tags }) => {

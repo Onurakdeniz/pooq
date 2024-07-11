@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { TrendingItem } from "@/types/type";
+import { TrendingItem } from "@/types";
 
 export const TrendingStoryItem: React.FC<TrendingItem> = ({
   storyId,

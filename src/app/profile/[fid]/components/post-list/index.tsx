@@ -1,8 +1,8 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
  
-import { Post, PostWithStory } from "@/types/type"; // Assuming you have a Post type defined
-import { InfiniteScrollPostList } from "./post-infinite"; // We'll create this next
+import { Post, PostWithStory } from "@/types" 
+import { InfiniteScrollPostList } from "./post-infinite";  
 
 interface ProfilePostListProps {
   initialPosts: PostWithStory[];

@@ -13,7 +13,7 @@ interface RightSideProps {
 }
 
 interface SimilarStory {
-  id: number;
+  id: string;
   title: string;
 }
 
@@ -64,9 +64,9 @@ export const RightSide: React.FC<RightSideProps> = ({ className }) => {
             setSuggestions(
               userSuggestions.map((user) => ({
                 id: user.fid.toString(),
-                name: user.display_name || user.username,
+                name: user.displayName || user.username,
                 username: user.username,
-                image: user.pfp_url || "default-image-url",
+                image: user.pfpUrl || "default-image-url",
               }))
             );
           }

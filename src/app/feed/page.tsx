@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { api } from "@/trpc/server";
 import StoryList from "./components/list";
 import FeedTop from "./components/top";
-import { Story } from "@/types/type";
+import { Story } from "@/types";
 
 interface APIResponse {
   items: Story[];

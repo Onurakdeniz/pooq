@@ -5,7 +5,7 @@ import ProfileHeader from "./feed/header";
 import StoryList from "@/app/feed/components/list";
 import ProfilePostList from "./post-list";
 import ProfileTagList from "./tag-list";
-import { Author, PostWithStory, Story, Tag } from "@/types/type";
+import { Author, PostWithStory, Story, Tag } from "@/types";
 
 interface ProfileContentProps {
   userProfile: Author;
@@ -15,8 +15,12 @@ interface ProfileContentProps {
   };
 }
 
-// Define a type for the possible tabs
 type TabType = "posts" | "tags" | "stories";
+
+interface FeedData {
+  items: Story[] | PostWithStory[];
+  nextCursor: string | null;
+}
 
 const ProfileContent = async ({
   userProfile,
@@ -33,14 +37,14 @@ const ProfileContent = async ({
 
   const feedType = feedTypeMap[tab] || "STORY";
 
-  const fetchFeedData = async () => {
+  const fetchFeedData = async (): Promise<FeedData | Tag[] | null> => {
     switch (feedType) {
       case "POST":
         return await api.story.getPostsWithStoryByUser({ userFid: profileFid });
       case "STORY":
         return await api.story.getStoriesByUser({ userFid: profileFid });
       case "TAG":
-        return await api.tag.getParentTagsByUser({ userFid: profileFid });
+        
       default:
         return null;
     }
@@ -57,29 +61,29 @@ const ProfileContent = async ({
   const renderFeed = () => {
     if (!feedData) return renderEmptyState();
 
-    if (feedType === "STORY" && "items" in feedData && "nextCursor" in feedData) {
+    if (feedType === "STORY" && 'items' in feedData && 'nextCursor' in feedData) {
       return feedData.items.length > 0 ? (
         <StoryList
           initialStories={feedData.items as Story[]}
           searchParams={searchParams}
-          initialCursor={feedData.nextCursor ? String(feedData.nextCursor) : null}
+          initialCursor={feedData.nextCursor}
         />
       ) : renderEmptyState();
     }
 
-    if (feedType === "POST" && "items" in feedData && "nextCursor" in feedData) {
+    if (feedType === "POST" && 'items' in feedData && 'nextCursor' in feedData) {
       return feedData.items.length > 0 ? (
         <ProfilePostList
           initialPosts={feedData.items as PostWithStory[]}
           searchParams={searchParams}
-          initialCursor={feedData.nextCursor ? String(feedData.nextCursor) : null}
+          initialCursor={feedData.nextCursor}
         />
       ) : renderEmptyState();
     }
 
     if (feedType === "TAG" && Array.isArray(feedData)) {
       return feedData.length > 0 ? (
-        <ProfileTagList tags={feedData as Tag[]} />
+ <div>tags</div>
       ) : renderEmptyState();
     }
     
@@ -89,7 +93,7 @@ const ProfileContent = async ({
   return (
     <div className="z-0 flex min-h-screen flex-col">
       <ProfileTop />
-      <Profile data={userProfile} />
+      <Profile author={userProfile} />
       <ProfileHeader />
       {renderFeed()}
     </div>

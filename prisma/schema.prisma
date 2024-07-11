@@ -43,28 +43,25 @@ enum StoryType {
 }
 
 model Story {
-  id          Int               @id @default(autoincrement())
-  hash        String            @unique
+  id          String      @id @unique @default(uuid())
+  hash        String      @unique
   authorId    Int
   text        String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  isProcessed Boolean           @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  isProcessed Boolean     @default(false)
   bookmarks   Bookmark[]
   extraction  Extraction?
   posts       Post[]
-  author      Author            @relation(fields: [authorId], references: [fid], onDelete: Cascade)
-  categories  CategoryOnStory[]
-  tags        TagOnStory[]
-
+  author      Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
 }
 
 model Post {
-  id              Int         @id @default(autoincrement())
+  id              String      @id @unique @default(uuid())
   hash            String      @unique
   authorId        Int
   text            String
-  storyId         Int
+  storyId         String
   isSpamSuspected Boolean?
   isStoryRelated  Boolean?
   isProcessed     Boolean     @default(false)
@@ -74,33 +71,30 @@ model Post {
   bookmarks       Bookmark[]
   author          Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
   story           Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags            TagOnPost[]
 }
 
 model Extraction {
-  id               Int                    @id @default(autoincrement())
-  storyId          Int?                   @unique
-  postId           Int?                   @unique
-  title            String
+  id          Int                    @id @default(autoincrement())
+  storyId     String?                @unique
+  postId      String?                @unique
+  title       String
   description String?
-  view      String?
-  castType          CastType
+  view        String?
   type        StoryType?
-  mentionedStories String[]
-  post             Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  story            Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags             TagOnExtraction[]
-  entities         EntityOnExtraction[]
-  categories       CategoryOnExtraction[]
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
+  post        Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  story       Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  tags        TagOnExtraction[]
+  entities    EntityOnExtraction[]
+  categories  CategoryOnExtraction[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
 }
 
 model Bookmark {
   id        String   @id @default(uuid())
   userId    String
-  storyId   Int?
-  postId    Int?
+  storyId   String?
+  postId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -119,16 +113,6 @@ model Category {
   updatedAt   DateTime               @updatedAt
   extractions CategoryOnExtraction[]
   users       User[]
-  stories     CategoryOnStory[]
-}
-
-model CategoryOnStory {
-  categoryId String
-  storyId    Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  story      Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
-
-  @@id([categoryId, storyId])
 }
 
 model CategoryOnExtraction {
@@ -154,32 +138,10 @@ model Tag {
   id          String            @id @default(uuid())
   name        String            @unique
   description String?
-  parentTagId String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   extractions TagOnExtraction[]
-  stories     TagOnStory[]
-  posts       TagOnPost[]
   llmFeeds    LLMFeed[]
-  parentTag   ParentTag?        @relation(fields: [parentTagId], references: [id])
-}
-
-model TagOnStory {
-  tagId   String
-  storyId Int
-  tag     Tag    @relation(fields: [tagId], references: [id])
-  story   Story  @relation(fields: [storyId], references: [id], onDelete: Cascade)
-
-  @@id([tagId, storyId])
-}
-
-model TagOnPost {
-  tagId  String
-  postId Int
-  tag    Tag    @relation(fields: [tagId], references: [id])
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@id([tagId, postId])
 }
 
 model TagOnExtraction {
@@ -197,7 +159,6 @@ model ParentTag {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  childTags   Tag[]
   followers   User[] // ParentTags are followed by Users
 }
 
@@ -219,7 +180,4 @@ model EntityOnExtraction {
   @@id([entityId, extractionId])
 }
 
-enum CastType {
-  POST
-  STORY
-}
+ 

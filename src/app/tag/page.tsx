@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { api } from "@/trpc/server";
 
-import { Story } from "@/types/type";
+import { Story } from "@/types";
 import StoryList from "../feed/components/list";
 import TagTop from "./components/top";
 

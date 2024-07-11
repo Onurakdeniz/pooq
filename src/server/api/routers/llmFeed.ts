@@ -42,52 +42,59 @@ class LLMEndpointError extends Error {
 
 export const llmFeedRouter = createTRPCRouter({
   generateTags: protectedProcedure
-    .input(
-      z.object({
-        text: z.string().min(1).max(1000),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (!ctx.privyId) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "User not authenticated",
-        });
-      }
-
-      let isLoading = true;
-      let error: Error | null = null;
-      let result: { text: string; tags: string[]; explanations: string[] } | null = null;
-
-      try {
-        const storyTags = await prisma.tag.findMany({
-          where: { stories: { some: {} } },
-          distinct: ["id"],
-        });
-
-        const tagNames = storyTags.map((tag) => tag.name);
-        const suggestedTags = await callLLMEndpoint(input.text, tagNames);
-
-        result = {
-          text: input.text,
-          tags: suggestedTags.selectedTags,
-          explanations: suggestedTags.explanations,
-        };
-      } catch (err) {
-        console.error("Error in generateTags:", err);
-        error = err instanceof Error ? err : new Error("An unknown error occurred");
-      } finally {
-        isLoading = false;
-      }
-
-      return {
-        isLoading,
-        error: error ? error.message : null,
-        data: result,
-        success: !error,
-      };
+  .input(
+    z.object({
+      text: z.string().min(1).max(1000),
     }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    if (!ctx.privyId) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not authenticated",
+      });
+    }
 
+    let isLoading = true;
+    let error: Error | null = null;
+    let result: { text: string; tags: string[]; explanations: string[] } | null = null;
+
+    try {
+      const storyTags = await prisma.tag.findMany({
+        where: {
+          extractions: {
+            some: {
+              extraction: {
+                storyId: { not: null }
+              }
+            }
+          }
+        },
+        distinct: ["id"],
+      });
+
+      const tagNames = storyTags.map((tag) => tag.name);
+      const suggestedTags = await callLLMEndpoint(input.text, tagNames);
+
+      result = {
+        text: input.text,
+        tags: suggestedTags.selectedTags,
+        explanations: suggestedTags.explanations,
+      };
+    } catch (err) {
+      console.error("Error in generateTags:", err);
+      error = err instanceof Error ? err : new Error("An unknown error occurred");
+    } finally {
+      isLoading = false;
+    }
+
+    return {
+      isLoading,
+      error: error ? error.message : null,
+      data: result,
+      success: !error,
+    };
+  }),
   createLLMFeed: protectedProcedure
     .input(
       z.object({

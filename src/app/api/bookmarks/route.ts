@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Fetching story from database');
     const story = await prisma.story.findUnique({
-      where: { id: parseInt(storyId, 10) },
+      where: { id: storyId },
     });
 
     if (!story) {

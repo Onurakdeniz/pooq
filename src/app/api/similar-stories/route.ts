@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Find the hash for the given story ID
     const story = await prisma.story.findUnique({
-      where: { id: parseInt(storyId) },
+      where: { id: storyId },
       select: { hash: true },
     });
 

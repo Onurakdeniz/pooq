@@ -50,6 +50,8 @@ const BookmarkStory: React.FC<BookmarkStoryProps> = ({
       return;
     }
 
+    
+
     setIsBookmarking(true);
     try {
       console.log("Available wallets:", wallets);

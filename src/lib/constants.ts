@@ -6,7 +6,6 @@ import {
   SquareChevronUp,
   MessageCircleMore,
   Coins,
- 
   Home,
   CircleUser,
   Check,
@@ -19,8 +18,22 @@ import {
   Newspaper,
 } from "lucide-react";
 
-export const UNAUTHENTICATED_PAGES = [
+import {
+  BookOpen,
+  Lightbulb,
+  Search,
+  HelpCircle,
+  MessageCircle,
+  Calendar,
+  Star,
+  Zap,
+  Eye,
+  AlertTriangle,
+  Compass,
+  Radio
+} from "lucide-react";
 
+export const UNAUTHENTICATED_PAGES = [
   "/api/register",
   "/api/trigger",
   "/_next/static",
@@ -64,3 +77,31 @@ export const PROFILE_TABS = [
   { title: "Posts", icon: MessageCircleMore, tooltip: "text" },
   { title: "Tags", icon: FileText, tooltip: "text" },
 ];
+
+export const storyTypeIcons = {
+  DEFINITION: BookOpen,
+  FACTOID: Lightbulb,
+  DEEP_DIVE: Search,
+  QUERY: HelpCircle,
+  OPINION: MessageCircle,
+  EVENT: Radio,
+  REVIEW: Star,
+  CHALLENGE: Zap,
+  OBSERVATION: Eye,
+  CONFLICT: AlertTriangle,
+  GUIDANCE: Compass,
+};
+
+export const storyTypeTooltips = {
+  DEFINITION: "Definition: A clear explanation of a term or concept",
+  FACTOID: "Factoid: A brief, interesting fact",
+  DEEP_DIVE: "Deep Dive: An in-depth exploration of a topic",
+  QUERY: "Query: A question or inquiry",
+  OPINION: "Opinion: A personal viewpoint or perspective",
+  EVENT: "Event: A notable occurrence or happening",
+  REVIEW: "Review: An evaluation or assessment",
+  CHALLENGE: "Challenge: A task or problem to be solved",
+  OBSERVATION: "Observation: A remark or comment based on something seen",
+  CONFLICT: "Conflict: A disagreement or clash of ideas",
+  GUIDANCE: "Guidance: Advice or direction on a subject",
+};
