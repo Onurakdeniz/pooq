@@ -200,48 +200,48 @@ export async function POST(req: NextRequest) {
       throw new Error(`Failed to process ${castType} with LLM`);
     }
 
-    const llmResult = (await llmResponse.json()) as LLMResponse;
+    const llmResult = (await llmResponse.json()) as CreateExtractionPayload ;
     console.log("llmresult",llmResult)
     const extractionPayload: CreateExtractionPayload = {
-      id: savedItem.id.toString(),
+      id: typeof savedItem.id === 'string' ? parseFloat(savedItem.id) : savedItem.id,
       hash: savedItem.hash,
       castType: castType,
     };
     
-    if (llmResult.body.title) {
-      extractionPayload.title = llmResult.body.title;
+    if (llmResult.title) {
+      extractionPayload.title = llmResult.title;
     }
     
-    if (llmResult.body.type) {
-      extractionPayload.type = llmResult.body.type;
+    if (llmResult.type) {
+      extractionPayload.type = llmResult.type;
     }
     
-    if (llmResult.body.description) {
-      extractionPayload.description = llmResult.body.description;
+    if (llmResult.description) {
+      extractionPayload.description = llmResult.description;
     }
     
-    if (llmResult.body.view) {
-      extractionPayload.view = llmResult.body.view;
+    if (llmResult.view) {
+      extractionPayload.view = llmResult.view;
     }
     
-    if (llmResult.body.category) {
-      extractionPayload.category = llmResult.body.category;
+    if (llmResult.category) {
+      extractionPayload.category = llmResult.category;
     }
     
-    if (Array.isArray(llmResult.body.tags) && llmResult.body.tags.length > 0) {
-      extractionPayload.tags = llmResult.body.tags;
+    if (Array.isArray(llmResult.tags) && llmResult.tags.length > 0) {
+      extractionPayload.tags = llmResult.tags;
     }
     
-    if (Array.isArray(llmResult.body.entities) && llmResult.body.entities.length > 0) {
-      extractionPayload.entities = llmResult.body.entities;
+    if (Array.isArray(llmResult.entities) && llmResult.entities.length > 0) {
+      extractionPayload.entities = llmResult.entities;
     }
     
-    if (Array.isArray(llmResult.body.referenceWords) && llmResult.body.referenceWords.length > 0) {
-      extractionPayload.referenceWords = llmResult.body.referenceWords;
+    if (Array.isArray(llmResult.referenceWords) && llmResult.referenceWords.length > 0) {
+      extractionPayload.referenceWords = llmResult.referenceWords;
     }
     
-    if (Array.isArray(llmResult.body.referencePhrases) && llmResult.body.referencePhrases.length > 0) {
-      extractionPayload.referencePhrases = llmResult.body.referencePhrases;
+    if (Array.isArray(llmResult.referencePhrases) && llmResult.referencePhrases.length > 0) {
+      extractionPayload.referencePhrases = llmResult.referencePhrases;
     }
 
     const updateEntry = await createExtractionById(extractionPayload);
@@ -291,7 +291,7 @@ async function processEmbedding(params: {
     parentHash?: string;
   };
   castType: "STORY" | "POST";
-  llmResult: LLMResponse;
+  llmResult: CreateExtractionPayload;
 }): Promise<EmbeddingResult> {
   try {
     const { data, castType, llmResult } = params;
@@ -303,9 +303,9 @@ async function processEmbedding(params: {
       castType: castType,
       hash: data.hash,
       text: data.text,
-      tags: llmResult.body.tags,
-      entities: llmResult.body.entities,
-      category: llmResult.body.category ?? "",
+      tags: llmResult.tags,
+      entities: llmResult.entities,
+      category: llmResult.category ?? "",
     };
     //check
     if (castType === "POST" && data.parentHash) {

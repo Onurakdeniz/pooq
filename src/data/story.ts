@@ -3,7 +3,7 @@ import { Prisma, PrismaClient, StoryType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
-  id:  string //;
+  id:  number 
   hash: string;
   castType: "STORY" | "POST";
   title?: string;
@@ -91,7 +91,7 @@ export async function createExtractionById(
 
     if (castType === "STORY") {
       await prisma.story.update({
-        where: { id: parseInt(id, 10) },
+        where: { id: id },
         data: {
           hash,
           isProcessed: true,
@@ -111,7 +111,7 @@ export async function createExtractionById(
       });
     } else if (castType === "POST") {
       await prisma.post.update({
-        where: { id },
+        where : { id: id.toString() },
         data: {
           hash,
           isProcessed: true,
