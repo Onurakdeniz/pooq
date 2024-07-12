@@ -27,8 +27,8 @@ interface EmbeddingPayload {
   castType: string;
   hash: string;
   text: string;
-  tags: string[];
-  entities: string[];
+  tags?: string[];
+  entities?: string[];
   category: string;
   storyHash?: string;
 }
@@ -202,41 +202,46 @@ export async function POST(req: NextRequest) {
 
     const llmResult = (await llmResponse.json()) as LLMResponse;
     console.log("llmresult",llmResult)
-
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id.toString(),
       hash: savedItem.hash,
       castType: castType,
-      tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
-      entities: Array.isArray(llmResult.body.entities)
-        ? llmResult.body.entities
-        : [],
-      referenceWords: Array.isArray(llmResult.body.referenceWords)
-        ? llmResult.body.referenceWords
-        : [],
-      referencePhrases: Array.isArray(llmResult.body.referencePhrases)
-        ? llmResult.body.referencePhrases
-        : [],
     };
-
+    
     if (llmResult.body.title) {
       extractionPayload.title = llmResult.body.title;
     }
-
+    
     if (llmResult.body.type) {
       extractionPayload.type = llmResult.body.type;
     }
-
+    
     if (llmResult.body.description) {
       extractionPayload.description = llmResult.body.description;
     }
-
+    
     if (llmResult.body.view) {
       extractionPayload.view = llmResult.body.view;
     }
-
+    
     if (llmResult.body.category) {
       extractionPayload.category = llmResult.body.category;
+    }
+    
+    if (Array.isArray(llmResult.body.tags) && llmResult.body.tags.length > 0) {
+      extractionPayload.tags = llmResult.body.tags;
+    }
+    
+    if (Array.isArray(llmResult.body.entities) && llmResult.body.entities.length > 0) {
+      extractionPayload.entities = llmResult.body.entities;
+    }
+    
+    if (Array.isArray(llmResult.body.referenceWords) && llmResult.body.referenceWords.length > 0) {
+      extractionPayload.referenceWords = llmResult.body.referenceWords;
+    }
+    
+    if (Array.isArray(llmResult.body.referencePhrases) && llmResult.body.referencePhrases.length > 0) {
+      extractionPayload.referencePhrases = llmResult.body.referencePhrases;
     }
 
     const updateEntry = await createExtractionById(extractionPayload);

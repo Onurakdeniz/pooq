@@ -3,19 +3,21 @@ import { Prisma, PrismaClient, StoryType } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
-  type?: StoryType;
   id:  string //;
   hash: string;
   castType: "STORY" | "POST";
   title?: string;
   description?: string;
   view?: string;
+  type?: StoryType;
+  tags?: string[];
+  entities?: string[];
   category?: string;
-  tags: string[];
-  entities: string[];
-  referenceWords: { word: string; source: string }[];
-  referencePhrases: { phrase: string; source: string }[];
+  referenceWords?: { word: string; source: string }[];
+  referencePhrases?: { phrase: string; source: string }[];
 }
+
+ 
 
 export async function createExtractionById(
   payload: CreateExtractionPayload
