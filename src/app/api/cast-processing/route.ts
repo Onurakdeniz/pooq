@@ -201,39 +201,47 @@ export async function POST(req: NextRequest) {
     }
 
     const llmResult = (await llmResponse.json()) as LLMResponse;
+    console.log("llmresult",llmResult)
 
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id.toString(),
       hash: savedItem.hash,
       castType: castType,
       tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
-      entities: Array.isArray(llmResult.body.entities) ? llmResult.body.entities : [],
-      referenceWords: Array.isArray(llmResult.body.referenceWords) ? llmResult.body.referenceWords : [],
-      referencePhrases: Array.isArray(llmResult.body.referencePhrases) ? llmResult.body.referencePhrases : [],
+      entities: Array.isArray(llmResult.body.entities)
+        ? llmResult.body.entities
+        : [],
+      referenceWords: Array.isArray(llmResult.body.referenceWords)
+        ? llmResult.body.referenceWords
+        : [],
+      referencePhrases: Array.isArray(llmResult.body.referencePhrases)
+        ? llmResult.body.referencePhrases
+        : [],
     };
-    
+
     if (llmResult.body.title) {
       extractionPayload.title = llmResult.body.title;
     }
-    
-   
+
     if (llmResult.body.type) {
       extractionPayload.type = llmResult.body.type;
     }
-    
+
     if (llmResult.body.description) {
       extractionPayload.description = llmResult.body.description;
     }
-    
+
     if (llmResult.body.view) {
       extractionPayload.view = llmResult.body.view;
     }
-    
+
     if (llmResult.body.category) {
       extractionPayload.category = llmResult.body.category;
     }
-    
-    await createExtractionById(extractionPayload);
+
+    const updateEntry = await createExtractionById(extractionPayload);
+
+    console.log("updateEntry",updateEntry)
 
     const embeddingResult = await processEmbedding({
       data: {
@@ -277,7 +285,7 @@ async function processEmbedding(params: {
     hash: string;
     parentHash?: string;
   };
-  castType:  "STORY" | "POST";
+  castType: "STORY" | "POST";
   llmResult: LLMResponse;
 }): Promise<EmbeddingResult> {
   try {
@@ -292,9 +300,9 @@ async function processEmbedding(params: {
       text: data.text,
       tags: llmResult.body.tags,
       entities: llmResult.body.entities,
-      category: llmResult.body.category ?? ""
+      category: llmResult.body.category ?? "",
     };
-      //check
+    //check
     if (castType === "POST" && data.parentHash) {
       embeddingPayload.storyHash = data.parentHash;
     }
