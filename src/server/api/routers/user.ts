@@ -229,6 +229,7 @@ export const userRouter = createTRPCRouter({
         ]);
 
         const neynarUser = neynarData.users[0];
+        console.log("neynaruser",neynarUser)
 
         if (!neynarUser) {
           throw new TRPCError({

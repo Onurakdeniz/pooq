@@ -32,7 +32,7 @@ type User = {
   verified_addresses: VerifiedAddresses;
   active_status: string;
   power_badge: boolean;
-  viewer_context?: ViewerContext;
+  viewer_context: ViewerContext;
 };
 
 type Embed = {

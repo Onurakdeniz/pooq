@@ -14,7 +14,7 @@ interface NeynarAuthor {
   verifications: string[];
   active_status: string;
   power_badge: boolean;
-  viewer_context?: {
+  viewer_context: {
     following: boolean;
     followed_by: boolean;
   };
@@ -148,8 +148,8 @@ export async function formatAuthor(
     activeStatus: neynarAuthor.active_status,
     powerBadge: neynarAuthor.power_badge,
     viewerContent: {
-      following: neynarAuthor.viewer_context?.following ?? false,
-      followedBy: neynarAuthor.viewer_context?.followed_by ?? false,
+      following: neynarAuthor.viewer_context.following,
+      followed_by: neynarAuthor.viewer_context.followed_by  
     },
     numberOfStories: await prisma.story.count({
       where: { authorId: dbAuthorId },

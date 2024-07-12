@@ -3,6 +3,7 @@ import Link from "next/link";
 import SuggestionBoxHeader from "./header";
 import SuggestionBoxFooter from "./footer";
 import { SUGGESTION_BOX_TYPES } from "@/lib/constants";
+import { titleToSlug } from "@/lib/helper";
 
 interface SuggestedItemProps {
   id: string;
@@ -19,10 +20,7 @@ interface ISuggestionBox {
 }
 
 const StoryItem: React.FC<SuggestedItemProps> = ({ id, title }) => (
-  <Link
-    href={`/story/${id}`}
-    className="flex w-full rounded-xl p-2 hover:bg-accent"
-  >
+  <Link href={`/t${titleToSlug(title!, parseFloat(id))}`} passHref>
     <div className="p-2 text-sm font-semibold text-primary/70">{title}</div>
   </Link>
 );

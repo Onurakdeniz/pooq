@@ -12,7 +12,7 @@ export const SideMenuItem: React.FC<SideMenuItemProps> = ({ title, Icon , href }
   return (
     <Link href={`/${href}`}>
     <div
-    className={`flex gap-4 items-center  text-primary/70
+    className={`flex gap-1 items-center  text-primary/70 
     
      hover:bg-primary-foreground rounded-lg hover:cursor-pointer  py-2 px-2  `}
   >

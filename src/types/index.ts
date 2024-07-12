@@ -52,7 +52,7 @@ export interface VerifiedAddresses {
 
 export interface AuthorViewerContext {
   following: boolean;
-  followedBy: boolean;
+  followed_by: boolean;
 }
 
 export interface Author {

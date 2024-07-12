@@ -10,7 +10,7 @@ export const SideMenu: React.FC = async () => {
   const userFid = cookieStore.get('user_fid')?.value;
   
   return (
-    <div className="flex-col flex ">
+    <div className="flex-col flex mr-6 ">
       {SIDE_MENU_ITEMS.map((item, index) => {
         let href = item.href;
         

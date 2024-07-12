@@ -256,10 +256,10 @@ export const storyRouter = createTRPCRouter({
 
     
 
-  getStoryWithPosts: publicProcedure
+    getStoryWithPosts: publicProcedure
     .input(
       z.object({
-        title: z.string(),
+        id: z.number(),
         cursor: z.string().optional(),
         limit: z.number().min(1).max(100).default(10),
       }),
@@ -270,40 +270,14 @@ export const storyRouter = createTRPCRouter({
         input,
         ctx,
       }): Promise<z.infer<typeof getStoryWithPostsOutputSchema>> => {
-        const { title, cursor, limit } = input;
-        const extraction = await ctx.db.extraction.findFirst({
-          where: {
-            title: {
-              contains: title,
-              mode: 'insensitive'
-            }
-          },
-          include: { story: true },
-        });
-        
-        if (!extraction) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: `No story found with title containing: ${title}`,
-          });
-        }
-        
-        if (!extraction.story) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: `Story data not found for title containing: ${title}`,
-          });
-        }
-        
-        const storyId = extraction.story.id;
-        const exactTitle = extraction.title;
+        const { id, cursor, limit } = input;
         const userId = ctx.privyId;
         const userFid = ctx.userFid ? ctx.userFid : undefined;
-
+  
         try {
           // Fetch story from DB
           const dbStory = await ctx.db.story.findUnique({
-            where: { id: storyId },
+            where: { id: id },
             include: {
               extraction: {
                 include: {
@@ -316,17 +290,17 @@ export const storyRouter = createTRPCRouter({
               author: true, 
             },
           });
-
+  
           if (!dbStory) {
             throw new TRPCError({
               code: "NOT_FOUND",
-              message: "Story not found",
+              message: `Story not found with id: ${id}`,
             });
           }
-
+  
           // Fetch posts from DB
           const posts = await ctx.db.post.findMany({
-            where: { storyId: storyId },
+            where: { storyId: id },
             orderBy: { createdAt: "desc" },
             take: limit + 1,
             cursor: cursor ? { id: cursor } : undefined,
@@ -340,13 +314,13 @@ export const storyRouter = createTRPCRouter({
               bookmarks: userId ? { where: { userId } } : false,
             },
           });
-
+  
           let nextCursor: string | null = null;
           if (posts.length > limit) {
             const nextItem = posts.pop();
             nextCursor = nextItem ? nextItem.id : null;
           }
-
+  
           // Fetch Neynar data
           const allHashes = [dbStory.hash, ...posts.map((post) => post.hash)];
           const neynarData = await fetchCastsFromNeynar(allHashes, userFid);
@@ -358,7 +332,6 @@ export const storyRouter = createTRPCRouter({
             });
           }
           
-          // Check if neynarData[0] exists
           if (!neynarData[0]) {
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
@@ -369,10 +342,11 @@ export const storyRouter = createTRPCRouter({
           // Format story
           const formattedStory = await formatStory(
             dbStory,
-            neynarData[0], // Now TypeScript knows this is not undefined
+            neynarData[0],
             userFid,
             userId,
           );
+  
           // Format posts
           const formattedPosts = await Promise.all(
             posts.map(async (post, index) => {
@@ -394,10 +368,11 @@ export const storyRouter = createTRPCRouter({
               }
             }),
           );
-
+  
           const validFormattedPosts = formattedPosts.filter(
             (post): post is Post => post !== null,
           );
+  
           return {
             story: formattedStory,
             posts: validFormattedPosts,
@@ -418,6 +393,7 @@ export const storyRouter = createTRPCRouter({
       },
     ),
 
+    
   getTrendingStories: publicProcedure.query(async () => {
     const trendingStoriesData = await kv.get("trendingStories");
     if (!trendingStoriesData) {

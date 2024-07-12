@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, Reply } from "lucide-react";
 import PostFooter from "./footer";
 import { Author, Post as PostType } from "@/types";
+import { titleToSlug } from "@/lib/helper";
 
 
  
@@ -36,10 +37,7 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
 }) => {
   return (
     <div className="flex flex-col gap-4 border-b p-8">
-      <Link
-        href={`/story/${storyId}`}
-        className="text-lg font-semibold hover:underline"
-      >
+     <Link href={`/t${titleToSlug(storyTitle, storyId)}`} passHref>
         {storyTitle}
       </Link>
       <div className="flex h-8 items-center justify-between gap-3">

@@ -1,10 +1,9 @@
-import Link from "next/link";
+import React from 'react'
 
- 
-
-export default async function Home() {
- 
-
-  return <div className="flex h-screen   w-full">
-  </div>;
+const page = () => {
+  return (
+    <div>page</div>
+  )
 }
+
+export default page

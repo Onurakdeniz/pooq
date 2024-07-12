@@ -129,89 +129,96 @@ export const LLMForm = () => {
         </Alert>
       )}
 
-      <TabsContent value="create">
-        <div className="h-auto flex-col gap-2 px-8 py-2">
-          <Form {...form}>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
-            >
-              <FormField
-                control={form.control}
-                name="text"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Textarea
-                        className="h-40 border py-4 text-primary/70 shadow-none focus-visible:ring-0"
-                        placeholder="Create your personalized feed with natural language."
-                        {...field}
-                        disabled={generateTags.isPending || createLLMFeed.isPending || generatedTags.length > 0}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {generateTags.isPending || createLLMFeed.isPending ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-[250px]" />
-                  <Skeleton className="h-4 w-[200px]" />
-                </div>
-              ) : generatedTags.length > 0 && (
-                <div className="mb-2 flex flex-wrap gap-2">
-                  {generatedTags.map(({ tag, explanation }) => (
-                    <TooltipProvider key={tag}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleTagClick(tag)}
-                            className="flex items-center gap-1"
-                          >
-                            {tag}
-                            <span className="text-xs">&times;</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{explanation}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
-                </div>
+<TabsContent value="create">
+      <div className="h-auto flex-col gap-2 px-8 py-2">
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="text"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Textarea
+                      className="h-40 border py-4 text-primary/70 shadow-none focus-visible:ring-0"
+                      placeholder="Create your personalized feed with natural language."
+                      {...field}
+                      disabled={generateTags.isPending || createLLMFeed.isPending || generatedTags.length > 0}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              {generateTags.error && (
-                <Alert variant="destructive">
-                  <AlertTitle>Error</AlertTitle>
-                  <AlertDescription>{generateTags.error.message}</AlertDescription>
-                </Alert>
-              )}
-              <div className="flex items-center justify-end gap-2">
-                {generatedTags.length === 0 ? (
+            />
+            {generateTags.isPending || createLLMFeed.isPending ? (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            ) : generateTags.data?.data?.message ? (
+              <Alert>
+                <AlertTitle>No Tags Found</AlertTitle>
+                <AlertDescription>{generateTags.data.data.message}</AlertDescription>
+              </Alert>
+            ) : generatedTags.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-2">
+                {generatedTags.map(({ tag, explanation }) => (
+                  <TooltipProvider key={tag}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleTagClick(tag)}
+                          className="flex items-center gap-1"
+                        >
+                          {tag}
+                          <span className="text-xs">&times;</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{explanation}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+            )}
+            {generateTags.error && (
+              <Alert variant="destructive">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{generateTags.error.message}</AlertDescription>
+              </Alert>
+            )}
+            <div className="flex items-center justify-end gap-2">
+              {generatedTags.length === 0 && !generateTags.data?.data?.message ? (
+                <Button
+                  className="h-7"
+                  variant="default"
+                  type="submit"
+                  disabled={generateTags.isPending || !isValid}
+                >
+                  {generateTags.isPending ? "Generating..." : "Generate Feed Preferences"}
+                </Button>
+              ) : (
+                <>
                   <Button
                     className="h-7"
-                    variant="default"
-                    type="submit"
-                    disabled={generateTags.isPending || !isValid}
+                    variant="outline"
+                    onClick={() => {
+                      reset();
+                      setGeneratedTags([]);
+                      generateTags.reset();
+                    }}
+                    type="button"
+                    disabled={createLLMFeed.isPending}
                   >
-                    {generateTags.isPending ? "Generating..." : "Generate Feed Preferences"}
+                    Back
                   </Button>
-                ) : (
-                  <>
-                    <Button
-                      className="h-7"
-                      variant="outline"
-                      onClick={() => {
-                        reset();
-                        setGeneratedTags([]);
-                      }}
-                      type="button"
-                      disabled={createLLMFeed.isPending}
-                    >
-                      Back
-                    </Button>
+                  {generatedTags.length > 0 && (
                     <Button
                       className="h-7"
                       variant="default"
@@ -220,13 +227,14 @@ export const LLMForm = () => {
                     >
                       {createLLMFeed.isPending ? "Creating..." : "Create Personalized Feed"}
                     </Button>
-                  </>
-                )}
-              </div>
-            </form>
-          </Form>
-        </div>
-      </TabsContent>
+                  )}
+                </>
+              )}
+            </div>
+          </form>
+        </Form>
+      </div>
+    </TabsContent>
       <TabsContent value="update" className="h-full">
   <div className="">
     <ScrollArea className="h-[350px] pt-4 px-8 ">

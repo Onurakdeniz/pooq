@@ -6,24 +6,21 @@ import { observable } from '@trpc/server/observable';
 
 const prisma = new PrismaClient();
 
-// Define the type for the options parameter
+// Updated interface for request options
 interface RequestOptions {
   method: string;
   headers: Record<string, string>;
   body: string;
 }
 
-// Define the response type for the LLM endpoint
+// Updated interface for LLM response
 interface LLMResponse {
-  code: number;
-  body: {
-    selectedTags: string[];
-    explanations: string[];
-    error?: string;
-  };
+  selectedTags: string[];
+  explanations: string[];
+  error?: string;
 }
 
-// Import the sendRequest function
+// Updated sendRequest function
 async function sendRequest(url: string, options: RequestOptions): Promise<LLMResponse> {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -39,7 +36,6 @@ class LLMEndpointError extends Error {
     this.name = "LLMEndpointError";
   }
 }
-
 export const llmFeedRouter = createTRPCRouter({
   generateTags: protectedProcedure
   .input(
@@ -57,30 +53,30 @@ export const llmFeedRouter = createTRPCRouter({
 
     let isLoading = true;
     let error: Error | null = null;
-    let result: { text: string; tags: string[]; explanations: string[] } | null = null;
+    let result: { text: string; tags: string[]; explanations: string[]; message?: string } | null = null;
 
     try {
-      const storyTags = await prisma.tag.findMany({
-        where: {
-          extractions: {
-            some: {
-              extraction: {
-                storyId: { not: null }
-              }
-            }
-          }
-        },
+      const allTags = await prisma.tag.findMany({
         distinct: ["id"],
       });
 
-      const tagNames = storyTags.map((tag) => tag.name);
+      const tagNames = allTags.map((tag) => tag.name);
       const suggestedTags = await callLLMEndpoint(input.text, tagNames);
 
-      result = {
-        text: input.text,
-        tags: suggestedTags.selectedTags,
-        explanations: suggestedTags.explanations,
-      };
+      if (suggestedTags.selectedTags.length === 0) {
+        result = {
+          text: input.text,
+          tags: [],
+          explanations: [],
+          message: "No related tags found for the given text.",
+        };
+      } else {
+        result = {
+          text: input.text,
+          tags: suggestedTags.selectedTags,
+          explanations: suggestedTags.explanations,
+        };
+      }
     } catch (err) {
       console.error("Error in generateTags:", err);
       error = err instanceof Error ? err : new Error("An unknown error occurred");
@@ -95,6 +91,7 @@ export const llmFeedRouter = createTRPCRouter({
       success: !error,
     };
   }),
+  
   createLLMFeed: protectedProcedure
     .input(
       z.object({
@@ -331,20 +328,19 @@ async function callLLMEndpoint(
       body: JSON.stringify({ text, tags }),
     });
 
-    console.log("callLLMEndpoint: Received response from LLM endpoint", response);
+    console.log("callLLMEndpoint: Received response from LLM endpoint", JSON.stringify(response, null, 2));
 
-    if (response.code === 500 || response.body.error) {
-      throw new LLMEndpointError(response.body.error ?? "Unknown error from LLM endpoint");
+    if (Array.isArray(response.selectedTags) && Array.isArray(response.explanations)) {
+      return {
+        selectedTags: response.selectedTags,
+        explanations: response.explanations,
+      };
+    } else {
+      console.error("Unexpected response structure:", response);
+      throw new Error("Unexpected response structure from LLM endpoint");
     }
-
-    return {
-      selectedTags: response.body.selectedTags,
-      explanations: response.body.explanations,
-    };
   } catch (error) {
     console.error("Error calling LLM endpoint:", error);
-    throw error instanceof LLMEndpointError
-      ? error
-      : new LLMEndpointError("Error processing request from LLM endpoint");
+    throw new LLMEndpointError("Error processing request from LLM endpoint");
   }
 }

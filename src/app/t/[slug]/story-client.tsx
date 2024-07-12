@@ -18,15 +18,15 @@ type GetStoryWithPostsOutput = z.infer<typeof getStoryWithPostsOutputSchema>;
 
 export default function StoryClient({
   initialData,
-  title,
+  id,
 }: {
   initialData: GetStoryWithPostsOutput;
-  title: string;
+  id: number;
 }) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.story.getStoryWithPosts.useInfiniteQuery(
       {
-        title: title,
+        id: id,
         limit: 10,
       },
       {

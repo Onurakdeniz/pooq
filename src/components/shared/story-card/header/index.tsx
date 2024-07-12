@@ -13,10 +13,11 @@ import BookmarkStory from "./bookmark";
 import LikeButton from "./like";
 import { storyTypeIcons, storyTypeTooltips } from "@/lib/constants";
 import { StoryType } from "@prisma/client";
+import { titleToSlug } from "@/lib/helper";
 
 interface IStoryHeader {
   id: number;
-  hash:string
+  hash: string;
   title?: string;
   author: Author;
   timestamp: string;
@@ -25,19 +26,6 @@ interface IStoryHeader {
   cardType: string;
   isLikedBuUserFid: boolean;
   type: StoryType | null | undefined;
-}
-function titleToSlug(title: string, hash: string): string {
-  const slugTitle = title
-    .toLowerCase()
-    .replace(/[:]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .trim()
-    .replace(/^-+|-+$/g, '');
-
-  const lastFiveChars = hash.slice(-5);
-  return `/${slugTitle}--${lastFiveChars}`;
 }
 
 const StoryHeader: React.FC<IStoryHeader> = ({
@@ -61,10 +49,7 @@ const StoryHeader: React.FC<IStoryHeader> = ({
           <Tooltip>
             <TooltipTrigger>
               <div className="flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 p-1.5 dark:border-emerald-950">
-                <IconComponent
-                  className="text-emerald-600"
-                  strokeWidth={1.5}
-                />
+                <IconComponent className="text-emerald-600" strokeWidth={1.5} />
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -82,7 +67,7 @@ const StoryHeader: React.FC<IStoryHeader> = ({
       <div className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between text-primary/80">
           {cardType === "FEED" && title ? (
-  <Link href={`/story${titleToSlug(title, hash)}`} passHref>
+            <Link href={`/t${titleToSlug(title, id)}`} passHref>
               <div className="line-clamp-2 flex w-full items-center gap-2 text-lg font-semibold">
                 {renderIcon()}
                 <span> {title} </span>

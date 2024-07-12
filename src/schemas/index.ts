@@ -46,7 +46,7 @@ export const VerifiedAddressesSchema = z.object({
 
 export const AuthorViewerContextSchema = z.object({
   following: z.boolean(),
-  followedBy: z.boolean(),
+  followed_by: z.boolean(),
 });
 
 export const AuthorSchema = z.object({
@@ -68,8 +68,10 @@ export const AuthorSchema = z.object({
   bio: z.string(),
 });
 
-const BaseContentSchema = z.object({
-  id: z.string(),
+ 
+
+export const StorySchema = z.object({
+  id: z.number(),
   hash: z.string(),
   text: z.string(),
   timestamp: z.string(),
@@ -78,10 +80,6 @@ const BaseContentSchema = z.object({
   author: AuthorSchema,
   tags: z.array(TagSchema),
   entities: z.array(EntitySchema),
-});
-
-export const StorySchema = BaseContentSchema.extend({
-  id: z.number(),  
   title: z.string().optional(),
   view: z.string().nullable().optional(),
   type: storyTypeEnum.nullable().optional(),
@@ -91,7 +89,16 @@ export const StorySchema = BaseContentSchema.extend({
   numberOfLikes: z.number(),
 });
 
-export const PostSchema = BaseContentSchema.extend({
+export const PostSchema = z.object({
+  id: z.string(),
+  hash: z.string(),
+  text: z.string(),
+  timestamp: z.string(),
+  isBookmarkedByUserId: z.boolean(),
+  isLikedBuUserFid: z.boolean(),
+  author: AuthorSchema,
+  tags: z.array(TagSchema),
+  entities: z.array(EntitySchema),
   numberOfLikes: z.number(),
   numberOfReplies: z.number(),
 });
