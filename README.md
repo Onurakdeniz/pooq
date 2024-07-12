@@ -1,29 +1,51 @@
-# Create T3 App
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
 
-## What's next? How do I make an app with this?
+## FLEEK FUNCTIONS for LLM CAST PROCESSING: BOOSTING CONTENT DISCOVERABILITY
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+### This is ONE EXAMPLE of how we use FLEEK FUNCTIONS for CONTENT DISCOVERABILITY:
+## Overview
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+This project demonstrates an innovative approach to processing and analyzing content from Farcaster using Fleek Functions. The goal is to enhance content discoverability, improve categorization, and enable more sophisticated content analysis.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+![Architecture Diagram](https://imgur.com/zXzFnKm.png "Cast Processing with Fleek Functions")
 
-## Learn More
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## Architecture
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+Our system architecture leverages several key components:
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+1. **Farcaster**: The source of our content (casts).
+2. **Fleek Functions**: The core of our processing pipeline.
+3. **OpenAI**: For semantic processing and vectorization.
+4. **Pinecone**: For efficient vector storage and similarity search.
+5. **Backend**: Handles main business logic and database operations.
 
-## How do I deploy this?
+## Process Flow
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+1. Casts are created on Farcaster.
+2. A Neynar webhook triggers our Fleek Function.
+3. The Fleek Function orchestrates the following processes:
+   - Semantic processing using OpenAI
+   - Vectorization of content using OpenAI
+   - Storage of processed data in Pinecone DB
+4. Our backend interacts with the Fleek Function for business logic and database operations.
+
+## Key Features
+
+- **Tag Generation**: Automatically create relevant tags for each cast.
+- **Categorization**: Classify casts into predefined categories.
+- **Entity Extraction**: Identify and extract key entities mentioned in casts.
+- **Vectorization**: Convert casts into vector representations for similarity search.
+- **Spam Detection**: Utilize processed data to identify potential spam content.
+- **LLM-Generated Content Detection**: Analyze patterns to distinguish between human-written and AI-generated content.
+
+## Benefits
+
+1. **Improved Discoverability**: Enhanced tagging and categorization make it easier for users to find relevant content.
+2. **Content Insights**: Deep semantic analysis provides valuable insights into content trends and user interests.
+3. **Spam Reduction**: Advanced processing helps in identifying and filtering out spam content.
+4. **Similar Content Discovery**: Vector representations enable efficient similarity searches, helping users find related casts.
+
+## Contribution
+
+This project was developed as part of the Onchain Summer Buildathon, focusing on the discovery track.
