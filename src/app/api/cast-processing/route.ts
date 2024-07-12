@@ -24,7 +24,7 @@ interface WebhookData {
 }
 
 interface EmbeddingPayload {
-  type: string;
+  castType: string;
   hash: string;
   text: string;
   tags: string[];
@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
     const extractionPayload: CreateExtractionPayload = {
       id: savedItem.id.toString(),
       hash: savedItem.hash,
-      castType: llmResult.body.castType,
+      castType: castType,
       tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
       entities: Array.isArray(llmResult.body.entities) ? llmResult.body.entities : [],
       referenceWords: Array.isArray(llmResult.body.referenceWords) ? llmResult.body.referenceWords : [],
@@ -277,7 +277,7 @@ async function processEmbedding(params: {
     hash: string;
     parentHash?: string;
   };
-  castType: string;
+  castType:  "STORY" | "POST";
   llmResult: LLMResponse;
 }): Promise<EmbeddingResult> {
   try {
@@ -287,7 +287,7 @@ async function processEmbedding(params: {
       "https://whining-planet-early.functions.on-fleek.app";
 
     const embeddingPayload: EmbeddingPayload = {
-      type: castType.toUpperCase(),
+      castType: castType,
       hash: data.hash,
       text: data.text,
       tags: llmResult.body.tags,
@@ -295,7 +295,7 @@ async function processEmbedding(params: {
       category: llmResult.body.category ?? ""
     };
       //check
-    if (castType.toLowerCase() === "post" && data.parentHash) {
+    if (castType === "POST" && data.parentHash) {
       embeddingPayload.storyHash = data.parentHash;
     }
 
@@ -316,7 +316,7 @@ async function processEmbedding(params: {
 
     await setTimeout(5000);
 
-    if (castType.toLowerCase() === "post" && data.parentHash) {
+    if (castType === "POST" && data.parentHash) {
       const relevanceCheck = await fetch(relevanceCheckUrl, {
         method: "POST",
         headers: {
