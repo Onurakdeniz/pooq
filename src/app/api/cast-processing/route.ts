@@ -30,7 +30,7 @@ interface EmbeddingPayload {
   tags: string[];
   entities: string[];
   category: string;
-  storyId?: string;
+  storyHash?: string;
 }
 
 interface EmbeddingResult {
@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
     const llmResult = (await llmResponse.json()) as LLMResponse;
 
     const extractionPayload: CreateExtractionPayload = {
-      id: savedItem.id,
+      id: savedItem.id.toString(),
       hash: savedItem.hash,
       castType: llmResult.body.castType,
       tags: Array.isArray(llmResult.body.tags) ? llmResult.body.tags : [],
@@ -294,9 +294,9 @@ async function processEmbedding(params: {
       entities: llmResult.body.entities,
       category: llmResult.body.category ?? ""
     };
-
+      //check
     if (castType.toLowerCase() === "post" && data.parentHash) {
-      embeddingPayload.storyId = data.parentHash;
+      embeddingPayload.storyHash = data.parentHash;
     }
 
     const embedding = await fetch(fleekembedding, {

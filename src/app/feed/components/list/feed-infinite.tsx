@@ -13,7 +13,7 @@ import ConnectWalletDialog from "@/components/wallet";
 interface InfiniteScrollStoryListProps {
   initialStories: Story[];
   searchParams: Record<string, string | string[] | undefined>;
-  initialCursor: string | null;
+  initialCursor: number | null;
 }
 
 const SkeletonStoryCard: React.FC = () => (

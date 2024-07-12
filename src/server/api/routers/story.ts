@@ -62,7 +62,7 @@ export const storyRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().min(1).max(100).optional().default(10),
-        cursor: z.string().optional(),
+        cursor: z.number().optional(),
         categoryFilters: z.array(z.string()).optional(),
         llmMode: z.boolean().optional(),
         tagName: z.string().optional(),
@@ -195,7 +195,7 @@ export const storyRouter = createTRPCRouter({
 
         const nextCursor =
           hasNextPage && stories.length > 0
-            ? stories[stories.length - 1]?.id?.toString() ?? null
+            ? stories[stories.length - 1]?.id ?? null
             : null;
 
         return {
@@ -259,7 +259,7 @@ export const storyRouter = createTRPCRouter({
   getStoryWithPosts: publicProcedure
     .input(
       z.object({
-        storyId: z.string(),
+        title: z.string(),
         cursor: z.string().optional(),
         limit: z.number().min(1).max(100).default(10),
       }),
@@ -270,7 +270,33 @@ export const storyRouter = createTRPCRouter({
         input,
         ctx,
       }): Promise<z.infer<typeof getStoryWithPostsOutputSchema>> => {
-        const { storyId, cursor, limit } = input;
+        const { title, cursor, limit } = input;
+        const extraction = await ctx.db.extraction.findFirst({
+          where: {
+            title: {
+              contains: title,
+              mode: 'insensitive'
+            }
+          },
+          include: { story: true },
+        });
+        
+        if (!extraction) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `No story found with title containing: ${title}`,
+          });
+        }
+        
+        if (!extraction.story) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `Story data not found for title containing: ${title}`,
+          });
+        }
+        
+        const storyId = extraction.story.id;
+        const exactTitle = extraction.title;
         const userId = ctx.privyId;
         const userFid = ctx.userFid ? ctx.userFid : undefined;
 
@@ -404,160 +430,161 @@ export const storyRouter = createTRPCRouter({
   }),
 
   getStoriesByUser: publicProcedure
-    .input(
-      z.object({
-        userFid: z.number().int().positive(),
-        cursor: z.string().optional(),
-        limit: z.number().min(1).max(100).default(10),
-      }),
-    )
-    .query(async ({ input, ctx }) => {
-      const { userFid, cursor, limit } = input;
-      const viewerId = ctx.privyId;
-      const viewerFid = ctx.userFid ? ctx.userFid : undefined;
+  .input(
+    z.object({
+      userFid: z.number().int().positive(),
+      cursor: z.number().optional(),
+      limit: z.number().min(1).max(100).default(10),
+    }),
+  )
+  .query(async ({ input, ctx }) => {
+    const { userFid, cursor, limit } = input;
+    const viewerId = ctx.privyId;
+    const viewerFid = ctx.userFid ? ctx.userFid : undefined;
 
-      try {
-        const user = await ctx.db.user.findUnique({
-          where: { fid: userFid },
-        });
+    try {
+      const user = await ctx.db.user.findUnique({
+        where: { fid: userFid },
+      });
 
-        if (!user) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "User not found",
-          });
-        }
-
-        // Fetch stories from database
-        const stories = await ctx.db.story.findMany({
-          where: {
-            isProcessed: true,
-            authorId: userFid,
-          },
-          orderBy: { createdAt: "desc" },
-          take: limit + 1,
-          cursor: cursor ? { id: cursor } : undefined,
-          include: {
-            author: true, // Include the author information
-            extraction: {
-              include: {
-                tags: { include: { tag: true } },
-                entities: { include: { entity: true } },
-                categories: { include: { category: true } },
-              },
-            },
-            bookmarks: viewerId ? { where: { userId: viewerId } } : false,
-          },
-        });
-
-        let nextCursor: string | null = null;
-        if (stories.length > limit) {
-          const nextItem = stories.pop();
-          nextCursor = nextItem ? nextItem.id : null;
-        }
-
-        // Fetch author story count
-        const authorStoryCount = await ctx.db.story.count({
-          where: { authorId: userFid },
-        });
-
-        // Fetch story posts counts
-        const storyIds = stories.map((story) => story.id);
-        const storyPostsCounts = await ctx.db.post.groupBy({
-          by: ["storyId"],
-          where: { storyId: { in: storyIds } },
-          _count: true,
-        });
-
-        const storyPostsCountMap = new Map(
-          storyPostsCounts.map((count) => [count.storyId, count._count]),
-        );
-
-        // Fetch Neynar data
-        const hashes = stories.map((story) => story.hash);
-        const neynarData = await fetchCastsFromNeynar(hashes, viewerFid);
-
-        if (!neynarData || neynarData.length === 0) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to fetch data from Neynar API",
-          });
-        }
-
-        // Format stories
-        const formattedStories = await Promise.all(
-          stories.map(async (story, index) => {
-            const storyNeynarData = neynarData[index];
-            if (!storyNeynarData) {
-              console.warn(
-                `No Neynar data found for story with hash ${story.hash}`,
-              );
-              return null;
-            }
-            try {
-              const postsCount = storyPostsCountMap.get(story.id) ?? 0;
-              return await formatStory(
-                story,
-                storyNeynarData,
-                viewerFid,
-              );
-            } catch (error) {
-              console.error(
-                `Error formatting story with hash ${story.hash}:`,
-                error,
-              );
-              return null;
-            }
-          }),
-        );
-
-        const validFormattedStories = formattedStories.filter(
-          (story): story is Story => story !== null,
-        );
-
-        return {
-          items: validFormattedStories,
-          nextCursor: nextCursor,
-        };
-      } catch (error) {
-        console.error("Error in getStoriesByUser:", error);
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+      if (!user) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred while fetching stories",
-          cause: error,
+          code: "NOT_FOUND",
+          message: "User not found",
         });
       }
-    }),
 
+      // Fetch stories from database
+      const stories = await ctx.db.story.findMany({
+        where: {
+          isProcessed: true,
+          authorId: userFid,
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        include: {
+          author: true,
+          extraction: {
+            include: {
+              tags: { include: { tag: true } },
+              entities: { include: { entity: true } },
+              categories: { include: { category: true } },
+            },
+          },
+          bookmarks: viewerId ? { where: { userId: viewerId } } : false,
+        },
+      });
+
+      let nextCursor: number | null = null;
+      if (stories.length > limit) {
+        const nextItem = stories.pop();
+        nextCursor = nextItem ? nextItem.id : null;
+      }
+
+      // Fetch author story count
+      const authorStoryCount = await ctx.db.story.count({
+        where: { authorId: userFid },
+      });
+
+      // Fetch story posts counts
+      const storyIds = stories.map((story) => story.id);
+      const storyPostsCounts = await ctx.db.post.groupBy({
+        by: ["storyId"],
+        where: { storyId: { in: storyIds } },
+        _count: true,
+      });
+
+      const storyPostsCountMap = new Map(
+        storyPostsCounts.map((count) => [count.storyId, count._count]),
+      );
+
+      // Fetch Neynar data only if there are hashes
+      const hashes = stories.map((story) => story.hash).filter(Boolean);
+      const neynarData = hashes.length > 0
+        ? await fetchCastsFromNeynar(hashes, viewerFid)
+        : [];
+
+      if (hashes.length > 0 && (!neynarData || neynarData.length === 0)) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch data from Neynar API",
+        });
+      }
+
+      // Format stories
+      const formattedStories = await Promise.all(
+        stories.map(async (story, index) => {
+          const storyNeynarData = neynarData[index];
+          if (!storyNeynarData) {
+            console.warn(
+              `No Neynar data found for story with hash ${story.hash}`,
+            );
+            return null;
+          }
+          try {
+            const postsCount = storyPostsCountMap.get(story.id) ?? 0;
+            return await formatStory(
+              story,
+              storyNeynarData,
+              viewerFid,
+            );
+          } catch (error) {
+            console.error(
+              `Error formatting story with hash ${story.hash}:`,
+              error,
+            );
+            return null;
+          }
+        }),
+      );
+
+      const validFormattedStories = formattedStories.filter(
+        (story) => story !== null,
+      );
+
+      return {
+        items: validFormattedStories,
+        nextCursor: nextCursor,
+      };
+    } catch (error) {
+      console.error("Error in getStoriesByUser:", error);
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "An unexpected error occurred while fetching stories",
+        cause: error,
+      });
+    }
+  }),
   getPostsWithStoryByUser: publicProcedure
-    .input(
+    . input(
       z.object({
         userFid: z.number(),
         cursor: z.string().optional(),
         limit: z.number().min(1).max(100).default(10),
-      }),
+      })
     )
     .query(async ({ input, ctx }): Promise<GetPostsWithStoryByUserOutput> => {
       const { userFid, cursor, limit } = input;
       const viewerId = ctx.privyId;
       const viewerFid = ctx.userFid ? ctx.userFid : undefined;
-
+  
       try {
         const user = await ctx.db.user.findUnique({
           where: { fid: userFid },
           select: { id: true, fid: true, userName: true },
         });
-
+  
         if (!user) {
           throw new TRPCError({
             code: "NOT_FOUND",
             message: "User not found",
           });
         }
-
+  
         // Fetch posts from DB
         const posts = await ctx.db.post.findMany({
           where: { authorId: userFid },
@@ -585,28 +612,41 @@ export const storyRouter = createTRPCRouter({
             bookmarks: viewerId ? { where: { userId: viewerId } } : false,
           },
         });
-
+  
         let nextCursor: string | null = null;
         if (posts.length > limit) {
           const nextItem = posts.pop();
           nextCursor = nextItem ? nextItem.id : null;
         }
-
+  
         // Fetch Neynar data
-        const postHashes = posts.map((post) => post.hash);
+        const validPosts = posts.filter(post => post.hash != null);
+        const postHashes = validPosts.map(post => post.hash);
+        
+        if (postHashes.length === 0) {
+          console.warn("No valid post hashes found");
+          return {
+            items: [],
+            nextCursor: null,
+          };
+        }
+        
         const neynarData = await fetchCastsFromNeynar(postHashes, viewerFid);
-
+        
         if (!neynarData || neynarData.length === 0) {
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to fetch data from Neynar API",
           });
         }
-
+        
+        // Create a map of hash to Neynar data for easier lookup
+        const neynarDataMap = new Map(neynarData.map(data => [data.hash, data]));
+  
         // Format posts
         const formattedPosts = await Promise.all(
-          posts.map(async (post, index) => {
-            const postNeynarData = neynarData[index];
+          posts.map(async (post) => {
+            const postNeynarData = neynarDataMap.get(post.hash);
             if (!postNeynarData) {
               console.warn(
                 `No Neynar data found for post with hash ${post.hash}`,
@@ -622,7 +662,7 @@ export const storyRouter = createTRPCRouter({
               return {
                 ...formattedPost,
                 storyTitle: post.story?.extraction?.title ?? "",
-                storyId: post.storyId.toString(),
+                storyId: post.storyId
               };
             } catch (error) {
               console.error(
@@ -631,13 +671,13 @@ export const storyRouter = createTRPCRouter({
               );
               return null;
             }
-          }),
+          })
         );
-
+  
         const validFormattedPosts = formattedPosts.filter(
           (post): post is PostWithStory => post !== null,
         );
-
+  
         return {
           items: validFormattedPosts,
           nextCursor: nextCursor,
@@ -683,7 +723,7 @@ export const storyRouter = createTRPCRouter({
     }),
 
   getSuggestedStoriesByStoryId: publicProcedure
-    .input(z.object({ storyId: z.string() }))
+    .input(z.object({ storyId: z.number() }))
  
     .query(async ({ input }) => {
       const { storyId } = input;

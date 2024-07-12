@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 
 interface BookmarkStoryProps {
-  id: string;
+  id: number;
   isBookmarkedProp: boolean;
 }
 

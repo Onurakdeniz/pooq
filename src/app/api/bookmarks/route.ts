@@ -5,7 +5,7 @@ import { authMiddleware, AuthMiddlewareResult } from "@/lib/authMiddleware";
 const prisma = new PrismaClient();
 
 interface RequestBody {
-  storyId: string;
+  storyId: number;
   userAddress: string;
   timestamp: number;
   signature: string;
@@ -17,7 +17,7 @@ function isValidRequestBody(body: unknown): body is RequestBody {
     typeof body === 'object' &&
     body !== null &&
     'storyId' in body &&
-    typeof (body as RequestBody).storyId === 'string' &&
+    typeof (body as RequestBody).storyId === 'number' &&
     'userAddress' in body &&
     typeof (body as RequestBody).userAddress === 'string' &&
     'timestamp' in body &&

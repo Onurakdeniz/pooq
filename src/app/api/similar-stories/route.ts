@@ -17,7 +17,7 @@ interface FleekResponse {
 }
 
 interface RequestBody {
-  storyId: string;
+  storyId: number;
 }
 
 interface Story {

@@ -5,7 +5,7 @@ import { kv } from '@vercel/kv';
 const prisma = new PrismaClient();
 
 export interface TrendingItem {
-  storyId: string;
+  storyId: number;
   title: string;
   authorFid: number;
   numberOfPosts: number;

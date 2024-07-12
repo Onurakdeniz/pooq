@@ -18,7 +18,7 @@ interface TagPageProps {
 
 export default async function TagPage({ searchParams }: TagPageProps) {
   const limit = 10;
-  const cursor = searchParams.cursor as string | undefined;
+  const cursor = searchParams.cursor as number | undefined;
   const tagName = searchParams.tag as string | undefined;
 
   // Extract category filters

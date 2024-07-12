@@ -11,39 +11,25 @@ model User {
   id         String      @id @unique
   fid        Int?        @unique
   userName   String?     @unique
-  bookmarks  Bookmark[]
-  parentTags ParentTag[] // User follows ParentTags, not Tags
-  categories Category[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  bookmarks  Bookmark[]
   llmFeeds   LLMFeed[]
+  categories Category[]  @relation("CategoryToUser")
+  parentTags ParentTag[] @relation("ParentTagToUser")
 }
 
 model Author {
   fid       Int      @id @unique
   userName  String
-  posts     Post[]
-  stories   Story[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-enum StoryType {
-  DEFINITION
-  FACTOID
-  DEEP_DIVE
-  QUERY
-  OPINION
-  EVENT
-  REVIEW
-  CHALLENGE
-  OBSERVATION
-  CONFLICT
-  GUIDANCE
+  posts     Post[]
+  stories   Story[]
 }
 
 model Story {
-  id          String      @id @unique @default(uuid())
+  id          Int         @id @default(autoincrement())
   hash        String      @unique
   authorId    Int
   text        String
@@ -61,36 +47,37 @@ model Post {
   hash            String      @unique
   authorId        Int
   text            String
-  storyId         String
+  storyId         Int
   isSpamSuspected Boolean?
   isStoryRelated  Boolean?
   isProcessed     Boolean     @default(false)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  extraction      Extraction?
   bookmarks       Bookmark[]
+  extraction      Extraction?
   author          Author      @relation(fields: [authorId], references: [fid], onDelete: Cascade)
   story           Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
 }
 
 model Extraction {
-  id          Int                    @id @default(autoincrement())
-  storyId     String?                @unique
-  postId      String?                @unique
-  title       String
-  description String?
-  view        String?
-  type        StoryType?
-  post        Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  story       Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  tags        TagOnExtraction[]
-  entities    EntityOnExtraction[]
-  categories  CategoryOnExtraction[]
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-  referenceWords   ReferenceWord[]
+  id               Int                    @id @default(autoincrement())
+  storyId          Int?                   @unique
+  postId           String?                @unique
+  title            String
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  view             String?
+  type             StoryType?
+  description      String?
+  categories       CategoryOnExtraction[]
+  entities         EntityOnExtraction[]
+  post             Post?                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  story            Story?                 @relation(fields: [storyId], references: [id], onDelete: Cascade)
   referencePhrases ReferencePhrase[]
+  referenceWords   ReferenceWord[]
+  tags             TagOnExtraction[]
 }
+
 model ReferencePhrase {
   id           String     @id @default(uuid())
   phrase       String
@@ -115,13 +102,10 @@ model ReferenceWord {
   @@unique([word, extractionId])
 }
 
- 
-
-
 model Bookmark {
   id        String   @id @default(uuid())
   userId    String
-  storyId   String?
+  storyId   Int?
   postId    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -140,7 +124,7 @@ model Category {
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
   extractions CategoryOnExtraction[]
-  users       User[]
+  users       User[]                 @relation("CategoryToUser")
 }
 
 model CategoryOnExtraction {
@@ -159,7 +143,7 @@ model LLMFeed {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tags      Tag[]
+  tags      Tag[]    @relation("LLMFeedToTag")
 }
 
 model Tag {
@@ -169,14 +153,14 @@ model Tag {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   extractions TagOnExtraction[]
-  llmFeeds    LLMFeed[]
+  llmFeeds    LLMFeed[]         @relation("LLMFeedToTag")
 }
 
 model TagOnExtraction {
   tagId        String
   extractionId Int
-  tag          Tag        @relation(fields: [tagId], references: [id])
   extraction   Extraction @relation(fields: [extractionId], references: [id], onDelete: Cascade)
+  tag          Tag        @relation(fields: [tagId], references: [id])
 
   @@id([tagId, extractionId])
 }
@@ -187,16 +171,16 @@ model ParentTag {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  followers   User[] // ParentTags are followed by Users
+  followers   User[]   @relation("ParentTagToUser")
 }
 
 model Entity {
   id          String               @id @default(uuid())
   name        String               @unique
   description String?
-  extractions EntityOnExtraction[]
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
+  extractions EntityOnExtraction[]
 }
 
 model EntityOnExtraction {
@@ -208,4 +192,16 @@ model EntityOnExtraction {
   @@id([entityId, extractionId])
 }
 
- 
+enum StoryType {
+  DEFINITION
+  FACTOID
+  DEEP_DIVE
+  QUERY
+  OPINION
+  EVENT
+  REVIEW
+  CHALLENGE
+  OBSERVATION
+  CONFLICT
+  GUIDANCE
+}

@@ -43,7 +43,7 @@ interface Cast {
 }
 
 interface DBStory {
-  id: string;
+  id: number;
   hash: string;
   text: string;
   authorId: number;

@@ -12,7 +12,7 @@ import { Author, Post as PostType } from "@/types";
 type OptionalProps = 'hash' | 'tags' | 'entities' | 'isBookmarkedByUser' | 'isLikedByUser';
 
 interface ProfilePostProps extends Omit<PostType, OptionalProps> {
-  storyId: string;
+  storyId: number;
   storyTitle: string;
   hash?: string;
   tags?: string[];

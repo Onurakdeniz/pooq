@@ -17,12 +17,12 @@ interface FleekResponse {
 }
 
 interface SimilarStory {
-  id: string;
+  id: number;
   title: string  
 }
 
 export async function getSimilarStories(
-  storyId: string
+  storyId: number
 ): Promise<SimilarStory[]> {
   try {
     console.log("storyidapi", storyId);

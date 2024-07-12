@@ -15,21 +15,36 @@ import { storyTypeIcons, storyTypeTooltips } from "@/lib/constants";
 import { StoryType } from "@prisma/client";
 
 interface IStoryHeader {
-  id: string;
+  id: number;
+  hash:string
   title?: string;
   author: Author;
   timestamp: string;
   numberOfLikes: number;
   isBookmarked: boolean;
   cardType: string;
-  isLikedBuUserFid:boolean
+  isLikedBuUserFid: boolean;
   type: StoryType | null | undefined;
+}
+function titleToSlug(title: string, hash: string): string {
+  const slugTitle = title
+    .toLowerCase()
+    .replace(/[:]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim()
+    .replace(/^-+|-+$/g, '');
+
+  const lastFiveChars = hash.slice(-5);
+  return `/${slugTitle}--${lastFiveChars}`;
 }
 
 const StoryHeader: React.FC<IStoryHeader> = ({
   id,
   title,
   author,
+  hash,
   timestamp,
   numberOfLikes,
   isBookmarked,
@@ -66,8 +81,8 @@ const StoryHeader: React.FC<IStoryHeader> = ({
     <div className="flex w-full flex-col">
       <div className="flex flex-col gap-4">
         <div className="flex w-full items-center justify-between text-primary/80">
-          {cardType === "FEED" ? (
-            <Link href={`/story/${id}`} passHref>
+          {cardType === "FEED" && title ? (
+  <Link href={`/story${titleToSlug(title, hash)}`} passHref>
               <div className="line-clamp-2 flex w-full items-center gap-2 text-lg font-semibold">
                 {renderIcon()}
                 <span> {title} </span>

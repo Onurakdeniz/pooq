@@ -75,7 +75,7 @@ export interface Author {
 }
 
 export interface Story {
-  id: string;
+  id: number;
   hash: string;
   text: string;
   title?: string;
@@ -109,7 +109,7 @@ export interface Post {
 
 export interface PostWithStory extends Post {
   storyTitle: string;
-  storyId: string;
+  storyId: number;
 }
 
 export interface Reply {
@@ -120,14 +120,14 @@ export interface Reply {
 }
 
 export interface SuggestedStory {
-  storyId: string;
+  storyId: number;
   title: string;
   type?: StoryType;
   numberOfPosts?: number;
 }
 
 export interface TrendingItem {
-  storyId: string;
+  storyId: number;
   title: string;
   authorFid: number;
   numberOfPosts: number;
@@ -135,7 +135,7 @@ export interface TrendingItem {
 
 
 export interface SuggestedStory {
-  storyId: string;
+  storyId: number;
   title: string;
   type?: StoryType;
   numberOfPosts?: number;
@@ -157,7 +157,7 @@ export interface SuggestedUser {
 
 
 export interface HoverStory {
-  id : string
+  id : number
   title : string
   timestamp : string
   text : string

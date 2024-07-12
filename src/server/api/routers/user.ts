@@ -146,21 +146,21 @@ export const userRouter = createTRPCRouter({
         return AuthorSchema.parse({
           numberOfStories: storyCount,
           numberOfPosts: postCount,
-          object: "user",
           username: neynarUser.username,
+          isUser : false,
           fid: neynarUser.fid,
-          parentTags: user.parentTags.map((tag) => ({ id: tag.id, name: tag.name })),
-          custody_address: neynarUser.custody_address,
-          display_name: neynarUser.display_name,
-          pfp_url: neynarUser.pfp_url,
-          profile: neynarUser.profile,
-          follower_count: neynarUser.follower_count,
-          following_count: neynarUser.following_count,
+          isRegistered : true,
+          custodyAddress: neynarUser.custody_address,
+          displayName: neynarUser.display_name,
+          pfpUrl: neynarUser.pfp_url,
+          followerCount: neynarUser.follower_count,
+          followingCount: neynarUser.following_count,
           verifications: neynarUser.verifications,
           verified_addresses: neynarUser.verified_addresses,
-          active_status: neynarUser.active_status,
-          power_badge: neynarUser.power_badge,
-          viewer_context: neynarUser.viewer_context,
+          activeStatus: neynarUser.active_status,
+          powerBadge: neynarUser.power_badge,
+          viewerContent: neynarUser.viewer_context,
+          bio :neynarUser.profile.bio.text
         });
       });
 
@@ -240,22 +240,23 @@ export const userRouter = createTRPCRouter({
         return AuthorSchema.parse({
           numberOfStories: storyCount,
           numberOfPosts: postCount,
-          object: "user",
           username: neynarUser.username,
+          isUser : false,
           fid: neynarUser.fid,
-          parentTags: user.parentTags.map((tag) => ({ id: tag.id, name: tag.name })),
-          custody_address: neynarUser.custody_address,
-          display_name: neynarUser.display_name,
-          pfp_url: neynarUser.pfp_url,
-          profile: neynarUser.profile,
-          follower_count: neynarUser.follower_count,
-          following_count: neynarUser.following_count,
+          isRegistered : true,
+          custodyAddress: neynarUser.custody_address,
+          displayName: neynarUser.display_name,
+          pfpUrl: neynarUser.pfp_url,
+          followerCount: neynarUser.follower_count,
+          followingCount: neynarUser.following_count,
           verifications: neynarUser.verifications,
           verified_addresses: neynarUser.verified_addresses,
-          active_status: neynarUser.active_status,
-          power_badge: neynarUser.power_badge,
-          viewer_context: neynarUser.viewer_context,
+          activeStatus: neynarUser.active_status,
+          powerBadge: neynarUser.power_badge,
+          viewerContent: neynarUser.viewer_context,
+          bio :neynarUser.profile.bio.text
         });
+   
       } catch (error) {
         console.error("Error getting user profile:", error);
         if (error instanceof TRPCError) {

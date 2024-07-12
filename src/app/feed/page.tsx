@@ -6,7 +6,7 @@ import { Story } from "@/types";
 
 interface APIResponse {
   items: Story[];
-  nextCursor: string | null;
+  nextCursor: number | null;
 }
 
 export default async function FeedPage({
@@ -15,7 +15,7 @@ export default async function FeedPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const limit = 10;
-  const cursor = searchParams.cursor as string | undefined;
+  const cursor = searchParams.cursor as number | undefined;
 
   // Extract category filters
   const categoryFilters = searchParams.filters

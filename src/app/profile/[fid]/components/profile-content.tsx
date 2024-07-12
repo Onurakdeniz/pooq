@@ -17,9 +17,14 @@ interface ProfileContentProps {
 
 type TabType = "posts" | "tags" | "stories";
 
-interface FeedData {
-  items: Story[] | PostWithStory[];
-  nextCursor: string | null;
+interface StoryFeedData {
+  items: Story[];
+  nextCursor: number | null;
+}
+
+interface PostFeedData {
+  items: PostWithStory[];
+  nextCursor: string | null;  
 }
 
 const ProfileContent = async ({
@@ -37,14 +42,14 @@ const ProfileContent = async ({
 
   const feedType = feedTypeMap[tab] || "STORY";
 
-  const fetchFeedData = async (): Promise<FeedData | Tag[] | null> => {
+  const fetchFeedData = async (): Promise<StoryFeedData | PostFeedData | Tag[] | null> => {
     switch (feedType) {
       case "POST":
-        return await api.story.getPostsWithStoryByUser({ userFid: profileFid });
+        return await api.story.getPostsWithStoryByUser({ userFid: profileFid }) as PostFeedData;
       case "STORY":
-        return await api.story.getStoriesByUser({ userFid: profileFid });
+        return await api.story.getStoriesByUser({ userFid: profileFid }) as StoryFeedData;
       case "TAG":
-        
+ 
       default:
         return null;
     }
@@ -62,28 +67,30 @@ const ProfileContent = async ({
     if (!feedData) return renderEmptyState();
 
     if (feedType === "STORY" && 'items' in feedData && 'nextCursor' in feedData) {
-      return feedData.items.length > 0 ? (
+      const storyFeedData = feedData as StoryFeedData;
+      return storyFeedData.items.length > 0 ? (
         <StoryList
-          initialStories={feedData.items as Story[]}
+          initialStories={storyFeedData.items}
           searchParams={searchParams}
-          initialCursor={feedData.nextCursor}
+          initialCursor={(storyFeedData.nextCursor)}
         />
       ) : renderEmptyState();
     }
 
     if (feedType === "POST" && 'items' in feedData && 'nextCursor' in feedData) {
-      return feedData.items.length > 0 ? (
+      const postFeedData = feedData as PostFeedData;
+      return postFeedData.items.length > 0 ? (
         <ProfilePostList
-          initialPosts={feedData.items as PostWithStory[]}
+          initialPosts={postFeedData.items}
           searchParams={searchParams}
-          initialCursor={feedData.nextCursor}
+          initialCursor={postFeedData.nextCursor}
         />
       ) : renderEmptyState();
     }
 
     if (feedType === "TAG" && Array.isArray(feedData)) {
       return feedData.length > 0 ? (
- <div>tags</div>
+        <div></div>
       ) : renderEmptyState();
     }
     

@@ -13,7 +13,7 @@ interface RightSideProps {
 }
 
 interface SimilarStory {
-  id: string;
+  id: number;
   title: string;
 }
 
@@ -46,11 +46,13 @@ export const RightSide: React.FC<RightSideProps> = ({ className }) => {
     const fetchSuggestions = async () => {
       const isStory = pathname.startsWith("/story/");
       setIsStoryPage(isStory);
-      const storyId = isStory ? pathname.split("/")[2] : null;
-  
+      const ids = isStory && pathname.split("/")[2] 
+      ? (pathname.split("/")[2], 10) 
+      : null;
+ 
       try {
-        if (isStory && storyId) {
-          const similarStories: SimilarStory[] = await getSimilarStories(storyId);
+        if (isStory && ids) {
+          const similarStories: SimilarStory[] = await getSimilarStories(ids);
           setSuggestions(
             similarStories.map((story) => ({
               id: story.id.toString(),

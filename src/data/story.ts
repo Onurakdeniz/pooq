@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export interface CreateExtractionPayload {
   type?: StoryType;
-  id: string;
+  id:  string //;
   hash: string;
   castType: "STORY" | "POST";
   title?: string;
@@ -89,7 +89,7 @@ export async function createExtractionById(
 
     if (castType === "STORY") {
       await prisma.story.update({
-        where: { id },
+        where: { id: parseInt(id, 10) },
         data: {
           hash,
           isProcessed: true,

@@ -39,6 +39,7 @@ cardType
         <StoryHeader
           id={id}
           title={title}
+          hash={hash}
           numberOfLikes={numberOfLikes}
           author={author}
           timestamp={timestamp}

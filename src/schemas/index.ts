@@ -81,6 +81,7 @@ const BaseContentSchema = z.object({
 });
 
 export const StorySchema = BaseContentSchema.extend({
+  id: z.number(),  
   title: z.string().optional(),
   view: z.string().nullable().optional(),
   type: storyTypeEnum.nullable().optional(),
@@ -97,7 +98,7 @@ export const PostSchema = BaseContentSchema.extend({
 
 export const PostWithStorySchema = PostSchema.extend({
   storyTitle: z.string(),
-  storyId: z.string(),
+  storyId: z.number(),
 });
 
 export const ReplySchema = z.object({
@@ -108,14 +109,14 @@ export const ReplySchema = z.object({
 });
 
 export const SuggestedStorySchema = z.object({
-  storyId: z.string(),
+  storyId: z.number(),
   title: z.string(),
   type: storyTypeEnum.optional(),
   numberOfPosts: z.number().optional(),
 });
 
 export const TrendingItemSchema = z.object({
-  storyId: z.string(),
+  storyId: z.number(),
   title: z.string(),
   authorFid: z.number(),
   numberOfPosts: z.number(),
