@@ -45,13 +45,17 @@ export interface NeynarApiResponse {
   }
   
 
-
-
   export async function fetchNeynarUsers(
     fids: number[],
-    viewerFid?: number,
+    viewerFid?: number
   ): Promise<NeynarApiResponse | null> {
-    const url = `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fids.join(",")}&viewer_fid=${viewerFid}`;
+    let url = `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fids.join(",")}`;
+    
+    // Only add viewer_fid to the URL if it's provided
+    if (viewerFid !== undefined) {
+      url += `&viewer_fid=${viewerFid}`;
+    }
+    
     console.log(`Calling Neynar API: ${url}`);
   
     const options = {
