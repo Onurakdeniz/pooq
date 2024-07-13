@@ -1,10 +1,10 @@
 import Link from "next/link";
-import ProfileAvatar from "@/components/shared/avatar";
 import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, Reply } from "lucide-react";
 import PostFooter from "./footer";
 import { Author, Post as PostType } from "@/types";
 import { titleToSlug } from "@/lib/helper";
+import { ProfileAvatar } from "../avatar";
 
 
  

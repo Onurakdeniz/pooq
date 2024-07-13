@@ -67,7 +67,7 @@ export interface Author {
   verifications: string[];
   activeStatus: string;
   powerBadge: boolean;
-  viewerContent: AuthorViewerContext;
+  viewerContent?: AuthorViewerContext;
   numberOfStories: number;
   numberOfPosts: number;
   isRegistered: boolean;
@@ -128,9 +128,11 @@ export interface SuggestedStory {
 
 export interface TrendingItem {
   storyId: number;
-  title: string;
+  title?: string;
   authorFid: number;
   numberOfPosts: number;
+  type?: StoryType | null;
+  isPromoted?: boolean;
 }
 
 
@@ -159,11 +161,11 @@ export interface SuggestedUser {
 export interface HoverStory {
   id : number
   title : string
+  description? : string
   timestamp : string
   text : string
   authorFid : number
   authorUserName : string
-  tags : Tag[]
   type? : string
   numberOfPosts? : number
 }

@@ -1,4 +1,4 @@
-import ProfileAvatar from "@/components/shared/avatar";
+ 
 import Tag from "@/components/shared/tag";
 import { Button } from "@/components/ui/button";
 import { Bookmark, ChevronUp, CircleAlert, Reply } from "lucide-react";

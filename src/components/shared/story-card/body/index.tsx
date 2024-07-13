@@ -1,4 +1,4 @@
-import ProfileAvatar from "@/components/shared/avatar";
+ 
 import Tag from "@/components/shared/tag";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";

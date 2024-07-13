@@ -49,7 +49,7 @@ const StoryCard: React.FC<StoryCardProps> = ({
         />
 
         <div className="rounded-xl bg-accent px-6 py-4 shadow-sm  ">
-          <TextCard timestamp={timestamp} text={description} />
+          <TextCard   text={description} />
         </div>
 
         <Separator className="m-0 p-0" />
@@ -58,7 +58,7 @@ const StoryCard: React.FC<StoryCardProps> = ({
           <div className="text-sm font-semibold text-primary/40">
             Creator Opinion
           </div>
-          <TextCard timestamp={timestamp} text={view} />
+          <TextCard  text={view}  />
         </div>
         <div className="flex w-full items-center justify-between">
           {tags.length > 0 && (

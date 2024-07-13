@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import ProfileAvatar from "@/components/shared/avatar";
+ 
 import { Bookmark, ChevronUp, Info } from "lucide-react";
 import {
   Tooltip,
@@ -14,6 +14,7 @@ import LikeButton from "./like";
 import { storyTypeIcons, storyTypeTooltips } from "@/lib/constants";
 import { StoryType } from "@prisma/client";
 import { titleToSlug } from "@/lib/helper";
+import { ProfileAvatar } from "../../avatar";
 
 interface IStoryHeader {
   id: number;

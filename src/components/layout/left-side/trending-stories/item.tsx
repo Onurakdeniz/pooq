@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import ProfileAvatar from "@/components/shared/avatar";
+ 
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +17,8 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
   title,
   authorFid,
   numberOfPosts,
+  isPromoted,
+  type
 }) => {
   return (
     <div className="flex items-center gap-4 rounded-lg border px-4 py-2 text-sm hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700 hover:dark:border-primary-foreground">
@@ -25,7 +27,7 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link href={`/t${titleToSlug(title, storyId)}`} passHref>
+                <Link href={`/t${titleToSlug(title!, storyId)}`} passHref>
                   <div className="line-clamp-3 text-wrap text-primary/70">
                     {title}
                   </div>

@@ -61,7 +61,7 @@ export const AuthorSchema = z.object({
   verifications: z.array(z.string()),
   activeStatus: z.string(),
   powerBadge: z.boolean(),
-  viewerContent: AuthorViewerContextSchema,
+  viewerContent: AuthorViewerContextSchema.optional(),
   numberOfStories: z.number(),
   numberOfPosts: z.number(),
   isRegistered: z.boolean(),
