@@ -8,6 +8,8 @@ interface APIResponse {
   items: Story[];
   nextCursor: number | null;
 }
+// check working or not ??
+export const revalidate = 180; // 3 minutes in seconds
 
 export default async function FeedPage({
   searchParams,
@@ -26,12 +28,17 @@ export default async function FeedPage({
   const llmMode = searchParams.llmMode === "true";
 
   try {
-    const apiResponse = await api.story.getStories({
-      limit,
-      cursor,
-      categoryFilters,
-      llmMode,
-    });
+    const fetchStories = async () => {
+      const apiResponse = await api.story.getStories({
+        limit,
+        cursor,
+        categoryFilters,
+        llmMode,
+      });
+      return apiResponse;
+    };
+
+    const apiResponse = await fetchStories();
 
     console.log("apiResponse", apiResponse);
 
@@ -49,7 +56,9 @@ export default async function FeedPage({
             />
           ) : (
             <div className="flex flex-grow items-center justify-center">
-              <p className="text-center text-xl text-primary/50">No stories available</p>
+              <p className="text-center text-xl text-primary/50">
+                No stories available
+              </p>
             </div>
           )}
         </Suspense>
@@ -59,7 +68,9 @@ export default async function FeedPage({
     console.error("Error fetching stories:", error);
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-center text-lg text-red-500">Error loading stories. Please try again later.</p>
+        <p className="text-center text-lg text-red-500">
+          Error loading stories. Please try again later.
+        </p>
       </div>
     );
   }

@@ -22,6 +22,7 @@ interface IProfileAvatar {
   children?: React.ReactNode;
   userName?: string;
   date?: string;
+  isJustName?: boolean;  
 }
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({
@@ -31,6 +32,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
   author,
   children,
   date,
+  isJustName = false,  
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -56,7 +58,6 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
         "",
       )
     : "Invalid date";
-
   return (
     <HoverCard onOpenChange={setIsHovered}>
       <HoverCardTrigger className="">
@@ -70,14 +71,18 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
             </Avatar>
             <div className="flex items-center gap-2">
               <div className={avatarName}>{displayedAuthor?.displayName}</div>
-              <div className={avatarName}>
-                <span className="truncate text-xs text-primary/50">
-                  @{displayedAuthor?.username}
-                </span>
-              </div>
-              <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
-                {formattedTimeAgo}
-              </span>
+              {!isJustName && (
+                <>
+                  <div className={avatarName}>
+                    <span className="truncate text-xs text-primary/50">
+                      @{displayedAuthor?.username}
+                    </span>
+                  </div>
+                  <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
+                    {formattedTimeAgo}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         )}

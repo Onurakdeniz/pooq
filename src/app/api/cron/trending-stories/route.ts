@@ -1,11 +1,10 @@
-import { NextResponse } from "next/server";
 import { PrismaClient, StoryType } from "@prisma/client";
 import { kv } from "@vercel/kv";
-import {TrendingItem} from "@/types"
+import { TrendingItem, Author } from "@/types";
+import { fetchNeynarUsers } from "@/server/api/lib/user";
+import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
-
-
 
 async function getTrendingStories(): Promise<TrendingItem[]> {
   const now = new Date();
@@ -32,24 +31,59 @@ async function getTrendingStories(): Promise<TrendingItem[]> {
   // Shuffle the merged stories to distribute promoted stories
   const shuffledStories = shuffleArray(mergedStories);
 
-  // Return the first 10 stories
+  // Get the first 10 stories
   return shuffledStories.slice(0, 10);
 }
- 
+
+async function fetchAuthorData(fid: number): Promise<Author> {
+  const neynarData = await fetchNeynarUsers([fid]);
+  if (!neynarData?.users || neynarData.users.length === 0) {
+    throw new Error(`Failed to fetch data from Neynar API for FID: ${fid}`);
+  }
+
+  const neynarUser = neynarData.users[0];
+  if (!neynarUser) {
+    throw new Error(`Neynar user data is undefined for FID: ${fid}`);
+  }
+
+  const [storyCount, postCount] = await Promise.all([
+    prisma.story.count({ where: { authorId: fid } }),
+    prisma.post.count({ where: { authorId: fid } }),
+  ]);
+
+  return {
+    numberOfStories: storyCount,
+    numberOfPosts: postCount,
+    username: neynarUser.username,
+    isUser: false,
+    fid: neynarUser.fid,
+    isRegistered: true,
+    custodyAddress: neynarUser.custody_address,
+    displayName: neynarUser.display_name,
+    pfpUrl: neynarUser.pfp_url,
+    followerCount: neynarUser.follower_count,
+    followingCount: neynarUser.following_count,
+    verifications: neynarUser.verifications,
+    activeStatus: neynarUser.active_status,
+    powerBadge: neynarUser.power_badge,
+    viewerContent: neynarUser.viewer_context,
+    bio: neynarUser.profile.bio.text,
+  };
+}
+
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const temp = shuffled[i] as T;
-    shuffled[i] = shuffled[j] as T;
-    shuffled[j] = temp;
+    [shuffled[i], shuffled[j]] = [shuffled[j] as T, shuffled[i] as T];
   }
   return shuffled;
 }
+
 async function getPromotedStories(): Promise<TrendingItem[]> {
   const promotedStories = await prisma.story.findMany({
     where: {
-      isPromoted: true, 
+      isPromoted: true,
     },
     include: {
       author: {
@@ -59,16 +93,19 @@ async function getPromotedStories(): Promise<TrendingItem[]> {
         select: { title: true, type: true },
       },
     },
-    take: 2
+    take: 2,
   });
 
-  return promotedStories.map((story) => ({
-    storyId: story.id,
-    title: story.extraction?.title ?? '',
-    authorFid: story.author.fid,
-    numberOfPosts: 0,  
-    type: story.extraction?.type ?? null,
-    isPromoted: true,  
+  return Promise.all(promotedStories.map(async (story) => {
+    const author = await fetchAuthorData(story.author.fid);
+    return {
+      storyId: story.id,
+      title: story.extraction?.title ?? "",
+      author,
+      numberOfPosts: 0,
+      type: story.extraction?.type ?? null,
+      isPromoted: true,
+    };
   }));
 }
 
@@ -78,7 +115,7 @@ async function fetchStoriesWithPosts(
 ): Promise<TrendingItem[]> {
   const stories = await prisma.story.findMany({
     where: {
-      isPromoted: false,  
+      isPromoted: false,
       posts: {
         some: {
           createdAt: {
@@ -107,17 +144,18 @@ async function fetchStoriesWithPosts(
     },
   });
 
-  const trendingItems: TrendingItem[] = stories.map((story) => ({
-    storyId: story.id,
-    title: story.extraction?.title ?? '',   
-    authorFid: story.author.fid,
-    numberOfPosts: story.posts.length,
-    type: story.extraction?.type ?? null,  
+  const trendingItems = await Promise.all(stories.map(async (story) => {
+    const author = await fetchAuthorData(story.author.fid);
+    return {
+      storyId: story.id,
+      title: story.extraction?.title ?? "",
+      author,
+      numberOfPosts: story.posts.length,
+      type: story.extraction?.type ?? null,
+    };
   }));
 
-  trendingItems.sort((a, b) => b.numberOfPosts - a.numberOfPosts);
-
-  return trendingItems;
+  return trendingItems.sort((a, b) => b.numberOfPosts - a.numberOfPosts);
 }
 
 async function storeTrendingStories(stories: TrendingItem[]): Promise<void> {
@@ -126,7 +164,6 @@ async function storeTrendingStories(stories: TrendingItem[]): Promise<void> {
 }
 
 export async function GET(request: Request) {
-  // Verify the request is coming from Vercel Cron
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json(

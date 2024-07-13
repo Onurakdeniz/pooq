@@ -7,7 +7,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText } from "lucide-react";
+import { Plus, FileText, ReceiptText } from "lucide-react";
 import { HoverStory } from "@/types";
 import { storyTypeIcons, storyTypeTooltips } from "@/lib/constants";
 import { StoryType } from "@prisma/client";
@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ProfileAvatar } from "../avatar";
 
 interface StoryHoverProps {
   story?: HoverStory;
@@ -25,7 +26,12 @@ interface StoryHoverProps {
   children: React.ReactNode;
 }
 
-const StoryHover: React.FC<StoryHoverProps> = ({ story, isLoading, isError, children }) => {
+const StoryHover: React.FC<StoryHoverProps> = ({
+  story,
+  isLoading,
+  isError,
+  children,
+}) => {
   const handleCreateStory = () => {
     // Implement story creation logic here
     console.log("Create story for:", story?.text);
@@ -59,7 +65,7 @@ const StoryHover: React.FC<StoryHoverProps> = ({ story, isLoading, isError, chil
       <HoverCardContent
         align="center"
         sideOffset={12}
-        className="flex flex-col gap-4 min-w-[8rem] max-w-96"
+        className="flex w-96 flex-col gap-4 "
       >
         {isLoading ? (
           <div>Loading...</div>
@@ -67,17 +73,17 @@ const StoryHover: React.FC<StoryHoverProps> = ({ story, isLoading, isError, chil
           <div>Error loading story data</div>
         ) : (
           <>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 font-bold overflow-hidden">
+            <div className="flex w-full flex-col gap-3 ">
+              <div className="flex items-center justify-between ">
+                <div className="flex items-center gap-2 font-bold ">
                   {renderIcon(story?.type as StoryType)}
-                  <span className="truncate">
+                  <span className="w-60 truncate">
                     {story ? story.title : children}
                   </span>
                 </div>
                 {story ? (
                   <Button
-                    className="flex h-6 w-20 text-xs justify-between px-3 text-primary/60 shadow-none ml-2 flex-shrink-0"
+                    className="ml-2 flex h-6 w-20 justify-between px-3 text-xs text-primary/60 shadow-none  "
                     variant="outline"
                   >
                     <Plus className="h-4 w-4" />
@@ -85,7 +91,7 @@ const StoryHover: React.FC<StoryHoverProps> = ({ story, isLoading, isError, chil
                   </Button>
                 ) : (
                   <Button
-                    className="flex h-6 w-24 justify-between px-3 text-primary/60 shadow-none ml-2 flex-shrink-0"
+                    className="ml-2 flex h-6 w-24 justify-between px-3 text-primary/60 shadow-none  "
                     variant="outline"
                     onClick={handleCreateStory}
                   >
@@ -95,9 +101,17 @@ const StoryHover: React.FC<StoryHoverProps> = ({ story, isLoading, isError, chil
                 )}
               </div>
               {story && (
-                <div className="flex items-center gap-1 text-xs text-primary/40">
-                  <FileText className="h-4 w-4" />
-                  <span>{story.numberOfPosts} posts</span>
+                <div className="flex h-6 items-center gap-6 text-sm">
+                  <ProfileAvatar
+                    author={story.author}
+                    size="LARGE"
+                    isMentioned={false}
+                    isJustName={true}
+                  />
+                  <div className=" flex items-center gap-1 text-xs text-primary/60">
+                    <ReceiptText className="h-4 w-4" />
+                    <span>{story.numberOfPosts} posts</span>
+                  </div>
                 </div>
               )}
             </div>

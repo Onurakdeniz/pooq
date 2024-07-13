@@ -62,6 +62,7 @@ export interface Author {
   displayName: string;
   pfpUrl: string;
   custodyAddress: string;
+  
   followerCount: number;
   followingCount: number;
   verifications: string[];
@@ -129,7 +130,7 @@ export interface SuggestedStory {
 export interface TrendingItem {
   storyId: number;
   title?: string;
-  authorFid: number;
+  author : Author
   numberOfPosts: number;
   type?: StoryType | null;
   isPromoted?: boolean;
@@ -162,10 +163,9 @@ export interface HoverStory {
   id : number
   title : string
   description? : string
+  author : Author
   timestamp : string
   text : string
-  authorFid : number
-  authorUserName : string
   type? : string
   numberOfPosts? : number
 }

@@ -6,6 +6,7 @@ import {
   EntitySchema,
   StorySchema,
   SuggestedStorySchema,
+  AuthorSchema,
 } from "@/schemas";
 
 import { fetchCastsFromNeynar } from "@/lib/lib";
@@ -27,6 +28,7 @@ import { TRPCError } from "@trpc/server";
 import { formatStory, formatPost } from "@/server/api/lib/story";
 import { kv } from "@vercel/kv";
 import { PostSchema, getStoryWithPostsOutputSchema } from "@/schemas";
+import { fetchNeynarUsers } from "../lib/user";
 
 const prisma = new PrismaClient();
 
@@ -642,9 +644,10 @@ export const storyRouter = createTRPCRouter({
         texts: z.array(z.string()),
       }),
     )
-    .query(async ({ input }): Promise<HoverStory[]> => {
+    .query(async ({ input, ctx }): Promise<HoverStory[]> => {
       const { texts } = input;
       console.log("hoverinputs", texts);
+      const viewerFid = ctx.userFid;
 
       try {
         const hoverStories = await prisma.extraction.findMany({
@@ -678,22 +681,79 @@ export const storyRouter = createTRPCRouter({
           },
         });
 
-        const result = hoverStories
-          .filter((extraction) => extraction.story !== null)
-          .map((extraction): HoverStory => {
+        const filteredStories = hoverStories.filter(
+          (extraction) => extraction.story !== null,
+        );
+
+        // If no hover stories are found, return an empty array
+        if (filteredStories.length === 0) {
+          return [];
+        }
+
+        const authorFids = filteredStories.map(
+          (extraction) => extraction.story!.author.fid,
+        );
+
+        const neynarData = await fetchNeynarUsers(authorFids, viewerFid!);
+
+        if (!neynarData?.users) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to fetch data from Neynar API",
+          });
+        }
+
+        const result = await Promise.all(
+          filteredStories.map(async (extraction): Promise<HoverStory> => {
             const story = extraction.story!;
+            const neynarUser = neynarData.users.find(
+              (u) => u.fid === story.author.fid,
+            );
+
+            if (!neynarUser) {
+              throw new TRPCError({
+                code: "NOT_FOUND",
+                message: `Author with FID ${story.author.fid} not found`,
+              });
+            }
+
+            const [storyCount, postCount] = await Promise.all([
+              prisma.story.count({ where: { authorId: story.author.fid } }),
+              prisma.post.count({ where: { authorId: story.author.fid } }),
+            ]);
+
+            const author = AuthorSchema.parse({
+              numberOfStories: storyCount,
+              numberOfPosts: postCount,
+              username: neynarUser.username,
+              isUser: false,
+              fid: neynarUser.fid,
+              isRegistered: true,
+              custodyAddress: neynarUser.custody_address,
+              displayName: neynarUser.display_name,
+              pfpUrl: neynarUser.pfp_url,
+              followerCount: neynarUser.follower_count,
+              followingCount: neynarUser.following_count,
+              verifications: neynarUser.verifications,
+              verified_addresses: neynarUser.verified_addresses,
+              activeStatus: neynarUser.active_status,
+              powerBadge: neynarUser.power_badge,
+              viewerContent: neynarUser.viewer_context,
+              bio: neynarUser.profile.bio.text,
+            });
+
             return {
               id: story.id,
               title: extraction.title,
               timestamp: story.createdAt.toISOString(),
               text: story.text,
-              authorFid: story.author.fid,
-              authorUserName: story.author.userName,
+              author: author,
               type: extraction.type ?? undefined,
               numberOfPosts: story.posts.length,
               description: extraction.description ?? "",
             };
-          });
+          }),
+        );
 
         return result;
       } catch (error) {

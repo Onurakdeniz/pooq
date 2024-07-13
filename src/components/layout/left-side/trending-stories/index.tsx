@@ -22,7 +22,7 @@ export const TrendingItemsList = async () => {
               title={story.title?.substring(0, 50) ?? "Untitled"} // Add a fallback value
               storyId={story.storyId}
               numberOfPosts={story.numberOfPosts}
-              authorFid={story.authorFid}
+              author={story.author}
               type={story.type}
               isPromoted={story.isPromoted}
             />
