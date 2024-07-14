@@ -5,21 +5,21 @@ import PostFooter from "./footer";
 import { Author, Post as PostType } from "@/types";
 import { titleToSlug } from "@/lib/helper";
 import { ProfileAvatar } from "../avatar";
+import TextCard from "../text-card";
 
-
- 
- 
-
-type OptionalProps = 'hash' | 'tags' | 'entities' | 'isBookmarkedByUser' | 'isLikedByUser';
+type OptionalProps =
+  | "hash"
+  | "tags"
+  | "entities"
+  | "isBookmarkedByUser"
+  | "isLikedByUser";
 
 interface ProfilePostProps extends Omit<PostType, OptionalProps> {
   storyId: number;
   storyTitle: string;
   hash?: string;
   tags?: string[];
-  entities?: string[];  
- 
- 
+  entities?: string[];
 }
 
 const ProfilePost: React.FC<ProfilePostProps> = ({
@@ -33,11 +33,11 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
   entities,
   isBookmarkedByUserId,
   isLikedBuUserFid,
-  timestamp
+  timestamp,
 }) => {
   return (
     <div className="flex flex-col gap-4 border-b p-8">
-     <Link href={`/t${titleToSlug(storyTitle, storyId)}`} passHref>
+      <Link href={`/t${titleToSlug(storyTitle, storyId)}`} passHref>
         {storyTitle}
       </Link>
       <div className="flex h-8 items-center justify-between gap-3">
@@ -47,6 +47,7 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
             size="LARGE"
             isMentioned={false}
             date={timestamp}
+            format="full"
           />
         </div>
       </div>
@@ -60,9 +61,16 @@ const ProfilePost: React.FC<ProfilePostProps> = ({
   );
 };
 
-const StoryPost: React.FC<PostType> = ({ id, text, author, numberOfLikes , timestamp ,numberOfReplies}) => {
+const StoryPost: React.FC<PostType> = ({
+  id,
+  text,
+  author,
+  numberOfLikes,
+  timestamp,
+  numberOfReplies,
+}) => {
   return (
-    <div className="flex flex-col gap-3 py-4  px-8 ">
+    <div className="flex flex-col gap-3 px-8  py-4 ">
       <div className="flex h-8 items-center justify-between gap-3 ">
         <div className="flex items-center gap-3">
           <ProfileAvatar
@@ -70,23 +78,22 @@ const StoryPost: React.FC<PostType> = ({ id, text, author, numberOfLikes , times
             size="LARGE"
             isMentioned={false}
             date={timestamp}
+            format="full"
           />
         </div>
 
         <div className="flex items-center gap-2 text-xs text-primary/60">
           <Button
             variant={"ghost"}
-            className="flex h-8 items-center  bg-accent rounded-lg gap-1 px-2 text-xs"
+            className="flex h-8 items-center  gap-1 rounded-lg bg-accent px-2 text-xs"
           >
             <Bookmark size={16} strokeWidth={1} />
- 
           </Button>
           <Button
             variant={"ghost"}
-            className="flex h-8 items-center bg-accent rounded-lg gap-1 px-2   text-xs"
+            className="flex h-8 items-center gap-1 rounded-lg bg-accent px-2   text-xs"
           >
             <Reply size={16} strokeWidth={1.5} />
- 
           </Button>
           <Button
             variant={"outline"}
@@ -100,13 +107,13 @@ const StoryPost: React.FC<PostType> = ({ id, text, author, numberOfLikes , times
 
       <div className="flex w-full justify-between rounded-2xl ">
         <div className="flex w-full text-pretty pt-2 text-sm font-light text-primary/60">
-          {text}
+        <TextCard text={text}/>
+      
+ 
         </div>
       </div>
       <div className="flex flex-col gap-2">
-        {numberOfReplies> 0 && (
-          <PostFooter replyCount={numberOfReplies} />
-        )}
+        {numberOfReplies > 0 && <PostFooter replyCount={numberOfReplies} />}
       </div>
     </div>
   );

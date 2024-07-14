@@ -22,7 +22,7 @@ interface IProfileAvatar {
   children?: React.ReactNode;
   userName?: string;
   date?: string;
-  isJustName?: boolean;  
+  format: "nameOnly" | "full" | "avatarOnly";
 }
 
 const ProfileAvatar: React.FC<IProfileAvatar> = ({
@@ -32,7 +32,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
   author,
   children,
   date,
-  isJustName = false,  
+  format = "full",
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -58,33 +58,56 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
         "",
       )
     : "Invalid date";
-  return (
-    <HoverCard onOpenChange={setIsHovered}>
-      <HoverCardTrigger className="">
-        {isMentioned ? (
-          <> {children} </>
-        ) : (
-          <div className="flex items-center gap-2 hover:cursor-pointer">
+
+  const renderContent = () => {
+    switch (format) {
+      case "nameOnly":
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar className={avatarSize}>
+              <AvatarImage src={displayedAuthor?.pfpUrl} />
+              <AvatarFallback>{firstLetter}</AvatarFallback>
+            </Avatar>
+            <div className={avatarName}>{displayedAuthor?.displayName}</div>
+          </div>
+        );
+      case "full":
+        return (
+          <div className="flex items-center gap-2">
             <Avatar className={avatarSize}>
               <AvatarImage src={displayedAuthor?.pfpUrl} />
               <AvatarFallback>{firstLetter}</AvatarFallback>
             </Avatar>
             <div className="flex items-center gap-2">
               <div className={avatarName}>{displayedAuthor?.displayName}</div>
-              {!isJustName && (
-                <>
-                  <div className={avatarName}>
-                    <span className="truncate text-xs text-primary/50">
-                      @{displayedAuthor?.username}
-                    </span>
-                  </div>
-                  <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
-                    {formattedTimeAgo}
-                  </span>
-                </>
-              )}
+              <div className={avatarName}>
+                <span className="truncate text-xs text-primary/50">
+                  @{displayedAuthor?.username}
+                </span>
+              </div>
+              <span className="ml-4 line-clamp-1 text-xs text-primary/50 sm:order-last sm:mb-0">
+                {formattedTimeAgo}
+              </span>
             </div>
           </div>
+        );
+      case "avatarOnly":
+        return (
+          <Avatar className={avatarSize}>
+            <AvatarImage src={displayedAuthor?.pfpUrl} />
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
+        );
+    }
+  };
+
+  return (
+    <HoverCard onOpenChange={setIsHovered}>
+      <HoverCardTrigger className="">
+        {isMentioned ? (
+          <> {children} </>
+        ) : (
+          renderContent()
         )}
       </HoverCardTrigger>
       <HoverCardContent
@@ -97,7 +120,7 @@ const ProfileAvatar: React.FC<IProfileAvatar> = ({
             <Loader2 className="h-6 w-6 animate-spin text-primary/60" />
           </div>
         ) : displayedAuthor ? (
-          <ProfileHoverContent author={displayedAuthor } />
+          <ProfileHoverContent author={displayedAuthor} />
         ) : (
           <div className="p-4 text-sm text-primary/60">User not found</div>
         )}
@@ -166,7 +189,7 @@ const ProfileHoverWrapper: React.FC<ProfileHoverWrapperProps> = ({
   children,
 }) => {
   return (
-    <ProfileAvatar size="NORMAL" isMentioned userName={userName}>
+    <ProfileAvatar size="NORMAL" isMentioned userName={userName} format="full">
       {children}
     </ProfileAvatar>
   );

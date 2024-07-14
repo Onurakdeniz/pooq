@@ -21,7 +21,7 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
   type,
 }) => {
   const IconComponent = type ? storyTypeIcons[type] : null;
- 
+
   return (
     <div className="relative flex flex-col items-center gap-4 rounded-lg border px-3 py-3 text-sm hover:cursor-pointer hover:bg-primary-foreground hover:dark:border-neutral-700">
       <div className="flex w-full items-center justify-between  ">
@@ -30,7 +30,7 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <div className="flex h-5 w-5 items-center justify-center bg-primary/10 rounded-full   ">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10   ">
                     <IconComponent
                       className="h-4 w-4 text-primary/70 "
                       strokeWidth={2}
@@ -59,16 +59,15 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
           </TooltipProvider>
         </div>
 
-        <div className="flex h-full w-2/12 flex-col items-end justify-between pr-2">
-        <div className="flex h-6 items-center gap-6 text-sm">
-                  <ProfileAvatar
-                    author={author}
-                    size="LARGE"
-                    isMentioned={false}
-                    isJustName={true}
-                  />
-              
-                </div>
+        <div className="flex h-full w-2/12  items-end justify-between pr-2">
+          <div className="flex h-6 items-center gap-6 text-sm">
+            <ProfileAvatar
+              author={author}
+              size="LARGE"
+              isMentioned={false}
+              format="avatarOnly"
+            />
+          </div>
           <span className="text-base font-semibold text-primary">
             {numberOfPosts}
           </span>
@@ -76,15 +75,14 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
       </div>
 
       {isPromoted && (
-        
-        <div className="absolute bottom-0 mb-2 right-2 h-4">
+        <div className="absolute bottom-0 right-2 mb-2 h-4">
           <div className="h-1"> </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
                 <Badge
                   variant="outline"
-                  className="px-2 py-0.5 text-[10px] border-none  rounded-2xl text-primary/40 font-light   "
+                  className="rounded-2xl border-none px-2 py-0.5  text-[10px] font-light text-primary/40   "
                 >
                   Promoted
                 </Badge>
@@ -94,7 +92,6 @@ export const TrendingStoryItem: React.FC<TrendingItem> = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          
         </div>
       )}
     </div>

@@ -88,6 +88,7 @@ const StoryHeader: React.FC<IStoryHeader> = ({
               size="LARGE"
               isMentioned={false}
               date={timestamp}
+              format="full"
             />
           </div>
           <div className="flex items-center gap-2">

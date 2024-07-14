@@ -31,8 +31,8 @@ async function getTrendingStories(): Promise<TrendingItem[]> {
   // Shuffle the merged stories to distribute promoted stories
   const shuffledStories = shuffleArray(mergedStories);
 
-  // Get the first 10 stories
-  return shuffledStories.slice(0, 10);
+  // Get the first 10 unique stories
+  return Array.from(new Map(shuffledStories.map(item => [item.storyId, item])).values()).slice(0, 10);
 }
 
 async function fetchAuthorData(fid: number): Promise<Author> {
@@ -92,6 +92,9 @@ async function getPromotedStories(): Promise<TrendingItem[]> {
       extraction: {
         select: { title: true, type: true },
       },
+      posts: {
+        select: { id: true },
+      },
     },
     take: 2,
   });
@@ -102,7 +105,7 @@ async function getPromotedStories(): Promise<TrendingItem[]> {
       storyId: story.id,
       title: story.extraction?.title ?? "",
       author,
-      numberOfPosts: 0,
+      numberOfPosts: story.posts.length,
       type: story.extraction?.type ?? null,
       isPromoted: true,
     };
