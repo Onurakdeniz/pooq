@@ -3,13 +3,13 @@
 import { Suspense } from "react";
 import { api } from "@/trpc/server";
 
-import { Story } from "@/types";
+import { Post, Story } from "@/types";
 import StoryList from "../feed/components/list";
 import TagTop from "./components/top";
 
 interface APIResponse {
-  items: Story[];
-  nextCursor: string | null;
+  items: (Story & { posts: Post[] })[];
+  nextCursor: number | null;
 }
 
 interface TagPageProps {
@@ -44,7 +44,7 @@ export default async function TagPage({ searchParams }: TagPageProps) {
 
     console.log("apiResponse", apiResponse);
 
-    const initialStories: Story[] = apiResponse.items;
+    const initialStories: (Story & { posts: Post[] })[] = apiResponse.items;
 
     return (
       <div className="z-0 flex min-h-screen flex-col">

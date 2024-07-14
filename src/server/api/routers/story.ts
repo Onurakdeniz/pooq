@@ -130,6 +130,7 @@ export const storyRouter = createTRPCRouter({
         if (Object.keys(extractionFilter).length > 0) {
           whereClause.extraction = extractionFilter;
         }
+
         // Fetch stories from database
         const dbStories = await ctx.db.story.findMany({
           where: whereClause,
@@ -145,6 +146,19 @@ export const storyRouter = createTRPCRouter({
             },
             bookmarks: userId ? { where: { userId } } : false,
             author: true,
+            posts: {
+              take: 2,
+              orderBy: { createdAt: "desc" },
+              include: {
+                extraction: {
+                  include: {
+                    tags: { include: { tag: true } },
+                    entities: { include: { entity: true } },
+                  },
+                },
+                bookmarks: userId ? { where: { userId } } : false,
+              },
+            },
           },
         });
 
@@ -155,9 +169,16 @@ export const storyRouter = createTRPCRouter({
         const hasNextPage = dbStories.length > limit;
         const stories = hasNextPage ? dbStories.slice(0, -1) : dbStories;
 
-        // Fetch Neynar data
-        const hashes = stories.map((story) => story.hash);
-        const neynarData = await fetchCastsFromNeynar(hashes, userFid);
+        // Collect all hashes for stories and their posts
+        const allHashes = stories.flatMap((story) => [
+          story.hash,
+          ...story.posts.map((post) => post.hash),
+        ]);
+
+        console.log("all hashes", allHashes);
+
+        // Fetch Neynar data for all casts (stories and posts) in a single request
+        const neynarData = await fetchCastsFromNeynar(allHashes, userFid);
 
         if (!neynarData || neynarData.length === 0) {
           throw new TRPCError({
@@ -165,18 +186,47 @@ export const storyRouter = createTRPCRouter({
             message: "Failed to fetch data from Neynar API",
           });
         }
-
+        const neynarDataMap = new Map(
+          neynarData.map((data) => [data.hash, data]),
+        );
         const formattedStories = await Promise.all(
-          stories.map(async (story, index) => {
-            const storyNeynarData = neynarData[index];
+          stories.map(async (story) => {
+            const storyNeynarData = neynarDataMap.get(story.hash);
             if (!storyNeynarData) {
               console.warn(
                 `No Neynar data found for story with hash ${story.hash}`,
               );
               return null;
             }
+
             try {
-              return await formatStory(story, storyNeynarData, userFid, userId);
+              const formattedStory = await formatStory(
+                story,
+                storyNeynarData,
+                userFid,
+                userId,
+              );
+
+              // Format posts
+              const formattedPosts = await Promise.all(
+                story.posts.map(async (post) => {
+                  const postNeynarData = neynarDataMap.get(post.hash);
+                  if (!postNeynarData) {
+                    console.warn(
+                      `No Neynar data found for post with hash ${post.hash}`,
+                    );
+                    return null;
+                  }
+                  return await formatPost(post, postNeynarData, userId);
+                }),
+              );
+
+              return {
+                ...formattedStory,
+                posts: formattedPosts.filter(
+                  (post): post is Post => post !== null,
+                ),
+              };
             } catch (error) {
               console.error(
                 `Error formatting story with hash ${story.hash}:`,
@@ -186,9 +236,8 @@ export const storyRouter = createTRPCRouter({
             }
           }),
         );
-
         const validFormattedStories = formattedStories.filter(
-          (story): story is Story => story !== null,
+          (story): story is Story & { posts: Post[] } => story !== null,
         );
 
         const nextCursor =
@@ -212,7 +261,6 @@ export const storyRouter = createTRPCRouter({
         });
       }
     }),
-
   getStoryWithPosts: publicProcedure
     .input(
       z.object({

@@ -3,17 +3,20 @@
 import React, { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { api } from "@/trpc/react";
-import { Story } from "@/types/";
+import { Story, Post } from "@/types/";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchParams } from "next/navigation";
 import StoryCard from "@/components/shared/story-card";
 import InfiniteScroll from "react-infinite-scroll-component";
 import ConnectWalletDialog from "@/components/wallet";
-
+import { FeedStoryPost, StoryPost } from "@/components/shared/post-card";
+import { Separator } from "@/components/ui/separator";
+ 
 interface InfiniteScrollStoryListProps {
-  initialStories: Story[];
+  initialStories: (Story & { posts: Post[] })[];
   searchParams: Record<string, string | string[] | undefined>;
   initialCursor: number | null;
+  isProfile? : boolean
 }
 
 const SkeletonStoryCard: React.FC = () => (
@@ -31,9 +34,24 @@ const SkeletonStoryCard: React.FC = () => (
   </div>
 );
 
-export const InfiniteScrollStoryList: React.FC<
-  InfiniteScrollStoryListProps
-> = ({ initialStories, searchParams, initialCursor }) => {
+const PostSkeleton: React.FC = () => (
+  <div className="p-8 space-y-4 border-b">
+    <div className="flex items-center space-x-2">
+      <Skeleton className="w-10 h-10 rounded-full" />
+      <Skeleton className="h-4 w-1/4" />
+    </div>
+    <Skeleton className="h-4 w-3/4" />
+    <Skeleton className="h-4 w-1/2" />
+    <Skeleton className="h-40 w-full rounded-2xl" />
+  </div>
+);
+
+export const InfiniteScrollStoryList: React.FC<InfiniteScrollStoryListProps> = ({
+  initialStories,
+  searchParams,
+  initialCursor,
+  isProfile = false
+}) => {
   const [isClient, setIsClient] = useState<boolean>(false);
   const [showDialog, setShowDialog] = useState(false);
   const searchParamsHook = useSearchParams();
@@ -74,13 +92,17 @@ export const InfiniteScrollStoryList: React.FC<
       },
     );
 
-    const useAllStories = (data: { pages: { items: Story[] }[] } | undefined, initialStories: Story[]): Story[] => {
-      return React.useMemo(() => {
-        return data ? data.pages.flatMap((page) => page.items) : initialStories;
-      }, [data, initialStories]);
-    };
+  const useAllStories = (
+    data: { pages: { items: (Story & { posts: Post[] })[] }[] } | undefined,
+    initialStories: (Story & { posts: Post[] })[]
+  ): (Story & { posts: Post[] })[] => {
+    return React.useMemo(() => {
+      return data ? data.pages.flatMap((page) => page.items) : initialStories;
+    }, [data, initialStories]);
+  };
 
-    const allStories = useAllStories(data, initialStories);
+  const allStories = useAllStories(data, initialStories);
+
   const loadMore = React.useCallback(async () => {
     if (hasNextPage && !isFetchingNextPage) {
       try {
@@ -95,44 +117,62 @@ export const InfiniteScrollStoryList: React.FC<
     return (
       <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, index) => (
-          <SkeletonStoryCard key={index} />
+          <React.Fragment key={index}>
+            <SkeletonStoryCard />
+            <PostSkeleton />
+            <PostSkeleton />
+          </React.Fragment>
         ))}
       </div>
     );
   }
-
+ 
   return (
     <>
       <InfiniteScroll
-  dataLength={allStories.length}
-  next={loadMore}
-  hasMore={!!hasNextPage}
-  loader={<SkeletonStoryCard />}
->
-  {allStories.map((story: Story) => (
-    <StoryCard
-      key={story.id}
-      id={story.id}
-      cardType="FEED"
-      author={story.author}
-      timestamp={story.timestamp}
-      entities={story.entities}
-      isBookmarkedByUserId={story.isBookmarkedByUserId}
-      title={story.title}
-      tags={story.tags}
-      numberOfPosts={story.numberOfPosts}
-      categories={story.categories}
-      view={story.view}
-      description={story.description}
-      type={story.type}
-      hash={story.hash}  
-      text={story.text}  
-      isLikedBuUserFid={story.isLikedBuUserFid}  
-      numberOfLikes={story.numberOfLikes}  
-    />
-  ))}
-</InfiniteScroll>
+        dataLength={allStories.length}
+        next={loadMore}
+        hasMore={!!hasNextPage}
+        loader={<SkeletonStoryCard />}
+      >
+        {allStories.map((story: Story & { posts: Post[] }) => (
+          <React.Fragment key={story.id}>
+            <div className="border-b pb-4">
+              <StoryCard
+                id={story.id}
+                cardType="FEED"
+                author={story.author}
+                timestamp={story.timestamp}
+                entities={story.entities}
+                isBookmarkedByUserId={story.isBookmarkedByUserId}
+                title={story.title}
+                tags={story.tags}
+                numberOfPosts={story.numberOfPosts}
+                categories={story.categories}
+                view={story.view}
+                description={story.description}
+                type={story.type}
+                hash={story.hash}
+                text={story.text}
+                isLikedBuUserFid={story.isLikedBuUserFid}
+                numberOfLikes={story.numberOfLikes}
+              />
+              {!isProfile && story.posts && story.posts.length > 0 && (
+                <div className="flex flex-col px-8">
+                  {story.posts.map((post) => (
+                    <div key={post.id} className="border-l">
+                      <FeedStoryPost {...post} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </React.Fragment>
+        ))}
+      </InfiniteScroll>
       <ConnectWalletDialog open={showDialog} onOpenChange={handleDialogClose} />
     </>
   );
 };
+
+export default InfiniteScrollStoryList;

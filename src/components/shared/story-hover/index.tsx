@@ -106,7 +106,7 @@ const StoryHover: React.FC<StoryHoverProps> = ({
                     author={story.author}
                     size="LARGE"
                     isMentioned={false}
-                    isJustName={true}
+                    format="nameOnly"
                   />
                   <div className=" flex items-center gap-1 text-xs text-primary/60">
                     <ReceiptText className="h-4 w-4" />

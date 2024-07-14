@@ -2,13 +2,13 @@ import { Suspense } from "react";
 import { api } from "@/trpc/server";
 import StoryList from "./components/list";
 import FeedTop from "./components/top";
-import { Story } from "@/types";
+import { Story, Post } from "@/types";
 
 interface APIResponse {
-  items: Story[];
+  items: (Story & { posts: Post[] })[];
   nextCursor: number | null;
 }
-// check working or not ??
+
 export const revalidate = 180; // 3 minutes in seconds
 
 export default async function FeedPage({
@@ -17,7 +17,7 @@ export default async function FeedPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   const limit = 10;
-  const cursor = searchParams.cursor as number | undefined;
+  const cursor = searchParams.cursor ? Number(searchParams.cursor) : undefined;
 
   // Extract category filters
   const categoryFilters = searchParams.filters
@@ -27,6 +27,9 @@ export default async function FeedPage({
   // Extract LLM mode
   const llmMode = searchParams.llmMode === "true";
 
+  // Extract tag name
+  const tagName = searchParams.tag as string | undefined;
+
   try {
     const fetchStories = async () => {
       const apiResponse = await api.story.getStories({
@@ -34,16 +37,17 @@ export default async function FeedPage({
         cursor,
         categoryFilters,
         llmMode,
+        tagName,
       });
-      return apiResponse;
+      return apiResponse as APIResponse;
     };
 
     const apiResponse = await fetchStories();
 
     console.log("apiResponse", apiResponse);
 
-    const initialStories: Story[] = apiResponse.items;
-
+    const initialStories: (Story & { posts: Post[] })[] = apiResponse.items;
+ 
     return (
       <div className="z-0 flex min-h-screen flex-col">
         <FeedTop />
@@ -53,6 +57,7 @@ export default async function FeedPage({
               initialStories={initialStories}
               searchParams={searchParams}
               initialCursor={apiResponse.nextCursor}
+ 
             />
           ) : (
             <div className="flex flex-grow items-center justify-center">
