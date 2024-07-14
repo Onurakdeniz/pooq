@@ -5,7 +5,7 @@ import ProfileHeader from "./feed/header";
 import StoryList from "@/app/feed/components/list";
 import ProfilePostList from "./post-list";
 import ProfileTagList from "./tag-list";
-import { Author, PostWithStory, Story, Tag } from "@/types";
+import { Author, Post, PostWithStory, Story, Tag } from "@/types";
 
 interface ProfileContentProps {
   userProfile: Author;
@@ -18,7 +18,7 @@ interface ProfileContentProps {
 type TabType = "posts" | "tags" | "stories";
 
 interface StoryFeedData {
-  items: Story[];
+  items: (Story & { posts: Post[] })[];
   nextCursor: number | null;
 }
 
@@ -73,6 +73,8 @@ const ProfileContent = async ({
           initialStories={storyFeedData.items}
           searchParams={searchParams}
           initialCursor={(storyFeedData.nextCursor)}
+          isProfile={true}
+ 
         />
       ) : renderEmptyState();
     }

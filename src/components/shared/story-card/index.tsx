@@ -33,7 +33,7 @@ const StoryCard: React.FC<StoryCardProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full border-b p-8 ">
+    <div className="w-full p-8 ">
       <div className="flex w-full flex-col gap-4">
         <StoryHeader
           id={id}

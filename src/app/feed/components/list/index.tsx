@@ -1,18 +1,16 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import React from "react";
-import FeedCard from "../../../../components/shared/story-card";
-import { Story } from "@/types";
+import { Story, Post } from "@/types";
 import { InfiniteScrollStoryList } from "./feed-infinite";
 
 interface StoryListProps {
-  initialStories: Story[];
+  initialStories: (Story & { posts: Post[] })[];
   searchParams: Record<string, string | string[] | undefined>;
   initialCursor: number | null;
+  isProfile? :boolean
 }
 
-  const StoryList = ({ initialStories, searchParams, initialCursor }: StoryListProps) => {
-  
-
+const StoryList = ({ initialStories, searchParams, initialCursor  , isProfile}: StoryListProps) => {
   return (
     <ScrollArea className="flex flex-col">
       <div className="flex flex-col">
@@ -20,11 +18,11 @@ interface StoryListProps {
           initialStories={initialStories}
           searchParams={searchParams}
           initialCursor={initialCursor}
+          isProfile={isProfile}
         />
       </div>
     </ScrollArea>
   );
 };
 
-export default StoryList
- 
+export default StoryList;
