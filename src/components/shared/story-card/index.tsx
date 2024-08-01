@@ -33,8 +33,8 @@ const StoryCard: React.FC<StoryCardProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-full p-8 ">
-      <div className="flex w-full flex-col gap-4">
+    <div className="w-full p-8 flex sticky top-4 ">
+      <div className="flex w-full flex-col gap-4 ">
         <StoryHeader
           id={id}
           title={title}

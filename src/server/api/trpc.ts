@@ -31,15 +31,15 @@ export const createInnerTRPCContext = async (opts: CreateContextOptions) => {
   
   // Retrieve privyId and userFid from cookies
   const privyId = cookieStore.get('privy_id')?.value;
-  const userFid = cookieStore.get('user_fid')?.value;
+  const userFidCookie = cookieStore.get('user_fid')?.value;
 
   // Parse userFid as a number
-  const userFidNumber = userFid ? parseInt(userFid, 10) : null;
+  const userFid = userFidCookie ? parseInt(userFidCookie, 10) : undefined;
 
   return {
     db,
     privyId,
-    userFid: userFidNumber,
+    userFid,
     ...opts,
   };
 };

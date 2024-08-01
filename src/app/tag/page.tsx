@@ -53,7 +53,7 @@ export default async function TagPage({ searchParams }: TagPageProps) {
           <StoryList
             initialStories={initialStories}
             searchParams={searchParams}
-            initialCursor={apiResponse.nextCursor}
+            initialCursor={apiResponse.nextCursor ?? null}
           />
         </Suspense>
       </div>

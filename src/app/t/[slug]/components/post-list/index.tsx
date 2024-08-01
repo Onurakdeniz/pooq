@@ -1,6 +1,5 @@
 'use client'
-import{ StoryPost} from "@/components/shared/post-card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { StoryPost } from "@/components/shared/post-card";
 import React from "react";
 import { Post as IPost } from "@/types";
 import { type TRPCClientErrorLike } from "@trpc/client";
@@ -16,6 +15,7 @@ interface PostListProps {
   isFetchingNextPage: boolean;
   fetchNextPage: () => void;
 }
+
 export const PostList: React.FC<PostListProps> = ({
   posts,
   isLoading,
@@ -33,22 +33,19 @@ export const PostList: React.FC<PostListProps> = ({
   }
 
   return (
-    <div className="h-screen overflow-auto" id="scrollableDiv">
-      <InfiniteScroll
-        dataLength={posts.length}
-        next={fetchNextPage}
-        hasMore={hasNextPage}
-        loader={<PostSkeleton />}
-        scrollableTarget="scrollableDiv"
-       
-      >
-        <div className="flex flex-col py-4">
-          {posts.map((post) => (
-            <StoryPost {...post} key={post.id} /> 
-          ))}
-        </div>
-      </InfiniteScroll>
-    </div>
+    <InfiniteScroll
+      dataLength={posts.length}
+      next={fetchNextPage}
+      hasMore={hasNextPage}
+      loader={<PostSkeleton />}
+      scrollThreshold="100px"
+    >
+      <div className="flex flex-col py-4">
+        {posts.map((post) => (
+          <StoryPost {...post} key={post.id} /> 
+        ))}
+      </div>
+    </InfiniteScroll>
   );
 };
 
