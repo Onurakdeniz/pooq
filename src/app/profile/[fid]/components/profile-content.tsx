@@ -24,7 +24,7 @@ interface StoryFeedData {
 
 interface PostFeedData {
   items: PostWithStory[];
-  nextCursor: string | null;  
+  nextCursor: number | null;  // Changed from string to number
 }
 
 const ProfileContent = async ({
@@ -42,12 +42,12 @@ const ProfileContent = async ({
 
   const feedType = feedTypeMap[tab] || "STORY";
 
-  const fetchFeedData = async (): Promise<StoryFeedData | PostFeedData | Tag[] | null> => {
+  const fetchFeedData = async (cursor?: number): Promise<StoryFeedData | PostFeedData | Tag[] | null> => {
     switch (feedType) {
       case "POST":
         return await api.story.getPostsWithStoryByUser({ userFid: profileFid }) as PostFeedData;
       case "STORY":
-        return await api.story.getStoriesByUser({ userFid: profileFid }) as StoryFeedData;
+        return await api.story.getStoriesByUser({ userFid: profileFid, cursor: cursor ?? 0 }) as StoryFeedData;
       case "TAG":
  
       default:
@@ -55,7 +55,7 @@ const ProfileContent = async ({
     }
   };
 
-  const feedData = await fetchFeedData();
+  const feedData = await fetchFeedData(0);
 
   const renderEmptyState = () => (
     <div className="flex items-center justify-center h-64">
@@ -69,13 +69,12 @@ const ProfileContent = async ({
     if (feedType === "STORY" && 'items' in feedData && 'nextCursor' in feedData) {
       const storyFeedData = feedData as StoryFeedData;
       return storyFeedData.items.length > 0 ? (
-        <StoryList
-          initialStories={storyFeedData.items}
-          searchParams={searchParams}
-          initialCursor={(storyFeedData.nextCursor)}
-          isProfile={true}
- 
-        />
+<StoryList
+  initialStories={storyFeedData.items}
+  searchParams={searchParams}
+  initialCursor={storyFeedData.nextCursor ?? 0}
+  isProfile={true}
+/>
       ) : renderEmptyState();
     }
 
@@ -85,11 +84,10 @@ const ProfileContent = async ({
         <ProfilePostList
           initialPosts={postFeedData.items}
           searchParams={searchParams}
-          initialCursor={postFeedData.nextCursor}
+          initialCursor={postFeedData.nextCursor?.toString() ?? null}
         />
       ) : renderEmptyState();
     }
-
     if (feedType === "TAG" && Array.isArray(feedData)) {
       return feedData.length > 0 ? (
         <div></div>

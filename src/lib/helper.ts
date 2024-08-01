@@ -1,3 +1,5 @@
+ 
+
 export function titleToSlug(title: string, id: number): string {
     const slugTitle = title
       .toLowerCase()
@@ -10,3 +12,4 @@ export function titleToSlug(title: string, id: number): string {
   
     return `/${slugTitle}--${id}`;
   }
+

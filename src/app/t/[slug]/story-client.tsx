@@ -5,15 +5,10 @@ import { api } from "@/trpc/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PostList } from "./components/post-list";
 import StoryTop from "./components/story-top";
-import { TRPCClientErrorLike } from "@trpc/client";
-import { AppRouter } from "@/server/api/root";
-import { Post, Tag } from "@/types";
 import StoryCard from "@/components/shared/story-card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getStoryWithPostsOutputSchema } from "@/schemas";
 import { z } from "zod";
-import { StoryType } from "@prisma/client";
-
+import { getStoryWithPostsOutputSchema } from "@/schemas";
+import { Post  , Tag } from '@/types';
 type GetStoryWithPostsOutput = z.infer<typeof getStoryWithPostsOutputSchema>;
 
 export default function StoryClient({
@@ -43,45 +38,47 @@ export default function StoryClient({
   const story = data?.pages[0]?.story;
 
   return (
-    <div className=" flex min-h-screen flex-col">
-      <div className="flex flex-1 flex-col">
-        <StoryTop />
+    <div className="flex min-h-screen flex-col">
+     
+        <StoryTop title={story?.title} type={story?.type} />
+  
+      <div className="flex-1 overflow-auto">
         <div className="flex flex-col">
-          {story ? (
-            <StoryCard
-              key={story.id}
-              id={story.id}
-              cardType={"STORY"}
-              hash={story.hash}
-              author={story.author}
-              entities={story.entities}
-              isBookmarkedByUserId={story.isBookmarkedByUserId}
-              title={story.title}
-              tags={story.tags as Tag[]}
-              numberOfPosts={story.numberOfPosts}
-              categories={story.categories}
-              view={story.view}
-              description={story.description}
-              type={story.type }
-              numberOfLikes={story.numberOfLikes ?? 0}
-              text={story.text || ""} // Add this line
-              timestamp={story.timestamp || new Date().toISOString()} 
-              isLikedBuUserFid={story.isLikedBuUserFid || false} 
- 
-            />
-          ) : null}
-          <div className="border-b"></div>
+          {story && (
+            <>
+              <StoryCard
+                key={story.id}
+                id={story.id}
+                cardType={"STORY"}
+                hash={story.hash}
+                author={story.author}
+                entities={story.entities}
+                isBookmarkedByUserId={story.isBookmarkedByUserId}
+                title={story.title}
+                tags={story.tags as Tag[]}
+                numberOfPosts={story.numberOfPosts}
+                categories={story.categories}
+                view={story.view}
+                description={story.description}
+                type={story.type}
+                numberOfLikes={story.numberOfLikes ?? 0}
+                text={story.text || ""}
+                timestamp={story.timestamp || new Date().toISOString()}
+                isLikedBuUserFid={story.isLikedBuUserFid || false}
+              />
+              <div className="border-b"></div>
+            </>
+          )}
+          <PostList
+            posts={posts}
+            isLoading={false}
+            error={null}
+            hasNextPage={hasNextPage ?? false}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={() => fetchNextPage()}
+          />
         </div>
       </div>
-
-      <PostList
-        posts={posts}
-        isLoading={false}
-        error={null}
-        hasNextPage={hasNextPage ?? false}
-        isFetchingNextPage={isFetchingNextPage}
-        fetchNextPage={() => fetchNextPage()}
-      />
     </div>
   );
 }
